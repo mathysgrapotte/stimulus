@@ -1,2 +1,3 @@
-hello:input:Dna,hola:output:Float
+hello:input:dna,hola:label:float
+ACTGACTGATCGATGC,5
 ACTGACTGATCGATGC,5
