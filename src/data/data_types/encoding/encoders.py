@@ -2,14 +2,14 @@
 This file contains encoders classes for encoding various types of data.
 """
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 from sklearn.preprocessing import OneHotEncoder
 
 import numpy as np
 import multiprocessing as mp
 
-class AbstractEncoder(ABCMeta):
+class AbstractEncoder(ABC):
     """
     Abstract class for encoders.
     """
@@ -42,7 +42,7 @@ class TextOneHotEncoder(AbstractEncoder):
     One hot encoder for text data.
     """
 
-    def __init__(self, alphabet: str = "ACGT") -> None:
+    def __init__(self, alphabet: str = "acgt") -> None:
         self.alphabet = alphabet
         self.encoder = OneHotEncoder(categories=[list(alphabet)], handle_unknown='ignore') # handle_unknown='ignore' unsures that a vector of zeros is returned for unknown characters, such as 'Ns' in DNA sequences
 
@@ -58,7 +58,7 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         Encodes the data.
         """
-        return self.encoder.fit_transform(self._sequence_to_array(data))
+        return self.encoder.fit_transform(self._sequence_to_array(data)).toarray()
     
     def decode(self, data: np.array) -> str:
         """

@@ -5,15 +5,16 @@ Here we provide standard experiments as well as an absctract class for users to 
 
 
 # TODO for next time, I need to add a way of encoding data based on the data type and encoder specified by the experiment class. Then the getitem has to return a dictionary transformed by the encoding functions of the correct class based on the dictionary keys.
+-> we can use getstate
 """
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
-import types.types as types
+import data_types.data_types as data_types
 import spliters.spliters as spliters
 import numpy as np
 
-class AbstractExperiment(ABCMeta):
+class AbstractExperiment(ABC):
     """
     Abstract class for experiments.
     """
@@ -61,19 +62,19 @@ class AbstractExperiment(ABCMeta):
         return {key: self.input[key][idx] for key in self.input}, {key: self.label[key][idx] for key in self.label}
 
 
-    @abstractmethod
     def get_split_indexes(self, data: list, split: tuple) -> list | list | list:
         """
         Returns the indexes of the split data.
         """
         raise NotImplementedError
 
-    @abstractmethod
+ 
     def noise(self, data: Any) -> Any:
         """
         Adds noise to the data.
         """
         raise NotImplementedError
+
 
 class DnaToFloatExperiment(AbstractExperiment):
     """
@@ -81,8 +82,8 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
 
     def __init__(self, **parameters) -> None:
-        self.dna = types.Dna(**parameters)
-        self.float = types.Float(**parameters)
+        self.dna = data_types.Dna(**parameters)
+        self.float = data_types.Float(**parameters)
 
     def one_hot_encode(self, data: list) -> list:
         """
@@ -101,4 +102,6 @@ class DnaToFloatExperiment(AbstractExperiment):
         Splits the data into train test and validation sets based on the DNA.
         """
         return self.dna.split_random_splitter(data, split)
+    
+
 

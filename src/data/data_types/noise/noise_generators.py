@@ -2,12 +2,12 @@
 This file contains noise generators classes for generating various types of noise.
 """
 
-from abc import ABCmeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 import numpy as np
 import multiprocessing as mp
 
-class AbstractNoiseGenerator(ABCmeta):
+class AbstractNoiseGenerator(ABC):
     """
     Abstract class for noise generators.
     """

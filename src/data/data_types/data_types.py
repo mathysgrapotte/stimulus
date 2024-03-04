@@ -1,14 +1,14 @@
 """
 this file contains classes for various input data types
 """
-import encoding.encoders as encoders
-import noise.noise_generators as noise_generators
+from .encoding import encoders as encoders
+from .noise import noise_generators as noise_generators
 import numpy as np
 
-from abc import ABCmeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Literal
 
-class AbstractType(ABCmeta):
+class AbstractType(ABC):
     """
     Abstract class for input types.
     """
@@ -33,7 +33,7 @@ class Dna(AbstractType):
     """
 
     def __init__(self, **parameters) -> None:
-        self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "ACGT"))
+        self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "acgt"))
         self.uniform_text_masker = noise_generators.UniformTextMasker(probability=parameters.get("text_masker_probability", 0.1), seed=parameters.get("random_seed", 0))
         
     def one_hot_encode(self, data: str) -> np.array:
