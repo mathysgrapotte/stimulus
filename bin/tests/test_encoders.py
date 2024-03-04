@@ -29,25 +29,30 @@ class TestMyClass(unittest.TestCase):
 """
 
 import numpy as np
+import numpy.testing as npt
 import unittest
-from src.data.types.encoding.encoders import TextOneHotEncoder
+from src.data.data_types.encoding.encoders import TextOneHotEncoder
 
 
 class TestTextOneHotEncoder(unittest.TestCase):
 
     def setUp(self):
-        self.text_encoder = TextOneHotEncoder()
+        self.text_encoder = TextOneHotEncoder("acgt")
 
     def test_encode(self):
         # Test encoding a valid sequence
         encoded_data = self.text_encoder.encode("ACGT")
         self.assertIsInstance(encoded_data, np.ndarray)
         self.assertEqual(encoded_data.shape, (4, 4))  # Expected shape for one-hot encoding of "ACGT"
+        correct_output = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+        npt.assert_array_equal(encoded_data, correct_output, "The encoded matrix is not correct")  # Make sure is elements wise correct
 
         # Test encoding an empty sequence
-        encoded_data_empty = self.text_encoder.encode("")
-        self.assertIsInstance(encoded_data_empty, np.ndarray)
-        self.assertEqual(encoded_data_empty.shape, (0, 4))  # Expected shape for one-hot encoding of an empty sequence
+        encoded_data_out_alphabet = self.text_encoder.encode("Bubba")
+        self.assertIsInstance(encoded_data_out_alphabet, np.ndarray)
+        self.assertEqual(encoded_data_out_alphabet.shape, (5, 4))  # Expected shape for one-hot encoding of an empty sequence
+        correct_output_out_alphabet = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0]])
+        npt.assert_array_equal(encoded_data_out_alphabet, correct_output_out_alphabet, "The encoded matrix is not correct") # Make sure is elements wise correct
 
     def test_decode(self):
         # Test decoding a one-hot encoded sequence
@@ -58,10 +63,10 @@ class TestTextOneHotEncoder(unittest.TestCase):
         self.assertEqual("".join(decoded_sequence.flatten()), "acgt")  # Expected decoded sequence
 
         # Test decoding an empty one-hot encoded sequence
-        encoded_data_empty = np.array([])
-        decoded_sequence_empty = self.text_encoder.decode(encoded_data_empty)
-        self.assertIsInstance(decoded_sequence_empty, np.ndarray)
-        self.assertEqual(decoded_sequence_empty.size, 0)  # Expected size for the decoded sequence
+        encoded_data_out_alphabet = self.text_encoder.encode("Bubba")
+        decoded_sequence_out_alphabet = self.text_encoder.decode(encoded_data_out_alphabet)
+        self.assertIsInstance(decoded_sequence_out_alphabet, np.ndarray)
+        self.assertEqual(decoded_sequence_out_alphabet.size, 5)  # Expected size for the decoded sequence
 
 if __name__ == "__main__":
     unittest.main()
