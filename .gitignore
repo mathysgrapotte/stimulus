@@ -1,0 +1,12 @@
+#stuff not needed for commits
+
+/test*
+/.ipynb_checkpoints
+/notebook/.ipynb_checkpoints
+.ipynb_checkpoints
+.nextflow*
+work
+data
+.DS_Store
+/singularity_cache
+/results/
