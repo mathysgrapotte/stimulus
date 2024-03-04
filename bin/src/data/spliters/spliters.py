@@ -2,12 +2,12 @@
 This file contains the splitter classes for splitting data accordingly
 """
 
-from abc import ABCmeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
 
-class AbstractSplitter(ABCmeta):
+class AbstractSplitter(ABC):
     """
     Abstract class for splitters.
     """
