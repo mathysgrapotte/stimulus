@@ -1,0 +1,2 @@
+# List of imports for the CI needed by all python test scripts
+# Whenever you write a new class and a following test put also here the required import

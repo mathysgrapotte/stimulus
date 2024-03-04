@@ -42,7 +42,7 @@ class TextOneHotEncoder(AbstractEncoder):
     One hot encoder for text data.
     """
 
-    def __init__(self, alphabet: str = "ACGT") -> None:
+    def __init__(self, alphabet: str ) -> None:
         self.alphabet = alphabet
         self.encoder = OneHotEncoder(categories=[list(alphabet)], handle_unknown='ignore') # handle_unknown='ignore' unsures that a vector of zeros is returned for unknown characters, such as 'Ns' in DNA sequences
 
