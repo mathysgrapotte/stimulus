@@ -1,5 +1,6 @@
 #stuff not needed for commits
 
+bin/**/__pycache__/
 /test*
 /.ipynb_checkpoints
 /notebook/.ipynb_checkpoints
