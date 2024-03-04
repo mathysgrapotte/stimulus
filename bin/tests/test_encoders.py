@@ -33,9 +33,6 @@ import unittest
 from src.data.types.encoding.encoders import TextOneHotEncoder
 
 
-print("hello world")
-
-"""
 class TestTextOneHotEncoder(unittest.TestCase):
 
     def setUp(self):
@@ -68,4 +65,3 @@ class TestTextOneHotEncoder(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-"""
