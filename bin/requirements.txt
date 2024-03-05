@@ -1,2 +1,5 @@
 # List of imports for the CI needed by all python test scripts
 # Whenever you write a new class and a following test put also here the required import
+numpy==1.26.0
+torch==2.0.1
+sklearn==1.3.0
