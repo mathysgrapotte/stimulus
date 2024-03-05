@@ -72,7 +72,7 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         Encodes the data.
         """
-        return np.squeeze(np.stack(self.encode_multiprocess(data)))
+        return self.encode_multiprocess(data)
     
     def decode(self, data: np.array) -> str:
         """
