@@ -9,6 +9,7 @@ category corresponds to any of those three values : input, meta, or label. Input
 type corresponds to the data type of the columns, as specified in the types module. 
 
 The parser is a class that takes as input a CSV file and a experiment class that defines data types to be used, noising procedures, splitting etc. 
+
 """
 
 import csv
@@ -55,13 +56,19 @@ class CSVParser:
         for key in self.input:
             name = key.split(":")[0]
             data_type = key.split(":")[1]
-            x[name] = self.experiment.__getattribute__(data_type).encode_all(self.input[key][idx])
+            # check if 'data_type' is in the experiment class attributes
+            if not hasattr(self.experiment, data_type.lower()):
+                raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
+            x[name] = self.experiment.__getattribute__(data_type.lower()).encode_all(self.input[key][idx])
 
         y = {}
         for key in self.label:
             name = key.split(":")[0]
             data_type = key.split(":")[1]
-            y[name] = self.experiment.__getattribute__(data_type).encode_all(self.label[key][idx])
+            # check if 'data_type' is in the experiment class attributes
+            if not hasattr(self.experiment, data_type.lower()):
+                raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
+            y[name] = self.experiment.__getattribute__(data_type.lower()).encode_all(self.label[key][idx])
 
         if self.meta == {}:
             return x, y
@@ -77,11 +84,11 @@ class CSVParser:
         input_data, label_data, meta_data = {}, {}, {}
         for key in data:
             name, category, data_type = key.split(":")
-            if category == "input":
+            if category.lower() == "input":
                 input_data[f"{name}:{data_type}"] = data[key]
-            elif category == "label":
+            elif category.lower() == "label":
                 label_data[f"{name}:{data_type}"] = data[key]
-            elif category == "meta":
+            elif category.lower() == "meta":
                 meta_data[f"{name}:{data_type}"] = data[key]
             else:
                 raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label or meta. The specified csv column is {key}.")
@@ -91,12 +98,14 @@ if __name__ == "__main__":
 
     parser = CSVParser(DnaToFloatExperiment(), os.path.abspath("/Users/mgrapotte/LabWork/stimulus/bin/tests/test_data/test.csv"))
 
+    print(parser.data)
+
     # print the x input without encoding
     print(parser.input)
 
-    x,y = parser.get(slice(0,2))
+    x,y = parser.get(slice(0,1))
     print("x for the first index of the csv file:")
-    print(x['hello'].shape)
+    print(x)
     print("y for the first index of the csv file:")
     print(y)
     

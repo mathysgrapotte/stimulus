@@ -17,6 +17,8 @@ import numpy as np
 class AbstractExperiment(ABC):
     """
     Abstract class for experiments.
+
+    WARNING, DATA_TYPES ARGUMENT NAMES SHOULD BE ALL LOWERCASE, CHECK THE DATA_TYPES MODULE FOR THE TYPES THAT HAVE BEEN IMPLEMENTED.
     """
     def __init__(self, seed: float = 0) -> None:
         # allow ability to add a seed for reproducibility
@@ -39,10 +41,6 @@ class AbstractExperiment(ABC):
         """
         raise NotImplementedError
     
-
-
-
-
 class DnaToFloatExperiment(AbstractExperiment):
     """
     Class for dealing with DNA to float predictions (for instance regression from DNA sequence to CAGE value)
