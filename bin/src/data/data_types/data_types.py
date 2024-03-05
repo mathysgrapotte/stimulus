@@ -34,7 +34,7 @@ class Dna(AbstractType):
 
     def __init__(self, **parameters) -> None:
         self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "acgt"))
-        self.uniform_text_masker = noise_generators.UniformTextMasker(probability=parameters.get("text_masker_probability", 0.1), seed=parameters.get("random_seed", 0))
+        self.uniform_text_masker = noise_generators.UniformTextMasker(probability=parameters.get("text_masker_probability", 0.1))
         
     def one_hot_encode(self, data: str) -> np.array:
         """
@@ -62,17 +62,17 @@ class Dna(AbstractType):
             raise ValueError(f"Unknown encoder {encoder}")
 
     
-    def add_noise_uniform_text_masker(self, data: str) -> str:
+    def add_noise_uniform_text_masker(self, data: str, seed: float = None) -> str:
         """
         Adds noise to the data of a single input.
         """
-        return self.uniform_text_masker.add_noise(data)
+        return self.uniform_text_masker.add_noise(data, seed=seed)
     
-    def add_noise_uniform_text_masker_all_inputs(self, data: list) -> list:
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
-        return self.uniform_text_masker.add_noise_multiprocess(data)
+        return self.uniform_text_masker.add_noise_multiprocess(data, seed=seed)
     
 
 class Float():
@@ -83,17 +83,17 @@ class Float():
     def __init__(self, **parameters) -> None:
         self.gaussian_noise = noise_generators.GaussianNoise(mean=parameters.get("gaussian_noise_mean", 0), std=parameters.get("gaussian_noise_std", 1), seed=parameters.get("random_seed", 0))
 
-    def add_noise_gaussian_noise(self, data: float) -> float:
+    def add_noise_gaussian_noise(self, data: float, seed: float = None) -> float:
         """
         Adds noise to the data of a single input.
         """
-        return self.gaussian_noise.add_noise(data)
+        return self.gaussian_noise.add_noise(data, seed=seed)
     
-    def add_noise_gaussian_noise_all_inputs(self, data: list) -> list:
+    def add_noise_gaussian_noise_all_inputs(self, data: list, seed: float = None) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
-        return self.gaussian_noise.add_noise_multiprocess(data)
+        return self.gaussian_noise.add_noise_multiprocess(data, seed=seed)
     
     def encode(self, data: float) -> float:
         return data
