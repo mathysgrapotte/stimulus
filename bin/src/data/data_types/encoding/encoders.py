@@ -3,7 +3,7 @@ This file contains encoders classes for encoding various types of data.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Union
 from sklearn.preprocessing import OneHotEncoder
 
 import numpy as np
@@ -66,13 +66,17 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         Encodes the data.
         """
-        return self.encoder.fit_transform(self._sequence_to_array(data)).toarray()
+        return np.squeeze(np.stack(self.encoder.fit_transform(self._sequence_to_array(data)).toarray()))
     
-    def encode_all(self, data: list) -> np.array:
+    def encode_all(self, data: Union[list, str]) -> np.array:
         """
-        Encodes the data.
+        Encodes the data, if the list is length one, call encode instead.
         """
-        return self.encode_multiprocess(data)
+        # check if the data is a str, in that case it should use the encode sequence method
+        if isinstance(data, str):
+            return [self.encode(data)]
+        else:
+            return self.encode_multiprocess(data)
     
     def decode(self, data: np.array) -> str:
         """

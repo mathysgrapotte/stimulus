@@ -81,7 +81,7 @@ class Float():
     """
     
     def __init__(self, **parameters) -> None:
-        self.gaussian_noise = noise_generators.GaussianNoise(mean=parameters.get("gaussian_noise_mean", 0), std=parameters.get("gaussian_noise_std", 1), seed=parameters.get("random_seed", 0))
+        self.gaussian_noise = noise_generators.GaussianNoise(mean=parameters.get("gaussian_noise_mean", 0), std=parameters.get("gaussian_noise_std", 1))
 
     def add_noise_gaussian_noise(self, data: float, seed: float = None) -> float:
         """

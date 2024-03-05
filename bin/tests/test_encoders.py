@@ -55,15 +55,6 @@ class TestTextOneHotEncoder(unittest.TestCase):
         npt.assert_array_equal(encoded_data_out_alphabet, correct_output_out_alphabet, "The encoded matrix is not correct") # Make sure is elements wise correct
 
 
-    """ TODO  uncomment the following and make it work with new version
-    def test_encode_all(self):
-        # Test encoding a valid list of sequences
-        encoded_data_list = self.text_encoder.encode_all(["ACGT", "AAA", "tt", "Bubba"])
-        self.assertIsInstance(encoded_data_list, np.ndarray)
-        print(encoded_data_list, "\n", type(encoded_data_list), encoded_data_list.shape)
-    """
-
-
     def test_decode(self):
         # Test decoding a one-hot encoded sequence
         encoded_data = self.text_encoder.encode("ACGT")
