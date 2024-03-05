@@ -34,7 +34,6 @@ class TestUniformTextMasker(unittest.TestCase):
         # Test adding noise to a list of strings using multiprocessing
         masker = UniformTextMasker(probability=0.1)
         noisy_data_list = masker.add_noise_multiprocess(["ATCGATCGATCG", "ATCG"], seed=42)
-        print(noisy_data_list)
         self.assertIsInstance(noisy_data_list, list)     # making sure output is of correct type
         self.assertIsInstance(noisy_data_list[0], str)
         self.assertIsInstance(noisy_data_list[1], str)

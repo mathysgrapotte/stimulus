@@ -9,8 +9,8 @@ Here we provide standard experiments as well as an absctract class for users to 
 
 from abc import ABC, abstractmethod
 from typing import Any
-import data_types.data_types as data_types
-import spliters.spliters as spliters
+from .data_types import data_types as data_types
+from .spliters import spliters as spliters
 import numpy as np
 
 class AbstractExperiment(ABC):
