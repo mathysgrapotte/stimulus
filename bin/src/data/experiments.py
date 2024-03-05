@@ -20,10 +20,9 @@ class AbstractExperiment(ABC):
 
     WARNING, DATA_TYPES ARGUMENT NAMES SHOULD BE ALL LOWERCASE, CHECK THE DATA_TYPES MODULE FOR THE TYPES THAT HAVE BEEN IMPLEMENTED.
     """
-    def __init__(self, seed: float = 0) -> None:
+    def __init__(self, seed: float = None) -> None:
         # allow ability to add a seed for reproducibility
-        if seed != 0:
-            np.random.seed(seed)
+        self.seed = seed
 
         #self.random_splitter = spliters.RandomSplitter(seed=seed) 
 
@@ -46,8 +45,8 @@ class DnaToFloatExperiment(AbstractExperiment):
     Class for dealing with DNA to float predictions (for instance regression from DNA sequence to CAGE value)
     """
 
-    def __init__(self, **parameters) -> None:
-        super().__init__(**parameters)
+    def __init__(self, seed: float = None, **parameters) -> None:
+        super().__init__(seed)
         self.dna = data_types.Dna(**parameters)
         self.float = data_types.Float(**parameters)
 
@@ -55,7 +54,7 @@ class DnaToFloatExperiment(AbstractExperiment):
         """
         Adds noise to the data of a single input.
         """
-        return self.dna.add_noise_uniform_text_masker_all_inputs(data)
+        return self.dna.add_noise_uniform_text_masker_all_inputs(data, seed=self.seed)
     
 
 

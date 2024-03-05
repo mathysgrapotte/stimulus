@@ -1,5 +1,5 @@
 """
-unit test cases for the encoders file
+unit test cases for the encoders file shold be written like the following
 
 Test case for the TextOneHotEncoder class.
 
@@ -50,9 +50,19 @@ class TestTextOneHotEncoder(unittest.TestCase):
         # Test encoding an empty sequence
         encoded_data_out_alphabet = self.text_encoder.encode("Bubba")
         self.assertIsInstance(encoded_data_out_alphabet, np.ndarray)
-        self.assertEqual(encoded_data_out_alphabet.shape, (5, 4))  # Expected shape for one-hot encoding of an empty sequence
+        self.assertEqual(encoded_data_out_alphabet.shape, (5, 4))  # Expected shape for one-hot encoding of 5 letter word
         correct_output_out_alphabet = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0]])
         npt.assert_array_equal(encoded_data_out_alphabet, correct_output_out_alphabet, "The encoded matrix is not correct") # Make sure is elements wise correct
+
+
+    """ TODO  uncomment the following and make it work with new version
+    def test_encode_all(self):
+        # Test encoding a valid list of sequences
+        encoded_data_list = self.text_encoder.encode_all(["ACGT", "AAA", "tt", "Bubba"])
+        self.assertIsInstance(encoded_data_list, np.ndarray)
+        print(encoded_data_list, "\n", type(encoded_data_list), encoded_data_list.shape)
+    """
+
 
     def test_decode(self):
         # Test decoding a one-hot encoded sequence
