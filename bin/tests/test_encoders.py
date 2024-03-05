@@ -55,15 +55,6 @@ class TestTextOneHotEncoder(unittest.TestCase):
         npt.assert_array_equal(encoded_data_out_alphabet, correct_output_out_alphabet, "The encoded matrix is not correct") # Make sure is elements wise correct
 
 
-    """ TODO  uncomment the following and make it work with new version
-    def test_encode_all(self):
-        # Test encoding a valid list of sequences
-        encoded_data_list = self.text_encoder.encode_all(["ACGT", "AAA", "tt", "Bubba"])
-        self.assertIsInstance(encoded_data_list, np.ndarray)
-        print(encoded_data_list, "\n", type(encoded_data_list), encoded_data_list.shape)
-    """
-
-
     def test_decode(self):
         # Test decoding a one-hot encoded sequence
         encoded_data = self.text_encoder.encode("ACGT")
@@ -77,6 +68,28 @@ class TestTextOneHotEncoder(unittest.TestCase):
         decoded_sequence_out_alphabet = self.text_encoder.decode(encoded_data_out_alphabet)
         self.assertIsInstance(decoded_sequence_out_alphabet, np.ndarray)
         self.assertEqual(decoded_sequence_out_alphabet.size, 5)  # Expected size for the decoded sequence
+
+    def test_encode_all_same_length(self):
+        # Test encoding a list of sequences
+        sequences = ["ACGT", "ACGT", "ACGT"]
+        encoded_data = self.text_encoder.encode_all(sequences)
+        self.assertIsInstance(encoded_data, list)
+        self.assertEqual(len(encoded_data), 3)
+        # check the shapes within the list 
+        for encoded_sequence in encoded_data:
+            self.assertIsInstance(encoded_sequence, np.ndarray)
+            self.assertEqual(encoded_sequence.shape, (4, 4))
+
+    def test_encode_all_variable_length(self):
+        # Test encoding a list of sequences with variable length
+        sequences = ["ACGT", "ACG", "AC"]
+        encoded_data = self.text_encoder.encode_all(sequences)
+        self.assertIsInstance(encoded_data, list)
+        self.assertEqual(len(encoded_data), 3)
+        # check the shapes within the list
+        self.assertEqual(encoded_data[0].shape, (4, 4))
+        self.assertEqual(encoded_data[1].shape, (3, 4))
+        self.assertEqual(encoded_data[2].shape, (2, 4))
 
 if __name__ == "__main__":
     unittest.main()
