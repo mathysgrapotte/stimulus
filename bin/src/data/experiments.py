@@ -4,8 +4,7 @@ Conceptually, experiment classes contain data types, transformations etc and are
 Here we provide standard experiments as well as an absctract class for users to implement their own. 
 
 
-# TODO for next time, I need to add a way of encoding data based on the data type and encoder specified by the experiment class. Then the getitem has to return a dictionary transformed by the encoding functions of the correct class based on the dictionary keys.
--> we can use getstate
+# TODO implement noise schemes and splitting schemes.
 """
 
 from abc import ABC, abstractmethod

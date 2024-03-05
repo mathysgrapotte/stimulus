@@ -68,5 +68,27 @@ class TestTextOneHotEncoder(unittest.TestCase):
         self.assertIsInstance(decoded_sequence_out_alphabet, np.ndarray)
         self.assertEqual(decoded_sequence_out_alphabet.size, 5)  # Expected size for the decoded sequence
 
+    def test_encode_all_same_length(self):
+        # Test encoding a list of sequences
+        sequences = ["ACGT", "ACGT", "ACGT"]
+        encoded_data = self.text_encoder.encode_all(sequences)
+        self.assertIsInstance(encoded_data, list)
+        self.assertEqual(len(encoded_data), 3)
+        # check the shapes within the list 
+        for encoded_sequence in encoded_data:
+            self.assertIsInstance(encoded_sequence, np.ndarray)
+            self.assertEqual(encoded_sequence.shape, (4, 4))
+
+    def test_encode_all_variable_length(self):
+        # Test encoding a list of sequences with variable length
+        sequences = ["ACGT", "ACG", "AC"]
+        encoded_data = self.text_encoder.encode_all(sequences)
+        self.assertIsInstance(encoded_data, list)
+        self.assertEqual(len(encoded_data), 3)
+        # check the shapes within the list
+        self.assertEqual(encoded_data[0].shape, (4, 4))
+        self.assertEqual(encoded_data[1].shape, (3, 4))
+        self.assertEqual(encoded_data[2].shape, (2, 4))
+
 if __name__ == "__main__":
     unittest.main()
