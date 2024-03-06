@@ -9,14 +9,13 @@ category corresponds to any of those three values : input, meta, or label. Input
 type corresponds to the data type of the columns, as specified in the types module. 
 
 The parser is a class that takes as input a CSV file and a experiment class that defines data types to be used, noising procedures, splitting etc. 
-
 """
 
 import csv
 from typing import Any, Tuple
 
 
-class CSVParser:
+class CSVParser: # change to CsvHandler
     """
     Class for parsing CSV files.
     """
@@ -24,8 +23,9 @@ class CSVParser:
     def __init__(self, experiment: Any, csv_path: str) -> None:
         self.experiment = experiment
         self.csv_path = csv_path
-        self.data = self.parse_csv(csv_path)
+        self.data = self.parse_csv(csv_path) #remove self.data to improve ram usage
         self.input, self.label, self.meta = self.split_input_label_meta(self.data)
+        self.padding_value = self.find_padding_value(self.input)
 
     def parse_csv(self, csv_path:str) -> dict:
         with open(csv_path, 'r') as file:
@@ -38,6 +38,16 @@ class CSVParser:
                         data[header[i]] = []
                     data[header[i]].append(row[i])
             return data
+        
+    def find_padding_value(self, data: dict) -> int:
+        """
+        find an integer that is not present in any of the lists of the data dictionary
+        """
+        i = 0
+        while True:
+            if i not in [item for sublist in data.values() for item in sublist]:
+                return i
+            i += 1
     
     def split_input_label_meta(self, data: dict) -> Tuple[dict, dict, dict]:
         """
@@ -86,7 +96,10 @@ class CSVParser:
         return x, y, self.meta
     
     def __len__(self) -> int:
-        return len(self.input)
+        """
+        returns the length of the first list in input, assumes that all are the same length
+        """
+        return len(list(self.input.values())[0])
     
     def __getitem__(self, idx: Any) -> dict:
         """

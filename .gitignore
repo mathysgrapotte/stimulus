@@ -9,4 +9,4 @@ bin/**/__pycache__/
 works
 .DS_Store
 /singularity_cache
-/results/
+/results/.coverage
