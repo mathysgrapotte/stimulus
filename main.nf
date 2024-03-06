@@ -22,7 +22,7 @@ if (params.help) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include {     } from './workflows/'
+include { HANDLE_DATA } from './workflows/handle_data.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -33,6 +33,14 @@ include {     } from './workflows/'
 
 workflow {
 
+    HANDLE_DATA( 
+        params.csv,
+        params.exp_conf
+    )
+
+    // HANDLE_TRAINING()
+
+    // HANDLE_ANALYSIS()
 
 }
 
