@@ -56,5 +56,10 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
         for key in encoded_item[1].keys():
             self.assertEqual(len(encoded_item[1][key]), 2)
 
+    def test_len(self):
+        self.assertEqual(len(self.csv_parser), 2)
+
+
+
 
 

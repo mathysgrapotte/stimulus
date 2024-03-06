@@ -10,3 +10,4 @@ works
 .DS_Store
 /singularity_cache
 /results/
+.coverage
