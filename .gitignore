@@ -11,3 +11,6 @@ works
 /singularity_cache
 /results/
 .coverage
+.vscode/
+bin/.vscode/
+bin/__init__.py
