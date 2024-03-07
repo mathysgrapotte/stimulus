@@ -5,8 +5,6 @@ import os
 from bin.src.data.csv_parser import CSVParser
 from bin.src.data.experiments import DnaToFloatExperiment
 
-# j'aime les frites
-
 class TestDnaToFloatCsvParser(unittest.TestCase):
 
     def setUp(self):
