@@ -55,6 +55,12 @@ class DnaToFloatExperiment(AbstractExperiment):
         """
         return self.dna.add_noise_uniform_text_masker_all_inputs(data, seed=self.seed)
     
+    def noise_scheme(self, data: list, params: dict) -> dict:
+        output = {}
+        for key in params: 
+            output[key] = self.add_noise(data, params[key])
+
+        return output
 
 
 

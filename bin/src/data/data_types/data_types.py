@@ -48,14 +48,14 @@ class Dna(AbstractType):
         """
         return self.one_hot_encoder.encode_all(data)
     
-    def encode(self, data: str, encoder: Literal['one_hot'] = 'one_hot') -> Any:
+    def encode(self, data: str, encoder: Literal['one_hot'] = 'one_hot') -> Any: #TODO call from get attribute instead of using if else
         if encoder == 'one_hot':
             return self.one_hot_encode(data)
         else:
             raise ValueError(f"Unknown encoder {encoder}")
 
 
-    def encode_all(self, data: list, encoder: Literal['one_hot'] = 'one_hot') -> list:
+    def encode_all(self, data: list, encoder: Literal['one_hot'] = 'one_hot') -> list[np.array]:
         if encoder == 'one_hot':
             return self.one_hot_encode_all(data)
         else:
@@ -95,9 +95,9 @@ class Float():
         """
         return self.gaussian_noise.add_noise_multiprocess(data, seed=seed)
     
-    def encode(self, data: float) -> float:
-        return data
+    def encode(self, data: Any) -> float:
+        return float(data)
     
-    def encode_all(self, data: list) -> list:
-        return data
+    def encode_all(self, data: list) -> list[np.array]:
+        return [np.array(float(d)) for d in data]
     
