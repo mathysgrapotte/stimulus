@@ -11,3 +11,6 @@ bin/**/__pycache__/
 /singularity_cache
 /results/
 .coverage
+.vscode/
+bin/.vscode/
+

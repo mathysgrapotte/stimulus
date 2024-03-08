@@ -29,12 +29,13 @@ class AbstractType(ABC):
 
 class Dna(AbstractType):
     """
-    class for dealing with DNA data    
+    class for dealing with DNA data
+    # TODO make a Text base class for this class and other text based classes (rna, protein etc...)    
     """
 
     def __init__(self, **parameters) -> None:
         self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "acgt"))
-        self.uniform_text_masker = noise_generators.UniformTextMasker(probability=parameters.get("text_masker_probability", 0.1))
+        self.uniform_text_masker = noise_generators.UniformTextMasker()
         
     def one_hot_encode(self, data: str) -> np.array:
         """
@@ -62,17 +63,21 @@ class Dna(AbstractType):
             raise ValueError(f"Unknown encoder {encoder}")
 
     
-    def add_noise_uniform_text_masker(self, data: str, seed: float = None) -> str:
+    def add_noise_uniform_text_masker(self, data: str, seed: float = None, **noise_params) -> str:
         """
         Adds noise to the data of a single input.
         """
-        return self.uniform_text_masker.add_noise(data, seed=seed)
+        # get the probability param from noise_params, default value is set to 0.1
+        probability = noise_params.get("probability", 0.1)
+        return self.uniform_text_masker.add_noise(data, probability=probability, seed=seed)
     
-    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None) -> list:
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None, **noise_params) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
-        return self.uniform_text_masker.add_noise_multiprocess(data, seed=seed)
+        # get the probability param from noise_params, default value is set to 0.1 
+        probability = noise_params.get("probability", 0.1)
+        return self.uniform_text_masker.add_noise_multiprocess(data, probability=probability, seed=seed)
     
 
 class Float():
@@ -80,8 +85,8 @@ class Float():
     class for dealing with float data
     """
     
-    def __init__(self, **parameters) -> None:
-        self.gaussian_noise = noise_generators.GaussianNoise(mean=parameters.get("gaussian_noise_mean", 0), std=parameters.get("gaussian_noise_std", 1))
+    def __init__(self) -> None:
+        self.gaussian_noise = noise_generators.GaussianNoise()
 
     def add_noise_gaussian_noise(self, data: float, seed: float = None) -> float:
         """

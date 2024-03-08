@@ -40,39 +40,43 @@ class UniformTextMasker(AbstractNoiseGenerator):
     This noise generators replace characters with 'N' with a given probability.
     """
 
-    def __init__(self, probability: float = 0.1) -> None:
-        self.probability = probability
 
-
-    def add_noise(self, data: str, seed: float = None) -> str:
+    def add_noise(self, data: str, probability: float = 0.1, seed: float = None) -> str:
         """
         Adds noise to the data.
         """
 
         np.random.seed(seed)
-        return ''.join([c if np.random.rand() > self.probability else 'N' for c in data])
-    
+        return ''.join([c if np.random.rand() > probability else 'N' for c in data])
+
+    def add_noise_multiprocess(self, data: list, probability: float = 0.1, seed: float = None) -> list:
+        """
+        Adds noise to the data using multiprocessing.
+        """
+
+        with mp.Pool(mp.cpu_count()) as pool:
+            function_specific_input = [(item, probability, seed) for item in data]
+            return pool.starmap(self.add_noise, function_specific_input)
+
 class GaussianNoise(AbstractNoiseGenerator):
     """
     This noise generator adds gaussian noise to float values
     """
 
-    def __init__(self, mean: float = 0, std: float = 1) -> None:
-        self.mean = mean
-        self.std = std
 
-    def add_noise(self, data: float, seed: float = None) -> float:
+    def add_noise(self, data: float, mean: float = 0, std: float= 0, seed: float = None) -> float:
         """
         Adds noise to a single point of data.
         """
 
         np.random.seed(seed)
-        return data + np.random.normal(self.mean, self.std)
+        return data + np.random.normal(mean, std)
     
-    def add_noise_multiprocess(self, data: list, seed: float = None) -> list:
+    def add_noise_multiprocess(self, data: list, mean: float = 0, std: float = 0, seed: float = None) -> list:
         """
         Adds noise to the data using np arrays
+        # TODO return a np array to gain performance.
         """
 
         np.random.seed(seed)
-        return list(np.array(data) + np.random.normal(self.mean, self.std, len(data)))
+        return list(np.array(data) + np.random.normal(mean, std, len(data)))
