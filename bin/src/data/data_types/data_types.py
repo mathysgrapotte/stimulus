@@ -29,12 +29,13 @@ class AbstractType(ABC):
 
 class Dna(AbstractType):
     """
-    class for dealing with DNA data    
+    class for dealing with DNA data
+    # TODO make a Text base class for this class and other text based classes (rna, protein etc...)    
     """
 
     def __init__(self, **parameters) -> None:
         self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "acgt"))
-        self.uniform_text_masker = noise_generators.UniformTextMasker(probability=parameters.get("text_masker_probability", 0.1))
+        self.uniform_text_masker = noise_generators.UniformTextMasker()
         
     def one_hot_encode(self, data: str) -> np.array:
         """
@@ -80,8 +81,8 @@ class Float():
     class for dealing with float data
     """
     
-    def __init__(self, **parameters) -> None:
-        self.gaussian_noise = noise_generators.GaussianNoise(mean=parameters.get("gaussian_noise_mean", 0), std=parameters.get("gaussian_noise_std", 1))
+    def __init__(self) -> None:
+        self.gaussian_noise = noise_generators.GaussianNoise()
 
     def add_noise_gaussian_noise(self, data: float, seed: float = None) -> float:
         """
