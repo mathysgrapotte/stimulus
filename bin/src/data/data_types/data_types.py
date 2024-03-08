@@ -78,6 +78,56 @@ class Dna(AbstractType):
         return self.uniform_text_masker.add_noise_multiprocess(data, probability=probability, mask='N', seed=seed)
     
 
+class Prot(AbstractType):
+    """
+    class for dealing with protein data
+    """
+
+    def __init__(self, **parameters) -> None:
+        self.one_hot_encoder = encoders.TextOneHotEncoder(alphabet=parameters.get("one_hot_encoder_alphabet", "acdefghiklmnpqrstvwy"))
+        self.uniform_text_masker = noise_generators.UniformTextMasker()
+        
+    def one_hot_encode(self, data: str) -> np.array:
+        """
+        Encodes the data of a single input.
+        """
+        return self.one_hot_encoder.encode(data)
+
+    def one_hot_encode_all(self, data: list) -> list:
+        """
+        Encodes the data of multiple inputs.
+        """
+        return self.one_hot_encoder.encode_all(data)
+    
+    def encode(self, data: str, encoder: Literal['one_hot'] = 'one_hot') -> Any: #TODO call from get attribute instead of using if else
+        if encoder == 'one_hot':
+            return self.one_hot_encode(data)
+        else:
+            raise ValueError(f"Unknown encoder {encoder}")
+
+    def encode_all(self, data: list, encoder: Literal['one_hot'] = 'one_hot') -> list[np.array]:
+        if encoder == 'one_hot':
+            return self.one_hot_encode_all(data)
+        else:
+            raise ValueError(f"Unknown encoder {encoder}")
+
+    def add_noise_uniform_text_masker(self, data: str, mask='N', seed: float = None, **noise_params) -> str:
+        """
+        Adds noise to the data of a single input.
+        """
+        # get the probability param from noise_params, default value is set to 0.1
+        probability = noise_params.get("probability", 0.1)
+        return self.uniform_text_masker.add_noise(data, probability=probability, mask='X', seed=seed)
+    
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, mask='N', seed: float = None, **noise_params) -> list:
+        """
+        Adds noise to the data of multiple inputs.
+        """
+        # get the probability param from noise_params, default value is set to 0.1 
+        probability = noise_params.get("probability", 0.1)
+        return self.uniform_text_masker.add_noise_multiprocess(data, probability=probability, mask='X', seed=seed)
+    
+
 class Float():
     """
     class for dealing with float data
