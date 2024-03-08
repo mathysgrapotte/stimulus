@@ -85,6 +85,8 @@ class CSVParser: # change to CsvHandler
             data_type = key.split(":")[1]
 
             # get the data at the given index
+            # if the data is not a list, it is converted to a list
+            # otherwise it breaks Float().encode_all(data) because it expects a list
             data = dictionary[key][idx]
             if not isinstance(data, list):
                 data = [data]
