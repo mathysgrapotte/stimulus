@@ -32,6 +32,30 @@ class AbstractExperiment(ABC):
         """
         raise NotImplementedError
 
+    def get_keys_based_on_name_data_type_or_input(self, data: dict, column_name: str = None, data_type: str = None, category = None) -> list:
+        """
+        Returns the keys of the data that are of a specific type, name or category.
+        If the column_name is specified, it will return all the keys that contain the column_name in their name. 
+        If the data_type is specified, it will return all the keys that contain the data_type in their name.
+        If the data_type and the category are specified, it will return all the keys that contain the data_type and the category in their name.
+        """
+
+        # Check that one of column_name, data_type or category is not None
+        if column_name is None and data_type is None and category is None:
+            raise ValueError("At least one of column_name, data_type or category should be specified.")
+        
+        # Check that category is not the only one specified
+        if category is not None and column_name is None and data_type is None:
+            raise ValueError("category cannot be the only one specified.")
+        
+        if column_name is not None:
+            return [key for key in data if column_name in key.split(':')[0]]
+        if data_type is not None:
+            if category is not None:
+                return [key for key in data if data_type in key.split(':')[1] and category in key.split(':')[2]]
+            else:
+                return [key for key in data if data_type in key.split(':')[1]]
+
  
     def noise(self, data: Any, noise_method: str, **noise_params: dict) -> Any:
         """
@@ -55,18 +79,17 @@ class DnaToFloatExperiment(AbstractExperiment):
         self.dna = data_types.Dna(**parameters)
         self.float = data_types.Float(**parameters)
 
-    def add_noise(self, data: list) -> list:
+    def noise_dna_uniform_masker(self, data: dict, **noise_params) -> dict:
         """
         Adds noise to the data of a single input.
+        Applied on all input keys that have the dna data type.
         """
-        return self.dna.add_noise_uniform_text_masker_all_inputs(data, seed=self.seed)
-    
-    def noise_scheme(self, data: list, params: dict) -> dict:
-        output = {}
-        for key in params: 
-            output[key] = self.add_noise(data, params[key])
 
-        return output
+        dna_type_keys = self.get_keys_based_on_name_data_type_or_input(data, data_type='dna')
+        for key in dna_type_keys:
+            data[key] = self.dna.add_noise_uniform_text_masker_all_inputs(data[key], **noise_params)
+
+        return data
 
 
 
