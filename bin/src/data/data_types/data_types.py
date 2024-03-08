@@ -61,7 +61,7 @@ class Dna(AbstractType):
         else:
             raise ValueError(f"Unknown encoder {encoder}")
 
-    def add_noise_uniform_text_masker(self, data: str, mask='N', seed: float = None, **noise_params) -> str:
+    def add_noise_uniform_text_masker(self, data: str, seed: float = None, **noise_params) -> str:
         """
         Adds noise to the data of a single input.
         """
@@ -69,7 +69,7 @@ class Dna(AbstractType):
         probability = noise_params.get("probability", 0.1)
         return self.uniform_text_masker.add_noise(data, probability=probability, mask='N', seed=seed)
     
-    def add_noise_uniform_text_masker_all_inputs(self, data: list, mask='N', seed: float = None, **noise_params) -> list:
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None, **noise_params) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
@@ -111,7 +111,7 @@ class Prot(AbstractType):
         else:
             raise ValueError(f"Unknown encoder {encoder}")
 
-    def add_noise_uniform_text_masker(self, data: str, mask='N', seed: float = None, **noise_params) -> str:
+    def add_noise_uniform_text_masker(self, data: str, seed: float = None, **noise_params) -> str:
         """
         Adds noise to the data of a single input.
         """
@@ -119,7 +119,7 @@ class Prot(AbstractType):
         probability = noise_params.get("probability", 0.1)
         return self.uniform_text_masker.add_noise(data, probability=probability, mask='X', seed=seed)
     
-    def add_noise_uniform_text_masker_all_inputs(self, data: list, mask='N', seed: float = None, **noise_params) -> list:
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None, **noise_params) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
