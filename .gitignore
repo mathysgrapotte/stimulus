@@ -11,3 +11,4 @@ works
 /singularity_cache
 /results/
 .coverage
+.vscode
