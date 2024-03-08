@@ -33,11 +33,17 @@ class AbstractExperiment(ABC):
         raise NotImplementedError
 
  
-    def noise(self, data: Any) -> Any:
+    def noise(self, data: Any, noise_method: str, **noise_params: dict) -> Any:
         """
-        Adds noise to the data.
+        Adds noise to the data, using function defined in self.noise
         """
-        raise NotImplementedError
+        # check if noise_method exist in the class, if it does, call it with the associated **noise_params, if not raise an error
+
+        if hasattr(self, noise_method):
+            return getattr(self, noise_method)(data, **noise_params)
+        else:
+            raise NotImplementedError(f"No noise method {noise_method} in the class {self.__class__.__name__}")
+
     
 class DnaToFloatExperiment(AbstractExperiment):
     """
