@@ -26,15 +26,15 @@ from bin.src.data.data_types.noise.noise_generators import UniformTextMasker, Ga
 class TestUniformTextMasker(unittest.TestCase):
     def test_add_noise_single(self):
         # Test adding noise to a single string
-        masker = UniformTextMasker(probability=0.1)
+        masker = UniformTextMasker()
         noisy_data = masker.add_noise("ACGTACGT", seed=42)
         self.assertIsInstance(noisy_data, str)      # making sure output is of correct type
         self.assertEqual(noisy_data, "ACGTACNT")    # checking if given a seed the noise happens in the same way
 
     def test_add_noise_multiprocess(self):
         # Test adding noise to a list of strings using multiprocessing
-        masker = UniformTextMasker(probability=0.1)
-        noisy_data_list = masker.add_noise_multiprocess(["ATCGATCGATCG", "ATCG"], seed=42)
+        masker = UniformTextMasker()
+        noisy_data_list = masker.add_noise_multiprocess(["ATCGATCGATCG", "ATCG"], seed=42, probability=0.1 )
         self.assertIsInstance(noisy_data_list, list)     # making sure output is of correct type
         self.assertIsInstance(noisy_data_list[0], str)
         self.assertIsInstance(noisy_data_list[1], str)
@@ -44,14 +44,14 @@ class TestUniformTextMasker(unittest.TestCase):
 class TestGaussianNoise(unittest.TestCase):
     def test_add_noise_single(self):
         # Test adding noise to a single float value
-        noise_generator = GaussianNoise(mean=0, std=1)
-        noisy_data = noise_generator.add_noise(5.0, seed=42)
+        noise_generator = GaussianNoise()
+        noisy_data = noise_generator.add_noise(5.0, seed=42, mean=0, std=1)
         self.assertIsInstance(noisy_data, float)
         self.assertAlmostEqual(noisy_data, 5.4967141530)     # there might be float point variation across systems so not all decimals have to be identical
 
     def test_add_noise_multiprocess(self):
         # Test adding noise to a list of float values using multiprocessing
-        noise_generator = GaussianNoise(mean=0, std=1)
+        noise_generator = GaussianNoise()
         noisy_data = noise_generator.add_noise_multiprocess([1.0, 2.0, 3.0])
         self.assertIsInstance(noisy_data, list)
         self.assertIsInstance(noisy_data[0], float)
