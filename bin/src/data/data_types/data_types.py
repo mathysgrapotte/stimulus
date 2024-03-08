@@ -63,16 +63,20 @@ class Dna(AbstractType):
             raise ValueError(f"Unknown encoder {encoder}")
 
     
-    def add_noise_uniform_text_masker(self, data: str, probability: float = 0.1, seed: float = None) -> str:
+    def add_noise_uniform_text_masker(self, data: str, seed: float = None, **noise_params) -> str:
         """
         Adds noise to the data of a single input.
         """
+        # get the probability param from noise_params, default value is set to 0.1
+        probability = noise_params.get("probability", 0.1)
         return self.uniform_text_masker.add_noise(data, probability=probability, seed=seed)
     
-    def add_noise_uniform_text_masker_all_inputs(self, data: list, probability: float = 0.1, seed: float = None) -> list:
+    def add_noise_uniform_text_masker_all_inputs(self, data: list, seed: float = None, **noise_params) -> list:
         """
         Adds noise to the data of multiple inputs.
         """
+        # get the probability param from noise_params, default value is set to 0.1 
+        probability = noise_params.get("probability", 0.1)
         return self.uniform_text_masker.add_noise_multiprocess(data, probability=probability, seed=seed)
     
 
