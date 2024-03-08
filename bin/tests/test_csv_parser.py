@@ -11,8 +11,15 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
         self.csv_parser = CSVParser(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
 
     def test_get_encoded_item_unique(self):
-        # Test getting an encoded item from the csv file
+        """ 
+        It tests that the csv_parser.get_encoded_item works well when getting one item.
+        The following test is performed on the item at idx=0.
+        """
+        # get the encoded item from the csv file at idx 0
         encoded_item = self.csv_parser.get_encoded_item(0)
+        
+        # test that the encoded item is a tuple of three dictionaries [input, label, meta]
+        self.assertEqual(len(encoded_item), 3)
         self.assertIsInstance(encoded_item[0], dict)
         self.assertIsInstance(encoded_item[1], dict)
         self.assertIsInstance(encoded_item[2], dict)
@@ -26,16 +33,23 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
         # check that the meta dictionary is empty 
         self.assertEqual(encoded_item[2], {})
 
-        # check that x and y both have only one sequence
+        # since we retrieved only the data at idx=0, check that input and label both have only one element
         for key in encoded_item[0].keys():
             self.assertEqual(len(encoded_item[0][key]), 1)
-
         for key in encoded_item[1].keys():
             self.assertEqual(len(encoded_item[1][key]), 1)
 
     def test_get_encoded_item_multiple(self):
-        # Test getting an encoded item from the csv file
+        """
+        It tests that the csv_parser.get_encoded_item works well when getting multiple items using slice.
+        The following test is performed on the item at idx=0 and idx=1.
+        """
+        
+        # get the encoded items from the csv file at idx 0 and 1
         encoded_item = self.csv_parser.get_encoded_item(slice(0, 2))
+        
+        # test that the encoded item is a tuple of three dictionaries [input, label, meta]
+        self.assertEqual(len(encoded_item), 3)
         self.assertIsInstance(encoded_item[0], dict)
         self.assertIsInstance(encoded_item[1], dict)
         self.assertIsInstance(encoded_item[2], dict)
@@ -48,18 +62,13 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
 
         # check that the meta dictionary is empty 
         self.assertEqual(encoded_item[2], {})
-
-        # check that x and y both have only two sequencess
+        
+        # since we retrieved only the data at idx=0 and idx=1, check that input and label both have two elements
         for key in encoded_item[0].keys():
             self.assertEqual(len(encoded_item[0][key]), 2)
-
         for key in encoded_item[1].keys():
             self.assertEqual(len(encoded_item[1][key]), 2)
 
     def test_len(self):
         self.assertEqual(len(self.csv_parser), 2)
-
-
-
-
-
+        

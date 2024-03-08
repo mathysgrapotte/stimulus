@@ -13,4 +13,4 @@ works
 .coverage
 .vscode/
 bin/.vscode/
-bin/__init__.py
+
