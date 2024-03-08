@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from .data_types import data_types as data_types
 from .spliters import spliters as spliters
+from copy import deepcopy
 import numpy as np
 
 class AbstractExperiment(ABC):
@@ -79,17 +80,19 @@ class DnaToFloatExperiment(AbstractExperiment):
         self.dna = data_types.Dna(**parameters)
         self.float = data_types.Float(**parameters)
 
-    def noise_dna_uniform_masker(self, data: dict, **noise_params) -> dict:
+    def noise_dna_uniform_masker(self, data: dict, probability=0.1) -> dict:
         """
         Adds noise to the data of a single input.
         Applied on all input keys that have the dna data type.
         """
 
+
         dna_type_keys = self.get_keys_based_on_name_data_type_or_input(data, data_type='dna')
+
         for key in dna_type_keys:
-            data[key] = self.dna.add_noise_uniform_text_masker_all_inputs(data[key], **noise_params)
-
+            data[key] = self.dna.add_noise_uniform_text_masker_all_inputs(data[key], probability=probability, seed=self.seed)
+        
         return data
-
+7
 
 

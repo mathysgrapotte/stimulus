@@ -25,7 +25,7 @@ class AbstractNoiseGenerator(ABC):
         #  np.random.seed(seed)
         raise NotImplementedError
     
-    def add_noise_multiprocess(self, data: list, seed: float = None, **noise_params) -> list:
+    def add_noise_multiprocess(self, data: list, seed: float = None) -> list:
         """
         Adds noise to the data using multiprocessing.
         """
