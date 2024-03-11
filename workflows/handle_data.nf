@@ -4,7 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { HANDLE_CSV } from '../modules/handle_csv.nf'
+include { INTERPRET_JSON } from '../modules/interpret_json.nf'
+include { HANDLE_CSV     } from '../modules/handle_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,20 +24,20 @@ workflow HANDLE_DATA {
     main:
 
     // put the files in channels
-    csv  = Channel.fromPath( input_csv )
+    csv  = Channel.fromPath( input_csv  )
     json = Channel.fromPath( input_json )
 
     // read the json 
-    //INTERPRET_JSON()
+    INTERPRET_JSON(json)
 
     // launch the actual noise and splitting / transforming process
-    HANDLE_CSV(csv, json)
+    //HANDLE_CSV(csv, json)
 
 
 
     emit:
 
-    debug = HANDLE_CSV.out.standardout
+    debug = INTERPRET_JSON.out.standardout
 
 }
 
