@@ -21,10 +21,16 @@ class TorchDataset(Dataset):
         """
         Converts a list of numpy arrays to a tensor. 
         If the list includes numpy arrays of different shapes, padd the numpy arrays and return a mask tensor, otherwise mask tensor is set to None
+
+        # TODO: This method utilizes ifs to check the shape of the data. this is not ideal. Performance improvement could be done here.
         """
         if len(data) > 1:
+            # check if data is a flat list (of float or integers):
+            if isinstance(data[0], (float, int)):
+                return torch.tensor(data), None
+
             # check if the data is of different shapes
-            if len(set([d.shape for d in data])) == 1:
+            elif len(set([d.shape for d in data])) == 1:
                 return torch.tensor(np.array(data)), None
             
             # otherwise, pad the data and build a mask tensor that points to where the data has been padded.
