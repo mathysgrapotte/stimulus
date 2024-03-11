@@ -105,7 +105,12 @@ class FloatEncoder(AbstractEncoder):
         Encodes the data. 
         This method takes as input a list of data points, should be mappable to a single output. 
         """
-        return [float(d) for d in data]
+
+        # check if data is a string, in that case it should use the encode sequence method
+        if isinstance(data, str):
+            return [self.encode(data)]
+        else:
+            return [float(d) for d in data]
     
     def decode(self, data: float) -> float:
         """
