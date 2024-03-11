@@ -36,25 +36,24 @@ class AbstractNoiseGenerator(ABC):
 
 class UniformTextMasker(AbstractNoiseGenerator):
     """
-    This noise generators replace characters with 'N' with a given probability.
+    This noise generators replace characters with a masking character with a given probability.
     """
 
-
-    def add_noise(self, data: str, probability: float = 0.1, seed: float = None) -> str:
+    def add_noise(self, data: str, probability: float = 0.1, mask='N', seed: float = None) -> str:
         """
         Adds noise to the data.
         """
-
         np.random.seed(seed)
-        return ''.join([c if np.random.rand() > probability else 'N' for c in data])
+        return ''.join([c if np.random.rand() > probability else mask for c in data])
 
-    def add_noise_all(self, data: list, probability: float = 0.1, seed: float = None) -> list:
+
+    def add_noise_all(self, data: list, probability: float = 0.1, mask='N', seed: float = None) -> list:
+
         """
         Adds noise to the data using multiprocessing.
         """
-
         with mp.Pool(mp.cpu_count()) as pool:
-            function_specific_input = [(item, probability, seed) for item in data]
+            function_specific_input = [(item, probability, mask, seed) for item in data]
             return pool.starmap(self.add_noise, function_specific_input)
         
 
@@ -63,12 +62,10 @@ class GaussianNoise(AbstractNoiseGenerator):
     This noise generator adds gaussian noise to float values
     """
 
-
     def add_noise(self, data: float, mean: float = 0, std: float= 0, seed: float = None) -> float:
         """
         Adds noise to a single point of data.
         """
-
         np.random.seed(seed)
         return data + np.random.normal(mean, std)
     
@@ -77,7 +74,6 @@ class GaussianNoise(AbstractNoiseGenerator):
         Adds noise to the data using np arrays
         # TODO return a np array to gain performance.
         """
-
         np.random.seed(seed)
         return list(np.array(data) + np.random.normal(mean, std, len(data)))
     
