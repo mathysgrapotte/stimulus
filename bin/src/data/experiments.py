@@ -9,9 +9,11 @@ Here we provide standard experiments as well as an absctract class for users to 
 
 from abc import ABC, abstractmethod
 from typing import Any
-from .data_types import data_types as data_types
 from .spliters import spliters as spliters
+from .encoding import encoders as encoders
+from .noise import noise_generators as noise_generators
 from copy import deepcopy
+
 import numpy as np
 
 class AbstractExperiment(ABC):
@@ -68,31 +70,19 @@ class AbstractExperiment(ABC):
             return getattr(self, noise_method)(data, **noise_params)
         else:
             raise NotImplementedError(f"No noise method {noise_method} in the class {self.__class__.__name__}")
-
+        
+    def get_encoder(self) -> str:
+        """
+        
+        """
+        pass
     
 class DnaToFloatExperiment(AbstractExperiment):
     """
     Class for dealing with DNA to float predictions (for instance regression from DNA sequence to CAGE value)
     """
-
-    def __init__(self, seed: float = None, **parameters) -> None:
-        super().__init__(seed)
-        self.dna = data_types.Dna(**parameters)
-        self.float = data_types.Float(**parameters)
-
-    def noise_dna_uniform_masker(self, data: dict, **noise_params) -> dict:
-        """
-        Adds noise to the data of a single input.
-        Applied on all input keys that have the dna data type.
-        """
-
-
-        dna_type_keys = self.get_keys_based_on_name_data_type_or_input(data, data_type='dna')
-
-        for key in dna_type_keys:
-            data[key] = self.dna.add_noise_uniform_text_masker_all_inputs(data[key], seed=self.seed, **noise_params)
-        
-        return data
-
-
+    def __init__(self):
+        super().__init__()
+        self.dna = {'encoder': encoders.one_hot_encoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
+        self.protein = {'encoder': encoders.one_hot_encoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
 
