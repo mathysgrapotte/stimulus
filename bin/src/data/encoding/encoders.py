@@ -84,30 +84,6 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         return self.encoder.inverse_transform(data)
     
-class IdentityEncoder(AbstractEncoder):
-    """
-    Encoder that does nothing, it just returns the input.
-    """
-    def encode(self, data: Any) -> Any:
-        """
-        Encodes the data. 
-        This method takes as input a single data point, should be mappable to a single output. 
-        """
-        return data
-    
-    def encode_all(self, data: list) -> list:
-        """
-        Encodes the data. 
-        This method takes as input a list of data points, should be mappable to a single output. 
-        """
-        return data
-    
-    def decode(self, data: Any) -> Any:
-        """
-        Decodes the data.
-        """
-        return data
-    
 class FloatEncoder(AbstractEncoder):
     """
     Encoder for float data.
