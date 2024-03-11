@@ -48,6 +48,9 @@ class AbstractEncoder(ABC):
 class TextOneHotEncoder(AbstractEncoder):
     """
     One hot encoder for text data.
+
+    NOTE that it will onehot encode based on the alphabet. 
+    If there is any character not included in the alphabet, that character will be presented by a vector of zeros.
     """
 
     def __init__(self, alphabet: str = "acgt") -> None:
@@ -57,6 +60,7 @@ class TextOneHotEncoder(AbstractEncoder):
     def _sequence_to_array(self, sequence: str) -> np.array:
         """
         This function transforms the given sequence to an array.
+        eg. 'abcd' -> array(['a'],['b'],['c'],['d'])
         """
         sequence_lower_case = sequence.lower()
         sequence_array = np.array(list(sequence_lower_case))
@@ -71,6 +75,7 @@ class TextOneHotEncoder(AbstractEncoder):
     def encode_all(self, data: Union[list, str]) -> np.array:
         """
         Encodes the data, if the list is length one, call encode instead.
+        It resturns a list with all the encoded data entries.
         """
         # check if the data is a str, in that case it should use the encode sequence method
         if isinstance(data, str):

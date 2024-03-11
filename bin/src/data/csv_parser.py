@@ -84,14 +84,20 @@ class CSVParser: # change to CsvHandler
             name = key.split(":")[0]
             data_type = key.split(":")[1]
 
+            # get the data at the given index
+            # if the data is not a list, it is converted to a list
+            # otherwise it breaks Float().encode_all(data) because it expects a list
+            data = dictionary[key][idx]
+            if not isinstance(data, list):
+                data = [data]
+
             # check if 'data_type' is in the experiment class attributes
             if not hasattr(self.experiment, data_type.lower()):
                 raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
             
             # encode the data at given index
             # For that, it first retrieves the data object and then calls the encode_all method to encode the data
-            # BUG when there is only one element in the list, then we don't get one list anymore, but only the element. And this creates error at Float.encode_all() since here [np.array(float(d)) for d in data] data is only a string and not a list of strings.
-            output[name] = self.experiment.__getattribute__(data_type.lower()).encode_all(dictionary[key][idx])
+            output[name] = self.experiment.__getattribute__(data_type.lower()).encode_all(data)
     
         return output
     
