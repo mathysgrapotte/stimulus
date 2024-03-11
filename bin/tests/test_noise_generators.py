@@ -21,7 +21,7 @@ class TestMyNoiseGenerator(unittest.TestCase):
 
 import unittest
 import numpy.testing as npt
-from bin.src.data.data_types.noise.noise_generators import UniformTextMasker, GaussianNoise
+from bin.src.data.noise.noise_generators import UniformTextMasker, GaussianNoise
 
 class TestUniformTextMasker(unittest.TestCase):
     def test_add_noise_single(self):
