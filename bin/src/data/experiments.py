@@ -26,8 +26,6 @@ class AbstractExperiment(ABC):
         # allow ability to add a seed for reproducibility
         self.seed = seed
 
-        #self.random_splitter = spliters.RandomSplitter(seed=seed) 
-
 
     def get_split_indexes(self, data: list, split: tuple) -> list | list | list:
         """
@@ -53,29 +51,18 @@ class AbstractExperiment(ABC):
         
         if column_name is not None:
             return [key for key in data if column_name in key.split(':')[0]]
+        
         if data_type is not None:
             if category is not None:
                 return [key for key in data if data_type in key.split(':')[1] and category in key.split(':')[2]]
             else:
                 return [key for key in data if data_type in key.split(':')[1]]
-
- 
-    def noise(self, data: Any, noise_method: str, **noise_params: dict) -> Any:
-        """
-        Adds noise to the data, using function defined in self.noise
-        """
-        # check if noise_method exist in the class, if it does, call it with the associated **noise_params, if not raise an error
-
-        if hasattr(self, noise_method):
-            return getattr(self, noise_method)(data, **noise_params)
-        else:
-            raise NotImplementedError(f"No noise method {noise_method} in the class {self.__class__.__name__}")
         
-    def get_encoder(self) -> str:
+    def get_encoding_all(self, data_type: str) -> Any:
         """
-        
+        This method gets the encoding function for a specific data type.
         """
-        pass
+        return getattr(self, data_type)['encoder'].encode_all
     
 class DnaToFloatExperiment(AbstractExperiment):
     """
@@ -83,6 +70,7 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
     def __init__(self):
         super().__init__()
-        self.dna = {'encoder': encoders.one_hot_encoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
-        self.protein = {'encoder': encoders.one_hot_encoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
+        self.float = {'encoder': encoders.IdentityEncoder(), 'noise_generators': {'uniform_float_masker': noise_generators.GaussianNoise()}}
+        #self.protein = {'encoder': encoders.TextOneHotEncoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
 
