@@ -32,15 +32,6 @@ class AbstractNoiseGenerator(ABC):
         """
         #  np.random.seed(seed)
         raise NotImplementedError
-    
-    def add_noise_multiprocess(self, data: list, seed: float = None) -> list:
-        """
-        Adds noise to the data using multiprocessing.
-        """
-        with mp.Pool(mp.cpu_count()) as pool:
-            # reshaping the inputs of this function to meet starmap requirements, basically adding into a tuple the list[elem] + seed
-            function_specific_input = [(item, seed) for item in data]
-            return pool.starmap(self.add_noise, function_specific_input)
         
 
 class UniformTextMasker(AbstractNoiseGenerator):
@@ -89,3 +80,4 @@ class GaussianNoise(AbstractNoiseGenerator):
 
         np.random.seed(seed)
         return list(np.array(data) + np.random.normal(mean, std, len(data)))
+    

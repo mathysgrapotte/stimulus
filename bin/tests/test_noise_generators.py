@@ -21,6 +21,7 @@ class TestMyNoiseGenerator(unittest.TestCase):
 
 import unittest
 import numpy.testing as npt
+import numpy as np
 from bin.src.data.noise.noise_generators import UniformTextMasker, GaussianNoise
 
 class TestUniformTextMasker(unittest.TestCase):
@@ -34,7 +35,7 @@ class TestUniformTextMasker(unittest.TestCase):
     def test_add_noise_multiprocess(self):
         # Test adding noise to a list of strings using multiprocessing
         masker = UniformTextMasker()
-        noisy_data_list = masker.add_noise_multiprocess(["ATCGATCGATCG", "ATCG"], seed=42, probability=0.1 )
+        noisy_data_list = masker.add_noise_all(["ATCGATCGATCG", "ATCG"], seed=42, probability=0.1 )
         self.assertIsInstance(noisy_data_list, list)     # making sure output is of correct type
         self.assertIsInstance(noisy_data_list[0], str)
         self.assertIsInstance(noisy_data_list[1], str)
@@ -50,13 +51,22 @@ class TestGaussianNoise(unittest.TestCase):
         self.assertAlmostEqual(noisy_data, 5.4967141530)     # there might be float point variation across systems so not all decimals have to be identical
 
     def test_add_noise_multiprocess(self):
-        # Test adding noise to a list of float values using multiprocessing
+        # Test adding noise to a list of float values using add_noise_all which uses np vectorization
         noise_generator = GaussianNoise()
-        noisy_data = noise_generator.add_noise_multiprocess([1.0, 2.0, 3.0])
+        noisy_data = noise_generator.add_noise_all([1.0, 2.0, 3.0])
         self.assertIsInstance(noisy_data, list)
         self.assertIsInstance(noisy_data[0], float)
         self.assertIsInstance(noisy_data[1], float)
         self.assertIsInstance(noisy_data[2], float)
+
+        # Try now with a seed=42, mean=0, std=1
+        noisy_data = noise_generator.add_noise_all([1.0, 2.0, 3.0], seed=42, mean=0, std=1)
+        self.assertIsInstance(noisy_data, list)
+        self.assertIsInstance(noisy_data[0], float)
+        self.assertIsInstance(noisy_data[1], float)
+        self.assertIsInstance(noisy_data[2], float)
+
+
 
 
 if __name__ == "__main__":
