@@ -11,10 +11,9 @@ type corresponds to the data type of the columns, as specified in the types modu
 The parser is a class that takes as input a CSV file and a experiment class that defines data types to be used, noising procedures, splitting etc. 
 """
 
-import pandas as pd
-from typing import Any, Tuple
-
-#TODO create a base class for CsvParser and CsvHandler
+import polars as pl
+from typing import Any, Tuple, Union
+from functools import partial
 
 class CsvHandler:
     """
@@ -24,32 +23,6 @@ class CsvHandler:
     def __init__(self, experiment: Any, csv_path: str) -> None:
         self.experiment = experiment
         self.csv_path = csv_path
-        self.input, self.label, self.meta = self.parse_csv_to_input_label_meta(self.csv_path)
-
-    def parse_csv_to_input_label_meta(self, csv_path: str) -> Tuple[dict, dict, dict]: #TODO need to use polar instead of pandas
-        """
-        This function reads the csv file into a dictionary, 
-        and then parses each key with the form name:category:type 
-        into three dictionaries, one for each category [input, label, meta].
-        The keys of each new dictionary are in this form name:type.
-        """
-        # read csv file into a dictionary of lists
-        # the keys of the dictionary are the column names and the values are the column values
-        data = pd.read_csv(csv_path, dtype=str).to_dict(orient="list")
-        
-        # parse the dictionary into three dictionaries, one for each category [input, label, meta]
-        input_data, label_data, meta_data = {}, {}, {}
-        for key in data:
-            name, category, data_type = key.split(":")
-            if category.lower() == "input":
-                input_data[f"{name}:{data_type}"] = data[key]
-            elif category.lower() == "label":
-                label_data[f"{name}:{data_type}"] = data[key]
-            elif category.lower() == "meta":
-                meta_data[f"{name}:{data_type}"] = data[key]
-            else:
-                raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label or meta. The specified csv column is {key}.")
-        return input_data, label_data, meta_data
     
     def __len__(self) -> int:
         """
@@ -66,8 +39,32 @@ class CsvLoader(CsvHandler): # change to CsvHandler
     Then, one can get one or many items from the data, encoded.
     """
     
-    def __init__(self, experiment: Any, csv_path: str) -> None:
+    def __init__(self, experiment: Any, csv_path: str, split: Union[int, None] = None) -> None:
         super().__init__(experiment, csv_path)
+        if split:
+            # if split is present, we defined the prefered load method to be the load_csv_per_split method with default argument split
+            prefered_load_method = partial(self.load_csv_per_split, split=split)
+        else:
+            prefered_load_method = self.load_all_csv
+        self.input, self.label, self.meta = self.parse_csv_to_input_label_meta(self.csv_path, prefered_load_method)
+    
+    def load_all_csv(self, csv_path: str) -> pl.DataFrame:
+        """
+        Loads the csv file into a polars dataframe.
+        """
+        return pl.read_csv(csv_path)
+    
+    def load_csv_per_split(self, csv_path: str, split: int) -> pl.DataFrame:
+        """
+        Split is the number of split to load, 0 is train, 1 is validation, 2 is test.
+        This is accessed through the column named "split:meta:int"
+        """
+        data = pl.read_csv(csv_path)
+        # check that the selected split value is present in the column split:meta:int
+        if split not in data.column("split:meta:int").unique().to_list():
+            raise ValueError(f"The split value {split} is not present in the column split:meta:int. The available values are {data.column('split:meta:int').unique().to_list()}")
+        
+        return data.filter(data.column("split:meta:int") == split)
     
     def get_and_encode(self, dictionary: dict, idx: Any) -> dict:
         """
@@ -104,6 +101,31 @@ class CsvLoader(CsvHandler): # change to CsvHandler
             output[name] = self.experiment.get_encoding_all(data_type)(dictionary[key][idx])
 
         return output
+    
+    def parse_csv_to_input_label_meta(self, csv_path: str, load_method: Any) -> Tuple[dict, dict, dict]:
+        """
+        This function reads the csv file into a dictionary, 
+        and then parses each key with the form name:category:type 
+        into three dictionaries, one for each category [input, label, meta].
+        The keys of each new dictionary are in this form name:type.
+        """
+        # read csv file into a dictionary of lists
+        # the keys of the dictionary are the column names and the values are the column values
+        data = load_method(csv_path).to_dict(as_series=False)
+        
+        # parse the dictionary into three dictionaries, one for each category [input, label, meta]
+        input_data, label_data, meta_data = {}, {}, {}
+        for key in data:
+            name, category, data_type = key.split(":")
+            if category.lower() == "input":
+                input_data[f"{name}:{data_type}"] = data[key]
+            elif category.lower() == "label":
+                label_data[f"{name}:{data_type}"] = data[key]
+            elif category.lower() == "meta":
+                meta_data[f"{name}:{data_type}"] = data[key]
+            else:
+                raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label or meta. The specified csv column is {key}.")
+        return input_data, label_data, meta_data
     
     def __getitem__(self, idx: Any) -> dict:
         """

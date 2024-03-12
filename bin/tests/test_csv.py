@@ -1,5 +1,3 @@
-import numpy as np
-import numpy.testing as npt
 import unittest
 import os
 from bin.src.data.csv import CsvLoader
