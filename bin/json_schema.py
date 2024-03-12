@@ -84,6 +84,23 @@ class JsonSchema(ABC):
         else:
             raise ValueError(f"Expected the same number of values for all the params under noise value, but received a discordant ammount instead.")
         
+
+    def noise_column_wise_combination(self) -> list:
+        """
+        works on the self.noise_arg dictionary to compute all column wise combinations for parametrs and noise function specified.
+        """
+
+        print(self.noise_arg)
+        return []
+
+
+    def noise_all_combination(self) -> list:
+        """
+        works on the self.noise_arg dictionary to compute all possible combinations of parameters and nboisers in a all against all fashion.
+        """
+
+        # TODO implement this function
+        raise ValueError("the function noise_all_combination for the flag interpret_parmas_mode : all_combinations is not implemented yet ")
             
     
 

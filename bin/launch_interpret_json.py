@@ -30,9 +30,13 @@ def interpret_json(input_json: dict) -> list:
     #print("\nnoise_configurations :\n", schema.noise_arg, "\n", type(schema.noise_arg))
     #print("\nsplit_configurations :\n", schema.split_arg, "\n", type(schema.split_arg))
     #print("\ncustom_configurations :\n", schema.custom_arg, "\n", type(schema.custom_arg))
-    print(schema.number_culumn_wise_val)
+    #print(schema.number_culumn_wise_val)
     #print(schema.experiment, schema.interpret_params_mode, schema.column_names)
-    
+
+    # compute all noise combinations
+    # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
+    function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
+    list_noise_combinatioons = function_call_dict[schema.interpret_params_mode]()
 
     
    
