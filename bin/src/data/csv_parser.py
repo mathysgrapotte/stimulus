@@ -97,7 +97,10 @@ class CSVParser: # change to CsvHandler
             
             # encode the data at given index
             # For that, it first retrieves the data object and then calls the encode_all method to encode the data
-            output[name] = self.experiment.__getattribute__(data_type.lower()).encode_all(data)
+
+            
+            output[name] = self.experiment.get_encoding_all(data_type)(dictionary[key][idx])
+
     
         return output
     

@@ -25,14 +25,13 @@ class AbstractNoiseGenerator(ABC):
         #  np.random.seed(seed)
         raise NotImplementedError
     
-    def add_noise_multiprocess(self, data: list, seed: float = None) -> list:
+    @abstractmethod
+    def add_noise_all(self, data: list, seed: float = None) -> list:
         """
-        Adds noise to the data using multiprocessing.
+        Adds noise to the data.
         """
-        with mp.Pool(mp.cpu_count()) as pool:
-            # reshaping the inputs of this function to meet starmap requirements, basically adding into a tuple the list[elem] + seed
-            function_specific_input = [(item, seed) for item in data]
-            return pool.starmap(self.add_noise, function_specific_input)
+        #  np.random.seed(seed)
+        raise NotImplementedError
         
 
 class UniformTextMasker(AbstractNoiseGenerator):
@@ -47,13 +46,16 @@ class UniformTextMasker(AbstractNoiseGenerator):
         np.random.seed(seed)
         return ''.join([c if np.random.rand() > probability else mask for c in data])
 
-    def add_noise_multiprocess(self, data: list, probability: float = 0.1, mask='N', seed: float = None) -> list:
+
+    def add_noise_all(self, data: list, probability: float = 0.1, mask='N', seed: float = None) -> list:
+
         """
         Adds noise to the data using multiprocessing.
         """
         with mp.Pool(mp.cpu_count()) as pool:
             function_specific_input = [(item, probability, mask, seed) for item in data]
             return pool.starmap(self.add_noise, function_specific_input)
+        
 
 class GaussianNoise(AbstractNoiseGenerator):
     """
@@ -67,10 +69,11 @@ class GaussianNoise(AbstractNoiseGenerator):
         np.random.seed(seed)
         return data + np.random.normal(mean, std)
     
-    def add_noise_multiprocess(self, data: list, mean: float = 0, std: float = 0, seed: float = None) -> list:
+    def add_noise_all(self, data: list, mean: float = 0, std: float = 0, seed: float = None) -> list:
         """
         Adds noise to the data using np arrays
         # TODO return a np array to gain performance.
         """
         np.random.seed(seed)
         return list(np.array(data) + np.random.normal(mean, std, len(data)))
+    
