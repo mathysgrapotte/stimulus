@@ -31,7 +31,7 @@ class TestMyClass(unittest.TestCase):
 import numpy as np
 import numpy.testing as npt
 import unittest
-from bin.src.data.data_types.encoding.encoders import TextOneHotEncoder
+from bin.src.data.encoding.encoders import TextOneHotEncoder
 
 
 class TestTextOneHotEncoder(unittest.TestCase):

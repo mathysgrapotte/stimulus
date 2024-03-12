@@ -89,3 +89,33 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         return self.encoder.inverse_transform(data)
     
+class FloatEncoder(AbstractEncoder):
+    """
+    Encoder for float data.
+    """
+    def encode(self, data: float) -> float:
+        """
+        Encodes the data. 
+        This method takes as input a single data point, should be mappable to a single output. 
+        """
+        return float(data)
+    
+    def encode_all(self, data: list) -> list:
+        """
+        Encodes the data. 
+        This method takes as input a list of data points, should be mappable to a single output. 
+        """
+
+        # check if data is a string, in that case it should use the encode sequence method
+        if isinstance(data, str):
+            return [self.encode(data)]
+        else:
+            return [float(d) for d in data]
+    
+    def decode(self, data: float) -> float:
+        """
+        Decodes the data.
+        """
+        return data
+    
+    
