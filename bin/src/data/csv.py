@@ -16,22 +16,17 @@ from typing import Any, Tuple
 
 #TODO create a base class for CsvParser and CsvHandler
 
-class CSVParser: # change to CsvHandler
+class CsvHandler:
     """
-    Class for parsing CSV files.
-    
-    It will parse the CSV file into three dictionaries, one for each category [input, label, meta].
-    So each dictionary will have the keys in the form name:type, and the values will be the column values.
-    Then, one can get one or many items from the data, encoded.
+    Class for handling CSV files. #TODO add extensive description
     """
-    
+
     def __init__(self, experiment: Any, csv_path: str) -> None:
         self.experiment = experiment
         self.csv_path = csv_path
         self.input, self.label, self.meta = self.parse_csv_to_input_label_meta(self.csv_path)
-        self.padding_value = self.find_padding_value(self.input)
-        
-    def parse_csv_to_input_label_meta(self, csv_path: str) -> Tuple[dict, dict, dict]:
+
+    def parse_csv_to_input_label_meta(self, csv_path: str) -> Tuple[dict, dict, dict]: #TODO need to use polar instead of pandas
         """
         This function reads the csv file into a dictionary, 
         and then parses each key with the form name:category:type 
@@ -55,16 +50,24 @@ class CSVParser: # change to CsvHandler
             else:
                 raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label or meta. The specified csv column is {key}.")
         return input_data, label_data, meta_data
-
-    def find_padding_value(self, data: dict) -> int:
+    
+    def __len__(self) -> int:
         """
-        Find an integer that is not present in any of the lists of the data dictionary
+        returns the length of the first list in input, assumes that all are the same length
         """
-        i = 0
-        while True:
-            if i not in [item for sublist in data.values() for item in sublist]:
-                return i
-            i += 1
+        return len(list(self.input.values())[0])
+    
+class CsvLoader(CsvHandler): # change to CsvHandler
+    """
+    Class for parsing CSV files.
+    
+    It will parse the CSV file into three dictionaries, one for each category [input, label, meta].
+    So each dictionary will have the keys in the form name:type, and the values will be the column values.
+    Then, one can get one or many items from the data, encoded.
+    """
+    
+    def __init__(self, experiment: Any, csv_path: str) -> None:
+        super().__init__(experiment, csv_path)
     
     def get_and_encode(self, dictionary: dict, idx: Any) -> dict:
         """
@@ -80,7 +83,7 @@ class CSVParser: # change to CsvHandler
         """
         output = {}
         for key in dictionary: # processing each column
-            
+
             # get the name and data_type
             name = key.split(":")[0]
             data_type = key.split(":")[1]
@@ -98,14 +101,11 @@ class CSVParser: # change to CsvHandler
             
             # encode the data at given index
             # For that, it first retrieves the data object and then calls the encode_all method to encode the data
-
-            
             output[name] = self.experiment.get_encoding_all(data_type)(dictionary[key][idx])
 
-    
         return output
     
-    def get_encoded_item(self, idx: Any) -> Tuple[dict, dict, dict]:
+    def __getitem__(self, idx: Any) -> dict:
         """
         It gets the data at a given index, and encodes the input and label, leaving meta as it is.
         """
@@ -113,16 +113,25 @@ class CSVParser: # change to CsvHandler
         y = self.get_and_encode(self.label, idx)
         return x, y, self.meta
     
-    def __len__(self) -> int:
+class CsvParser(CsvHandler):
+    """
+    Class for loading
+    """
+
+    def __init__(self, experiment: Any, csv_path: str) -> None:
+        super().__init__(experiment, csv_path)  
+
+    def save(self, path: str) -> None:
         """
-        returns the length of the first list in input, assumes that all are the same length
-        """
-        return len(list(self.input.values())[0])
-    
-    def __getitem__(self, idx: Any) -> dict:
-        """
-        get a dictionary with all the keys for the data at a given index
+        Saves the data to a csv file.
         """
         data = {**self.input, **self.label, **self.meta}
-        return { key: data[key][idx] for key in data }
+        df = pd.DataFrame(data)
+        df.to_csv(path, index=False)
+
+    def noise(self, data):
+        """
+        Adds noise to the data.
+        """
+        pass
     

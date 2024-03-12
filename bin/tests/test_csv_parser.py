@@ -2,21 +2,21 @@ import numpy as np
 import numpy.testing as npt
 import unittest
 import os
-from bin.src.data.csv_parser import CSVParser
+from bin.src.data.csv import CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment
 
-class TestDnaToFloatCsvParser(unittest.TestCase):
+class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def setUp(self):
-        self.csv_parser = CSVParser(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
+        self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
 
     def test_get_encoded_item_unique(self):
         """ 
-        It tests that the csv_parser.get_encoded_item works well when getting one item.
+        It tests that the csv_loader.get_encoded_item works well when getting one item.
         The following test is performed on the item at idx=0.
         """
         # get the encoded item from the csv file at idx 0
-        encoded_item = self.csv_parser.get_encoded_item(0)
+        encoded_item = self.csv_loader[0]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
         self.assertEqual(len(encoded_item), 3)
@@ -41,12 +41,12 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
 
     def test_get_encoded_item_multiple(self):
         """
-        It tests that the csv_parser.get_encoded_item works well when getting multiple items using slice.
+        It tests that the csv_loader.get_encoded_item works well when getting multiple items using slice.
         The following test is performed on the item at idx=0 and idx=1.
         """
         
         # get the encoded items from the csv file at idx 0 and 1
-        encoded_item = self.csv_parser.get_encoded_item(slice(0, 2))
+        encoded_item = self.csv_loader[slice(0, 2)]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
         self.assertEqual(len(encoded_item), 3)
@@ -70,5 +70,5 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
             self.assertEqual(len(encoded_item[1][key]), 2)
 
     def test_len(self):
-        self.assertEqual(len(self.csv_parser), 2)
+        self.assertEqual(len(self.csv_loader), 2)
         

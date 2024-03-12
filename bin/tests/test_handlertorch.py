@@ -5,7 +5,6 @@ import os
 import torch
 from bin.src.data.handlertorch import TorchDataset
 from bin.src.data.experiments import DnaToFloatExperiment
-from bin.src.data.csv_parser import CSVParser
 
 # initialize unittest class
 class TestDnaToFloatTorchDataset(unittest.TestCase):
