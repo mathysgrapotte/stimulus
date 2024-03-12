@@ -14,6 +14,7 @@ The parser is a class that takes as input a CSV file and a experiment class that
 import pandas as pd
 from typing import Any, Tuple
 
+#TODO create a base class for CsvParser and CsvHandler
 
 class CSVParser: # change to CsvHandler
     """
