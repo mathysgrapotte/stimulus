@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.testing as npt
 import unittest
 import os
 import torch
@@ -31,7 +30,7 @@ class TestDnaToFloatTorchDataset(unittest.TestCase):
         self.assertIsNone(mask_dict["hola"])
 
 
-        input_data = self.torchdataset_same_length.parser.get_encoded_item(slice(0, 2))
+        input_data = self.torchdataset_same_length.parser[slice(0, 2)]
         output_dict, mask_dict = self.torchdataset_same_length.convert_dict_to_tensor(input_data[0])
 
     def test_get_item_same_lenghts(self):
