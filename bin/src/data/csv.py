@@ -24,12 +24,6 @@ class CsvHandler:
         self.experiment = experiment
         self.csv_path = csv_path
     
-    def __len__(self) -> int:
-        """
-        returns the length of the first list in input, assumes that all are the same length
-        """
-        return len(list(self.input.values())[0])
-    
 class CsvLoader(CsvHandler): # change to CsvHandler
     """
     Class for parsing CSV files.
@@ -101,6 +95,12 @@ class CsvLoader(CsvHandler): # change to CsvHandler
             output[name] = self.experiment.get_encoding_all(data_type)(dictionary[key][idx])
 
         return output
+    
+    def __len__(self) -> int:
+        """
+        returns the length of the first list in input, assumes that all are the same length
+        """
+        return len(list(self.input.values())[0])
     
     def parse_csv_to_input_label_meta(self, csv_path: str, load_method: Any) -> Tuple[dict, dict, dict]:
         """
