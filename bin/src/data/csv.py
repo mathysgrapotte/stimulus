@@ -22,10 +22,10 @@ class CsvHandler:
     def __init__(self, experiment: Any, csv_path: str) -> None:
         self.experiment = experiment
         self.csv_path = csv_path
-        self.categories = self.get_categories()
+        self.categories = self.check_and_get_categories()
         self.check_compulsory_categories_exist()
     
-    def get_categories(self) -> list:
+    def check_and_get_categories(self) -> list:
         """
         Returns the categories contained in the csv file.
         """
@@ -38,26 +38,36 @@ class CsvHandler:
                 raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label, split or meta. The specified csv column is {colname}.")
             categories.append(category)
         return categories
+    
+    def get_keys_based_on_name_category_dtype(self, column_name: str = None, category: str = None, data_type: str = None) -> list:
+        """
+        Returns the keys that are of a specific type, name or category. Or a combination of those.
+        """
+        if (column_name is None) and (category is None) and (data_type is None):
+            raise ValueError(f"At least one of the arguments column_name, category or data_type should be provided")
+        with open(self.csv_path, 'r') as f:
+            header = f.readline().strip().split(',')
+        keys = []
+        for key in header:
+            current_name, current_category, current_dtype = key.split(":")
+            if (column_name is None or column_name == current_name) and (category is None or category == current_category) and (data_type is None or data_type == current_dtype):
+                keys.append(key)
+        if len(keys) == 0:
+            raise ValueError(f"No keys found with the specified column_name={column_name}, category={category}, data_type={data_type}")
+        return keys
 
     def check_compulsory_categories_exist(self) -> None:
         """
         Checks if the compulsory categories exist in the csv file.
         """
-        for category in ["input", "label"]:
-            if category not in self.categories:
-                raise ValueError(f"The category {category} is not present in the csv file")
-            
-    def get_columms_from_category(self, category: str) -> list:
+        if 'input' not in self.categories:
+            raise ValueError(f"The category input is not present in the csv file")
+    
+    def load_csv(self) -> pl.DataFrame:
         """
-        Returns the column names from the CSV file corresponding to the specified category.
+        Loads the csv file into a polars dataframe.
         """
-        with open(self.csv_path, 'r') as f:
-            header = f.readline().strip().split(',')
-        cols = []
-        for colname in header:
-            if colname.split(":")[1].lower() == category.lower():
-                cols.append(colname)
-        return cols
+        return pl.read_csv(self.csv_path)
 
 
 class CsvProcessing(CsvHandler):
@@ -66,17 +76,19 @@ class CsvProcessing(CsvHandler):
     """
 
     def __init__(self, experiment: Any, csv_path: str) -> None:
-        super().__init__(experiment, csv_path)  
+        super().__init__(experiment, csv_path)
+        self.data = self.load_csv(self.csv_path)
+    
+    def add_noise_to_column(self, column: str) -> None:
+        """
+        Adds noise to the data from a specific column.
+        """
+        pass
+        
 
     def save(self, path: str) -> None:
         """
         Saves the data to a csv file.
-        """
-        pass
-
-    def noise(self, data):
-        """
-        Adds noise to the data.
         """
         pass
 
@@ -89,7 +101,6 @@ class CsvLoader(CsvHandler):
     So each dictionary will have the keys in the form name:type, and the values will be the column values.
     Afterwards, one can get one or many items from the data, encoded.
     """
-    
     def __init__(self, experiment: Any, csv_path: str, split: Union[int, None] = None) -> None:
         """ 
         Initialize the class by parsing and splitting the csv data into the corresponding categories.
@@ -106,7 +117,7 @@ class CsvLoader(CsvHandler):
         if split is not None:
             prefered_load_method = partial(self.load_csv_per_split, split=split)
         else:
-            prefered_load_method = self.load_all_csv
+            prefered_load_method = self.load_csv
 
         # parse csv and split into categories
         self.input, self.label, self.split, self.meta = self.parse_csv_to_input_label_split_meta(prefered_load_method)
@@ -121,17 +132,11 @@ class CsvLoader(CsvHandler):
             raise ValueError(f"The category split is not present in the csv file")
         if split not in [0, 1, 2]:
             raise ValueError(f"The split value should be 0, 1 or 2. The specified split value is {split}")
-        colname = self.get_columms_from_category("split")
+        colname = self.get_keys_based_on_name_category_dtype("split")
         if len(colname) > 1:
             raise ValueError(f"The split category should have only one column, the specified csv file has {len(colname)} columns")
         colname = colname[0]
         return pl.scan_csv(self.csv_path).filter(pl.col(colname) == split).collect()
-    
-    def load_all_csv(self) -> pl.DataFrame:
-        """
-        Loads the csv file into a polars dataframe.
-        """
-        return pl.read_csv(self.csv_path)
     
     def parse_csv_to_input_label_split_meta(self, load_method: Any) -> Tuple[dict, dict, dict]:
         """

@@ -32,37 +32,18 @@ class AbstractExperiment(ABC):
         Returns the indexes of the split data.
         """
         raise NotImplementedError
-
-    def get_keys_based_on_name_data_type_or_input(self, data: dict, column_name: str = None, data_type: str = None, category = None) -> list:
-        """
-        Returns the keys of the data that are of a specific type, name or category.
-        If the column_name is specified, it will return all the keys that contain the column_name in their name. 
-        If the data_type is specified, it will return all the keys that contain the data_type in their name.
-        If the data_type and the category are specified, it will return all the keys that contain the data_type and the category in their name.
-        """
-
-        # Check that one of column_name, data_type or category is not None
-        if column_name is None and data_type is None and category is None:
-            raise ValueError("At least one of column_name, data_type or category should be specified.")
         
-        # Check that category is not the only one specified
-        if category is not None and column_name is None and data_type is None:
-            raise ValueError("category cannot be the only one specified.")
-        
-        if column_name is not None:
-            return [key for key in data if column_name in key.split(':')[0]]
-        
-        if data_type is not None:
-            if category is not None:
-                return [key for key in data if data_type in key.split(':')[1] and category in key.split(':')[2]]
-            else:
-                return [key for key in data if data_type in key.split(':')[1]]
-        
-    def get_encoding_all(self, data_type: str) -> Any:
+    def get_encoding_all(self, attribute: str) -> Any:
         """
         This method gets the encoding function for a specific data type.
         """
-        return getattr(self, data_type)['encoder'].encode_all
+        return getattr(self, attribute)['encoder'].encode_all
+    
+    def add_noise_all(self, attribute, noise_generator: str) -> list:
+        """
+        This method adds noise to all the entries.
+        """
+        raise getattr(self, attribute)['noise_generators'][noise_generator].add_noise_all
     
 class DnaToFloatExperiment(AbstractExperiment):
     """
