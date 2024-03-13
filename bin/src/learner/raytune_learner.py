@@ -30,8 +30,8 @@ class TuneModel(Trainable):
         self.model.eval()
         with torch.no_grad():
             for x, y, _, _, _ in self.test:
-                output = self.model(x)
-                loss = self.loss_fn(output, y)
+                output = self.model(**x)
+                loss = self.loss_fn(output, y['hola'].to(torch.float32))
         return loss.item()
 
     def objective(self):
@@ -42,10 +42,10 @@ class TuneModel(Trainable):
         for x, y, mask_x, mask_y, meta in self.train:
             self.optimizer.zero_grad()
             output = self.model(**x)
-            loss = self.loss_fn(output, y)
+            loss = self.loss_fn(output, y['hola'].to(torch.float32))
             # if mask_x is not None, apply it to the loss
-            if mask_x is not {}: #TODO this is most likely wrong, check loss dimensions to solve this issue, also, dictionary would need to be converted to a tensor. 
-                loss = loss * mask_x
+            #if mask_x is not {}: #TODO this is most likely wrong, check loss dimensions to solve this issue, also, dictionary would need to be converted to a tensor. 
+            #    loss = loss * mask_x
             loss.backward()
             self.optimizer.step()
 
