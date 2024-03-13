@@ -96,12 +96,6 @@ class CsvLoader(CsvHandler): # change to CsvHandler
 
         return output
     
-    def __len__(self) -> int:
-        """
-        returns the length of the first list in input, assumes that all are the same length
-        """
-        return len(list(self.input.values())[0])
-    
     def parse_csv_to_input_label_meta(self, csv_path: str, load_method: Any) -> Tuple[dict, dict, dict]:
         """
         This function reads the csv file into a dictionary, 
@@ -134,6 +128,12 @@ class CsvLoader(CsvHandler): # change to CsvHandler
         x = self.get_and_encode(self.input, idx)
         y = self.get_and_encode(self.label, idx)
         return x, y, self.meta
+    
+    def __len__(self) -> int:
+        """
+        returns the length of the first list in input, assumes that all are the same length
+        """
+        return len(list(self.input.values())[0])
     
 class CsvParser(CsvHandler):
     """
