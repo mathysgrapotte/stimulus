@@ -76,6 +76,9 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
         self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
         # self.csv_loader_split.input['hello'] should have only one value 
         self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
+        # check that self.csv_loader_split.meta has only one value in the ['split:int'] column which is 0
+        self.assertEqual(len(self.csv_loader_split.meta['split:int']), 1)
+        self.assertEqual(self.csv_loader_split.meta['split:int'][0], 0)
         self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=1)
         self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=2)
         with self.assertRaises(ValueError): # should raise an error
