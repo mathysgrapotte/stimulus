@@ -6,7 +6,7 @@ bin/**/__pycache__/
 /notebook/.ipynb_checkpoints
 .ipynb_checkpoints
 .nextflow*
-works
+/work/
 .DS_Store
 /singularity_cache
 /results/

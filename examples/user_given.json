@@ -1,0 +1,71 @@
+{
+    "experiment": "DnaToFloatExperiment",
+    "interpret_parmas_mode": "culumn_wise", 
+    "noise": [
+        {
+            "column_name": "input1",
+            "name": ["UniformTextMasker", "AnotherNoiser", "YetAnotherNoiser"],
+            "params": [{"probability": [0.1, 0.2, 0.3]}, {"probability": [0.11, 0.21, 0.31]}, {"probability": [0.12, 0.22, 0.32]}]
+        },
+        {
+            "column_name": "input2",
+            "name": ["UniformTextMasker", "AnotherNoiser"],
+            "params": [{"probability": [0.4, 0.5, 0.6]}, {"probability": [0.1, 0.2, 0.3]}]
+        },
+        {
+            "column_name": "label",
+            "name": "GaussianNoise",
+            "params": [{"mean": [0.5, 0.6, 0.7], "std": [0.1, 0.2, 0.3]}]
+        }
+    ],
+    "split": [
+        {
+            "name": "RandomSplitter",
+            "params": [{"split": [[0.6, 0.8], [0.7, 0.85]]}]
+        }
+    ],
+    "custom": [
+        {
+            "1": {
+                "noise": [
+                    {
+                        "column_name": "input1",
+                        "name": ["UniformTextMasker"],
+                        "params": [{"probability": [0.1]}]
+                    },
+                    {
+                        "column_name": "input2",
+                        "name": "GaussianNoise",
+                        "params": [{"mean": [0.5], "std": [0.1]}]
+                    }
+                ],
+                "split": [
+                    {
+                        "name": "RandomSplitter",
+                        "params": [{"split": [0.6, 0.8]}]
+                    }
+                ]  
+            },
+            "2": {
+                "noise": [
+                    {
+                        "column_name": "input2",
+                        "name": ["UniformTextMasker"],
+                        "params": [{"probability": [0.1]}]
+                    },
+                    {
+                        "column_name": "float",
+                        "name": "GaussianNoise",
+                        "params": [{"mean": [0.5], "std": [0.1]}]
+                    }
+                ],
+                "split": [
+                    {
+                        "name": "RandomSplitter",
+                        "params": [{"split": [0.6, 0.8]}]
+                    }
+                ]
+            }
+    }
+    ]
+}

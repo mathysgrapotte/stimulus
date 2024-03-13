@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
-from .csv_parser import CSVParser
+from .csv import CsvLoader
 from typing import Any, Tuple
 
 class TorchDataset(Dataset):
@@ -15,7 +15,7 @@ class TorchDataset(Dataset):
     """
     def __init__(self, csvpath : str, experiment : Any) -> None:
         self.csvpath = csvpath
-        self.parser = CSVParser(experiment, csvpath)
+        self.parser = CsvLoader(experiment, csvpath)
 
     def convert_list_of_numpy_arrays_to_tensor(self, data: list) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -38,13 +38,13 @@ class TorchDataset(Dataset):
                 data = [torch.from_numpy(d) for d in data] # convert the np arrays to tensors
 
                 # pad sequences
-                padded_data = pad_sequence(data, batch_first=True, padding_value=self.parser.padding_value)
+                padded_data = pad_sequence(data, batch_first=True, padding_value=42)
 
                 # create a mask of the same shape as the padded data
                 mask = torch.zeros_like(padded_data)
 
                 # mask should have ones everywhere the data is not padded (so values are not 42)
-                mask[padded_data != self.parser.padding_value] = 1
+                mask[padded_data != 42] = 1
 
                 return padded_data, mask
 
@@ -65,7 +65,7 @@ class TorchDataset(Dataset):
         return len(self.parser)
 
     def __getitem__(self, idx: int) -> Tuple[dict, dict, dict]:
-        x, y, meta = self.parser.get_encoded_item(idx)
+        x, y, meta = self.parser[idx]
         # convert the content in the x and y directories to torch tensors
         x, x_mask = self.convert_dict_to_tensor(x)
         y, y_mask = self.convert_dict_to_tensor(y)

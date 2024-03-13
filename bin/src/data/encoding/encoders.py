@@ -77,8 +77,8 @@ class TextOneHotEncoder(AbstractEncoder):
         Encodes the data, if the list is length one, call encode instead.
         It resturns a list with all the encoded data entries.
         """
-        # check if the data is a str, in that case it should use the encode sequence method
-        if isinstance(data, str):
+        # check if the data is not a list, in this case it should use the encode method
+        if not isinstance(data, list):
             return [self.encode(data)]
         else:
             return self.encode_multiprocess(data)
@@ -106,8 +106,8 @@ class FloatEncoder(AbstractEncoder):
         This method takes as input a list of data points, should be mappable to a single output. 
         """
 
-        # check if data is a string, in that case it should use the encode sequence method
-        if isinstance(data, str):
+        # check if data is not a list, in that case it should use the encode sequence method
+        if not isinstance(data, list):
             return [self.encode(data)]
         else:
             return [float(d) for d in data]
