@@ -7,6 +7,7 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def setUp(self):
         self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
 
     def test_get_encoded_item_unique(self):
         """ 
@@ -69,4 +70,16 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(len(self.csv_loader), 2)
+
+    def test_load_with_split(self):
+        # try loading with different split values, should run with 0,1 and 2 and raise an error for other values
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
+        # self.csv_loader_split.input['hello'] should have only one value 
+        self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=1)
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=2)
+        with self.assertRaises(ValueError): # should raise an error
+            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+
+        
         

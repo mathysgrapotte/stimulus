@@ -35,7 +35,7 @@ class CsvLoader(CsvHandler): # change to CsvHandler
     
     def __init__(self, experiment: Any, csv_path: str, split: Union[int, None] = None) -> None:
         super().__init__(experiment, csv_path)
-        if split:
+        if split is not None:
             # if split is present, we defined the prefered load method to be the load_csv_per_split method with default argument split
             prefered_load_method = partial(self.load_csv_per_split, split=split)
         else:
@@ -55,10 +55,10 @@ class CsvLoader(CsvHandler): # change to CsvHandler
         """
         data = pl.read_csv(csv_path)
         # check that the selected split value is present in the column split:meta:int
-        if split not in data.column("split:meta:int").unique().to_list():
-            raise ValueError(f"The split value {split} is not present in the column split:meta:int. The available values are {data.column('split:meta:int').unique().to_list()}")
+        if split not in data["split:meta:int"].unique().to_list():
+            raise ValueError(f"The split value {split} is not present in the column split:meta:int. The available values are {data['split:meta:int'].unique().to_list()}")
         
-        return data.filter(data.column("split:meta:int") == split)
+        return data.filter(data["split:meta:int"] == split)
     
     def get_and_encode(self, dictionary: dict, idx: Any) -> dict:
         """
