@@ -7,15 +7,15 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from .csv import CsvLoader
-from typing import Any, Tuple
+from typing import Any, Tuple, Union
 
 class TorchDataset(Dataset):
     """
     Class for creating a torch dataset
     """
-    def __init__(self, csvpath : str, experiment : Any) -> None:
+    def __init__(self, csvpath: str, experiment: Any, split: Union[None, int] = None) -> None:
         self.csvpath = csvpath
-        self.parser = CsvLoader(experiment, csvpath)
+        self.parser = CsvLoader(experiment, csvpath, split=split)
 
     def convert_list_of_numpy_arrays_to_tensor(self, data: list) -> Tuple[torch.Tensor, torch.Tensor]:
         """
