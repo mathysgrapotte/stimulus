@@ -14,7 +14,6 @@ The parser is a class that takes as input a CSV file and a experiment class that
 import polars as pl
 from typing import Any, Tuple, Union
 from functools import partial
-import polars as pl
 
 class CsvHandler:
     """
