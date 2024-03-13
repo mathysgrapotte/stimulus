@@ -1,4 +1,4 @@
-hello:input:dna,hola:label:float,split:meta:int
+hello:input:dna,hola:label:float,split:split:int
 ACTGACTGATCGATGC,12,0
 ACTGACTGATCGATGC,12,1
 ACTGACTGATCGATGC,12,2

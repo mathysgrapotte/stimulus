@@ -72,17 +72,16 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
         self.assertEqual(len(self.csv_loader), 2)
 
     def test_load_with_split(self):
-        # try loading with different split values, should run with 0,1 and 2 and raise an error for other values
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
-        # self.csv_loader_split.input['hello'] should have only one value 
-        self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
-        # check that self.csv_loader_split.meta has only one value in the ['split:int'] column which is 0
-        self.assertEqual(len(self.csv_loader_split.meta['split:int']), 1)
-        self.assertEqual(self.csv_loader_split.meta['split:int'][0], 0)
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=1)
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=2)
-        with self.assertRaises(ValueError): # should raise an error
-            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+        # test when split is not provided
+        csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"))
+        self.assertEqual(len(csv_loader_split.input['hello:dna']), 3)
 
-        
-        
+        # test when split is 0, 1 or 2
+        for i in [0, 1, 2]:
+            csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=i)
+            self.assertEqual(len(csv_loader_split.input['hello:dna']), 1)
+            self.assertEqual(csv_loader_split.split['split:int'][0], i)
+
+        # test when split is not valid
+        with self.assertRaises(ValueError): # should raise an error
+            csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)

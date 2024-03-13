@@ -14,51 +14,150 @@ The parser is a class that takes as input a CSV file and a experiment class that
 import polars as pl
 from typing import Any, Tuple, Union
 from functools import partial
+import polars as pl
 
 class CsvHandler:
     """
-    Class for handling CSV files. #TODO add extensive description
+    Meta class for handling CSV files.
     """
-
     def __init__(self, experiment: Any, csv_path: str) -> None:
         self.experiment = experiment
         self.csv_path = csv_path
+        self.categories = self.get_categories()
+        self.check_compulsory_categories_exist()
     
-class CsvLoader(CsvHandler): # change to CsvHandler
+    def get_categories(self) -> list:
+        """
+        Returns the categories contained in the csv file.
+        """
+        with open(self.csv_path, 'r') as f:
+            header = f.readline().strip().split(',')
+        categories = []
+        for colname in header:
+            category = colname.split(":")[1].lower()
+            if category not in ['input', 'label', 'split', 'meta']:
+                raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label, split or meta. The specified csv column is {colname}.")
+            categories.append(category)
+        return categories
+
+    def check_compulsory_categories_exist(self) -> None:
+        """
+        Checks if the compulsory categories exist in the csv file.
+        """
+        for category in ["input", "label"]:
+            if category not in self.categories:
+                raise ValueError(f"The category {category} is not present in the csv file")
+            
+    def get_columms_from_category(self, category: str) -> list:
+        """
+        Returns the column names from the CSV file corresponding to the specified category.
+        """
+        with open(self.csv_path, 'r') as f:
+            header = f.readline().strip().split(',')
+        cols = []
+        for colname in header:
+            if colname.split(":")[1].lower() == category.lower():
+                cols.append(colname)
+        return cols
+
+
+class CsvProcessing(CsvHandler):
     """
-    Class for parsing CSV files.
+    Class to load the input csv data and add noise accordingly.
+    """
+
+    def __init__(self, experiment: Any, csv_path: str) -> None:
+        super().__init__(experiment, csv_path)  
+
+    def save(self, path: str) -> None:
+        """
+        Saves the data to a csv file.
+        """
+        pass
+
+    def noise(self, data):
+        """
+        Adds noise to the data.
+        """
+        pass
+
     
-    It will parse the CSV file into three dictionaries, one for each category [input, label, meta].
+class CsvLoader(CsvHandler):
+    """
+    Class for loading and splitting the csv data, and then encode the information.
+    
+    It will parse the CSV file into four dictionaries, one for each category [input, label, meta, split].
     So each dictionary will have the keys in the form name:type, and the values will be the column values.
-    Then, one can get one or many items from the data, encoded.
+    Afterwards, one can get one or many items from the data, encoded.
     """
     
     def __init__(self, experiment: Any, csv_path: str, split: Union[int, None] = None) -> None:
+        """ 
+        Initialize the class by parsing and splitting the csv data into the corresponding categories.
+
+        args:
+            experiment (class) : The experiment class to perform
+            csv_path (str) : The path to the csv file
+            split (int) : The split to load, 0 is train, 1 is validation, 2 is test.
+        """
         super().__init__(experiment, csv_path)
+
+        # we need a different parsing function in case we have the split argument or not
+        # NOTE using partial we can define the default split value, without the need to pass it as an argument all the time through the class
         if split is not None:
-            # if split is present, we defined the prefered load method to be the load_csv_per_split method with default argument split
             prefered_load_method = partial(self.load_csv_per_split, split=split)
         else:
             prefered_load_method = self.load_all_csv
-        self.input, self.label, self.meta = self.parse_csv_to_input_label_meta(self.csv_path, prefered_load_method)
+
+        # parse csv and split into categories
+        self.input, self.label, self.split, self.meta = self.parse_csv_to_input_label_split_meta(prefered_load_method)
     
-    def load_all_csv(self, csv_path: str) -> pl.DataFrame:
+    def load_csv_per_split(self, split: int) -> pl.DataFrame:
+        """
+        Load the part of csv file that has the specified split value.
+        Split is a number that for 0 is train, 1 is validation, 2 is test.
+        This is accessed through the column with category `split`. Example column name could be `split:split:int`.
+        """
+        if 'split' not in self.categories:
+            raise ValueError(f"The category split is not present in the csv file")
+        if split not in [0, 1, 2]:
+            raise ValueError(f"The split value should be 0, 1 or 2. The specified split value is {split}")
+        colname = self.get_columms_from_category("split")
+        if len(colname) > 1:
+            raise ValueError(f"The split category should have only one column, the specified csv file has {len(colname)} columns")
+        colname = colname[0]
+        return pl.scan_csv(self.csv_path).filter(pl.col(colname) == split).collect()
+    
+    def load_all_csv(self) -> pl.DataFrame:
         """
         Loads the csv file into a polars dataframe.
         """
-        return pl.read_csv(csv_path)
+        return pl.read_csv(self.csv_path)
     
-    def load_csv_per_split(self, csv_path: str, split: int) -> pl.DataFrame:
+    def parse_csv_to_input_label_split_meta(self, load_method: Any) -> Tuple[dict, dict, dict]:
         """
-        Split is the number of split to load, 0 is train, 1 is validation, 2 is test.
-        This is accessed through the column named "split:meta:int"
+        This function reads the csv file into a dictionary, 
+        and then parses each key with the form name:category:type 
+        into three dictionaries, one for each category [input, label, meta].
+        The keys of each new dictionary are in this form name:type.
         """
-        data = pl.read_csv(csv_path)
-        # check that the selected split value is present in the column split:meta:int
-        if split not in data["split:meta:int"].unique().to_list():
-            raise ValueError(f"The split value {split} is not present in the column split:meta:int. The available values are {data['split:meta:int'].unique().to_list()}")
+        # read csv file into a dictionary of lists
+        # the keys of the dictionary are the column names and the values are the column values
+        data = load_method().to_dict(as_series=False)
         
-        return data.filter(data["split:meta:int"] == split)
+        # parse the dictionary into three dictionaries, one for each category [input, label, split, meta]
+        input_data, label_data, split_data, meta_data = {}, {}, {}, {}
+        for key in data:
+            name, category, data_type = key.split(":")
+            if category.lower() == "input":
+                input_data[f"{name}:{data_type}"] = data[key]
+            elif category.lower() == "label":
+                label_data[f"{name}:{data_type}"] = data[key]
+            elif category.lower() == 'split':
+                split_data[f"{name}:{data_type}"] = data[key]
+            elif category.lower() == "meta":
+                meta_data[f"{name}:{data_type}"] = data[key]
+        return input_data, label_data, split_data, meta_data
     
     def get_and_encode(self, dictionary: dict, idx: Any) -> dict:
         """
@@ -102,31 +201,6 @@ class CsvLoader(CsvHandler): # change to CsvHandler
         """
         return len(list(self.input.values())[0])
     
-    def parse_csv_to_input_label_meta(self, csv_path: str, load_method: Any) -> Tuple[dict, dict, dict]:
-        """
-        This function reads the csv file into a dictionary, 
-        and then parses each key with the form name:category:type 
-        into three dictionaries, one for each category [input, label, meta].
-        The keys of each new dictionary are in this form name:type.
-        """
-        # read csv file into a dictionary of lists
-        # the keys of the dictionary are the column names and the values are the column values
-        data = load_method(csv_path).to_dict(as_series=False)
-        
-        # parse the dictionary into three dictionaries, one for each category [input, label, meta]
-        input_data, label_data, meta_data = {}, {}, {}
-        for key in data:
-            name, category, data_type = key.split(":")
-            if category.lower() == "input":
-                input_data[f"{name}:{data_type}"] = data[key]
-            elif category.lower() == "label":
-                label_data[f"{name}:{data_type}"] = data[key]
-            elif category.lower() == "meta":
-                meta_data[f"{name}:{data_type}"] = data[key]
-            else:
-                raise ValueError(f"Unknown category {category}, category (the second element of the csv column, seperated by ':') should be input, label or meta. The specified csv column is {key}.")
-        return input_data, label_data, meta_data
-    
     def __getitem__(self, idx: Any) -> dict:
         """
         It gets the data at a given index, and encodes the input and label, leaving meta as it is.
@@ -134,24 +208,4 @@ class CsvLoader(CsvHandler): # change to CsvHandler
         x = self.get_and_encode(self.input, idx)
         y = self.get_and_encode(self.label, idx)
         return x, y, self.meta
-    
-class CsvParser(CsvHandler):
-    """
-    Class for loading
-    """
-
-    def __init__(self, experiment: Any, csv_path: str) -> None:
-        super().__init__(experiment, csv_path)  
-
-    def save(self, path: str) -> None:
-        """
-        Saves the data to a csv file.
-        """
-        pass
-
-    def noise(self, data):
-        """
-        Adds noise to the data.
-        """
-        pass
     
