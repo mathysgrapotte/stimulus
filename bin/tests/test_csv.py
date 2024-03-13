@@ -73,15 +73,15 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def test_load_with_split(self):
         # test when split is not provided
-        csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"))
-        self.assertEqual(len(csv_loader_split.input['hello:dna']), 3)
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"))
+        self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 3)
 
         # test when split is 0, 1 or 2
         for i in [0, 1, 2]:
-            csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=i)
-            self.assertEqual(len(csv_loader_split.input['hello:dna']), 1)
-            self.assertEqual(csv_loader_split.split['split:int'][0], i)
+            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=i)
+            self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
+            self.assertEqual(self.csv_loader_split.split['split:int'][0], i)
 
         # test when split is not valid
         with self.assertRaises(ValueError): # should raise an error
-            csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
