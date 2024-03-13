@@ -21,3 +21,8 @@ class TestRayTuneLearner(unittest.TestCase):
 
     def test_step(self):
         self.learner.step()
+
+    def test_objective(self):
+        self.learner.objective()
+
+    
