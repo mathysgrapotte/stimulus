@@ -33,17 +33,17 @@ class AbstractExperiment(ABC):
         """
         raise NotImplementedError
         
-    def get_encoding_all(self, attribute: str) -> Any:
+    def get_encoding_all(self, data_type: str) -> Any:
         """
         This method gets the encoding function for a specific data type.
         """
-        return getattr(self, attribute)['encoder'].encode_all
+        return getattr(self, data_type)['encoder'].encode_all
     
-    def add_noise_all(self, attribute, noise_generator: str) -> list:
+    def add_noise_all(self, data_type, noise_generator: str) -> list:
         """
         This method adds noise to all the entries.
         """
-        raise getattr(self, attribute)['noise_generators'][noise_generator].add_noise_all
+        raise getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
     
 class DnaToFloatExperiment(AbstractExperiment):
     """

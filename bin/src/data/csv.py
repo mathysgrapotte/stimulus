@@ -85,7 +85,6 @@ class CsvProcessing(CsvHandler):
         """
         pass
         
-
     def save(self, path: str) -> None:
         """
         Saves the data to a csv file.
