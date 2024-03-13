@@ -1,22 +1,21 @@
-import numpy as np
-import numpy.testing as npt
 import unittest
 import os
-from bin.src.data.csv_parser import CSVParser
+from bin.src.data.csv import CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment
 
-class TestDnaToFloatCsvParser(unittest.TestCase):
+class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def setUp(self):
-        self.csv_parser = CSVParser(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
+        self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
 
     def test_get_encoded_item_unique(self):
         """ 
-        It tests that the csv_parser.get_encoded_item works well when getting one item.
+        It tests that the csv_loader.get_encoded_item works well when getting one item.
         The following test is performed on the item at idx=0.
         """
         # get the encoded item from the csv file at idx 0
-        encoded_item = self.csv_parser.get_encoded_item(0)
+        encoded_item = self.csv_loader[0]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
         self.assertEqual(len(encoded_item), 3)
@@ -41,12 +40,12 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
 
     def test_get_encoded_item_multiple(self):
         """
-        It tests that the csv_parser.get_encoded_item works well when getting multiple items using slice.
+        It tests that the csv_loader.get_encoded_item works well when getting multiple items using slice.
         The following test is performed on the item at idx=0 and idx=1.
         """
         
         # get the encoded items from the csv file at idx 0 and 1
-        encoded_item = self.csv_parser.get_encoded_item(slice(0, 2))
+        encoded_item = self.csv_loader[slice(0, 2)]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
         self.assertEqual(len(encoded_item), 3)
@@ -70,5 +69,20 @@ class TestDnaToFloatCsvParser(unittest.TestCase):
             self.assertEqual(len(encoded_item[1][key]), 2)
 
     def test_len(self):
-        self.assertEqual(len(self.csv_parser), 2)
+        self.assertEqual(len(self.csv_loader), 2)
+
+    def test_load_with_split(self):
+        # try loading with different split values, should run with 0,1 and 2 and raise an error for other values
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
+        # self.csv_loader_split.input['hello'] should have only one value 
+        self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
+        # check that self.csv_loader_split.meta has only one value in the ['split:int'] column which is 0
+        self.assertEqual(len(self.csv_loader_split.meta['split:int']), 1)
+        self.assertEqual(self.csv_loader_split.meta['split:int'][0], 0)
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=1)
+        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=2)
+        with self.assertRaises(ValueError): # should raise an error
+            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+
+        
         
