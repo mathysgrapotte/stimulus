@@ -7,13 +7,13 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from .csv import CsvLoader
-from typing import Any, Tuple, Union
+from typing import Any, Tuple
 
 class TorchDataset(Dataset):
     """
     Class for creating a torch dataset
     """
-    def __init__(self, csvpath: str, experiment: Any, split: Union[None, int] = None) -> None:
+    def __init__(self, csvpath: str, experiment: Any, split: Tuple[None, int] = None) -> None:
         self.csvpath = csvpath
         self.parser = CsvLoader(experiment, csvpath, split=split)
 
@@ -23,15 +23,16 @@ class TorchDataset(Dataset):
         If the list includes numpy arrays of different shapes, padd the numpy arrays and return a mask tensor, otherwise mask tensor is set to None
 
         # TODO: This method utilizes ifs to check the shape of the data. this is not ideal. Performance improvement could be done here.
+        # TODO: possibly we want to convert everything at once on load and not on the fly.
         """
         if len(data) > 1:
             # check if data is a flat list (of float or integers):
             if isinstance(data[0], (float, int)):
-                return torch.tensor(data), None
+                return torch.tensor(data), {}
 
             # check if the data is of different shapes
             elif len(set([d.shape for d in data])) == 1:
-                return torch.tensor(np.array(data)), None
+                return torch.tensor(np.array(data)), {}
             
             # otherwise, pad the data and build a mask tensor that points to where the data has been padded.
             else:
@@ -49,7 +50,7 @@ class TorchDataset(Dataset):
                 return padded_data, mask
 
         else:
-            return torch.tensor(data[0]), None
+            return torch.tensor(data[0]), {}
 
     def convert_dict_to_tensor(self, data: dict) -> dict:
         """

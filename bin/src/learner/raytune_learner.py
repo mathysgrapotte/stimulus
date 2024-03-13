@@ -3,29 +3,14 @@ import torch.optim as optim
 import torch
 from torch.utils.data import DataLoader
 from ray.tune import Trainable
-from ..data.handlertorch import handlertorch as handlertorch
+from ..data.handlertorch import TorchDataset
 from typing import Any, Dict
 
-CONFIG_EXAMPLE = {
-    'model_params': {
-        'kernel_size': 3,
-        'pool_size': 2
-    },
-
-    'optimizer': {
-        'name': 'Adam',
-        'params':{}},
-
-    'loss_fn': 'MSELoss',
-
-    'data_params': {
-        'batch_size': 64
-    }
-}
+#TODO write a wrapper to the TuneModel class that takes a model, a experiment, a data_path and a config, add the model, data_path and experiment to the config and pass it to the TuneModel class.
 
 class TuneModel(Trainable):
-    def setup(self, config: dict, model: nn.Module, data_path: str, experiment: Any):
-        self.model = model(**config["model_params"])
+    def setup(self, config: dict):
+        self.model = config['model'](**config["model_params"])
 
         try:
             self.loss_fn = getattr(nn, config["loss_fn"])()
@@ -37,8 +22,8 @@ class TuneModel(Trainable):
         except AttributeError:
             raise ValueError(f"Invalid optimizer: {config['optimizer']['name']}, check PyTorch for documentation on available optimizers")
         
-        self.train = DataLoader(handlertorch.TorchDataset(data_path, experiment, split=0), batch_size=config['data_params']['batch_size'])
-        self.test = DataLoader(handlertorch.TorchDataset(data_path, experiment, split=1), batch_size=config['data_params']['batch_size'])
+        self.train = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=0), batch_size=config['data_params']['batch_size'])
+        self.test = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=1), batch_size=config['data_params']['batch_size'])
 
 
     def compute_val_loss(self):
@@ -56,10 +41,10 @@ class TuneModel(Trainable):
         self.model.train()
         for x, y, mask_x, mask_y, meta in self.train:
             self.optimizer.zero_grad()
-            output = self.model(x)
+            output = self.model(**x)
             loss = self.loss_fn(output, y)
             # if mask_x is not None, apply it to the loss
-            if mask_x is not None: #TODO this is most likely wrong, check loss dimensions to solve this issue. 
+            if mask_x is not {}: #TODO this is most likely wrong, check loss dimensions to solve this issue, also, dictionary would need to be converted to a tensor. 
                 loss = loss * mask_x
             loss.backward()
             self.optimizer.step()
