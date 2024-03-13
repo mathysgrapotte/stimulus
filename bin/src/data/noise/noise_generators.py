@@ -46,9 +46,7 @@ class UniformTextMasker(AbstractNoiseGenerator):
         np.random.seed(seed)
         return ''.join([c if np.random.rand() > probability else mask for c in data])
 
-
     def add_noise_all(self, data: list, probability: float = 0.1, mask='N', seed: float = None) -> list:
-
         """
         Adds noise to the data using multiprocessing.
         """
