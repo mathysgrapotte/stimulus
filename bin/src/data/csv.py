@@ -147,9 +147,7 @@ class CsvParser(CsvHandler):
         """
         Saves the data to a csv file.
         """
-        data = {**self.input, **self.label, **self.meta}
-        df = pd.DataFrame(data)
-        df.to_csv(path, index=False)
+        pass
 
     def noise(self, data):
         """
