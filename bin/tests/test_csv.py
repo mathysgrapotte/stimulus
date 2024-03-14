@@ -2,10 +2,10 @@ import json
 import os
 import unittest
 from bin.src.data.csv import CsvProcessing, CsvLoader
-from bin.src.data.experiments import DnaToFloatExperiment
+from bin.src.data.experiments import ProtDnaToFloatExperiment
 
 
-class TestDnaToFloatCsvProcessing(unittest.TestCase):
+class TestProtDnaToFloatCsvProcessing(unittest.TestCase):
 
     def setUp(self):
         self.csv_path = os.path.abspath("bin/tests/test_data/test.csv")
@@ -16,24 +16,32 @@ class TestDnaToFloatCsvProcessing(unittest.TestCase):
         """
         It tests that it can load the csv file correctly.
         """
-        csv_processing = CsvProcessing(DnaToFloatExperiment(), self.csv_path)
+        csv_processing = CsvProcessing(ProtDnaToFloatExperiment(), self.csv_path)
         self.assertEqual(csv_processing.data.shape[0], 2)
-        self.assertEqual(csv_processing.data.shape[1], 2)
+        self.assertEqual(csv_processing.data.shape[1], 3)
 
-    def test_add_noise_dna(self):
+    def test_add_noise(self):
         """
-        It tests the add_noise method for dna data.
+        It tests the add_noise method.
         """
-        csv_processing = CsvProcessing(DnaToFloatExperiment(), self.csv_path)
+        # load data and add noise
+        csv_processing = CsvProcessing(ProtDnaToFloatExperiment(), self.csv_path)
         csv_processing.add_noise(self.configs['noise'])
+
+        # check protein mask
+        self.assertEqual(list(csv_processing.data['bonjour:input:prot'])[0], 'GPRTTIKAKQLETLX')
+
+        # check dna mask
         self.assertEqual(list(csv_processing.data['hello:input:dna'])[0], 'ACTGACTGATCGATNN')
+
+        # check float gaussian noise
         self.assertEqual(12.68, round(list(csv_processing.data['hola:label:float'])[0],2))
 
 
 class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def setUp(self):
-        self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
+        self.csv_loader = CsvLoader(ProtDnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
 
     def test_get_encoded_item_unique(self):
         """ 
@@ -99,15 +107,15 @@ class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def test_load_with_split(self):
         # test when split is not provided
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"))
+        self.csv_loader_split = CsvLoader(ProtDnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"))
         self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 3)
 
         # test when split is 0, 1 or 2
         for i in [0, 1, 2]:
-            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=i)
+            self.csv_loader_split = CsvLoader(ProtDnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=i)
             self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
             self.assertEqual(self.csv_loader_split.split['split:int'][0], i)
 
         # test when split is not valid
         with self.assertRaises(ValueError): # should raise an error
-            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+            self.csv_loader_split = CsvLoader(ProtDnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)

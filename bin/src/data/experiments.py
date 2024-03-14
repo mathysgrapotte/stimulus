@@ -48,8 +48,16 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
     Class for dealing with DNA to float predictions (for instance regression from DNA sequence to CAGE value)
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker()}}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
         self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
 
+
+class ProtDnaToFloatExperiment(DnaToFloatExperiment):
+    """
+    Class for dealing with Protein and DNA to float predictions (for instance regression from Protein sequence + DNA sequence to binding score)
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='X')}}
