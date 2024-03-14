@@ -110,10 +110,10 @@ class JsonSchema(ABC):
         return noise_dict
 
 
-
     def _generate_cartesian_product_combinations(self, d: dict) -> list:
         """
-        Helper functiomn for creating cartesian product combinations out of a dictionary.
+        Helper function for creating cartesian product combinations out of a dictionary.
+        TODO expand explanation
         """
         keys = d.keys()
         value_lists = d.values()
@@ -124,21 +124,32 @@ class JsonSchema(ABC):
         # Create dictionaries for each combination
         result = []
         for combination in combinations:
-            result.append(dict(zip(keys, combination)))
+            combined_dict = {}
+            for key, value in zip(keys, combination):
+                nested_dict = {value : d[key][value]}
+                combined_dict.update({key: nested_dict})
+            result.append(combined_dict)
 
-        return result 
+        return result
+
 
     
-    def _handle_parameter_selection(self, param_index: int, column_name: str, noiser_name: str, d: dict):
+    def _handle_parameter_selection(self, d: dict, param_index: int) -> dict:
         """
         TODO helper fucntion section
         """
-
-        noise_param_tuple_list = d[column_name]
-        # search for the noiser name in the tuples to retrieve the params associated
-        for noise_param_tuple in noise_param_tuple_list:
-            if noise_param_tuple[0] == noiser_name:
-                print("", noise_param_tuple)
+        
+        for key, param_dict in d.items():
+            # handle "defualt" as params value
+            if param_dict == 'default':
+                return {"name" : key, "params" : param_dict}
+            else:
+                tmp_param_dict = {}
+                # iterate through the possible multiple parameter otpions
+                for param_name, param_value in param_dict.items():
+                    tmp_param_dict[param_name] = param_value[param_index]
+                return {"name": key, "params": tmp_param_dict}  
+                
 
 
     def noise_column_wise_combination(self) -> list:
@@ -173,45 +184,26 @@ class JsonSchema(ABC):
 
         # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {parameters : {p1 : [1]} }}}
         noise_as_dict = self._transform_noise_dict()
-
-        print("noise as dict -> ", noise_as_dict)
-
-
-        # create temporary dictionary with keys the column_name and as values the associated noise methods
-        column_name_to_noiser = {}
-        for i, column_name_value in enumerate(self.column_names):
-            # If the noiser name is just one so basically a string it will be put in the dictionary as list
-            if isinstance(self.noise_arg[i]['name'], list):
-                column_name_to_noiser[column_name_value] = self.noise_arg[i]['name']
-            elif isinstance(self.noise_arg[i]['name'], str):
-                column_name_to_noiser[column_name_value] = [self.noise_arg[i]['name']]
-            else:
-                raise ValueError(f"The noise: name: value in the Json can only be either a string or a list of strings. given -> {type(self.noise_arg[i]['name'])}")
-
-        
-
+            
         # Create cartesian product of noiser names based on the above dictionary
-        noiser_combination_list = self._generate_cartesian_product_combinations(column_name_to_noiser)
-        
-        print("noise combo list -> ", noiser_combination_list)
+        noiser_combination_list = self._generate_cartesian_product_combinations(noise_as_dict)
 
-        
         # for each noiser combination create the column wise selection of parameters associated
         all_noise_combination = []
         for noise_combo in noiser_combination_list:
-            specific_combo_list = []
-            for col_name_key, noise_name_value in noise_combo.items():
-                tmp_dict = {}
-                for param_index in range(self.number_culumn_wise_val):
-                    tmp_dict['column_name'] = col_name_key
-                    tmp_dict['name'] = noise_name_value
-
-                    # Handle params selection through the first created dictionary
-                    #tmp_dict['params'] = self._handle_parameter_selection(param_index, col_name_key, noise_name_value, noise_as_dict)
-                specific_combo_list.append(tmp_dict)
-            all_noise_combination.append(specific_combo_list)
-
+            # select the parameter iterating through the total number of parameters value fopr each col type 
+            for params_index in range(self.number_culumn_wise_val):
+                noise_list = []
+                for col_name, noise_dict in noise_combo.items():
+                    single_param_dict = self._handle_parameter_selection(noise_dict, params_index)
+                    # add the column_name field to this dictionary
+                    single_param_dict["column_name"] = col_name
+                    # reorder the entries by key alphabetically for readability
+                    sorted_dict = {key: single_param_dict[key] for key in sorted(single_param_dict)}
+                    noise_list.append(sorted_dict)
+                all_noise_combination.append({'noise' : noise_list })
         return all_noise_combination
+
 
 
     def noise_all_combination(self) -> list:
