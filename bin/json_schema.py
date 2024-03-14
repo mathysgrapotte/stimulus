@@ -140,6 +140,8 @@ class JsonSchema(ABC):
         """
         
         for key, param_dict in d.items():
+            # remove the appendix used to handle same noise names for same column_name, this is done in the _transform_noise_dict function, this line does nothing if that key is not present afterall
+            key = key.split('-#')[0]
             # handle "defualt" as params value
             if param_dict == 'default':
                 return {"name" : key, "params" : param_dict}

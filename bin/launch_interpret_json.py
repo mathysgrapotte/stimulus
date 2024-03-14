@@ -7,7 +7,8 @@ from json_schema import JsonSchema
 
 def get_args():
 
-    "get the arguments when using from the commandline"
+    """get the arguments when using from the commandline
+    TODO write help function description"""
     
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all parameter info')
@@ -36,10 +37,11 @@ def interpret_json(input_json: dict) -> list:
     # compute all noise combinations
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
     function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
-    list_noise_combinatioons = function_call_dict[schema.interpret_params_mode]()
+    list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
 
-
-    
+    # compute all split combinations, this will only be all vs all because there is no concept of column_name
+    #list_split_combinations = schema.split_combination()
+    #print(list_split_combinations, len(list_split_combinations))
    
 
 def main(config_json: str) -> str:
@@ -49,7 +51,7 @@ def main(config_json: str) -> str:
     with open(config_json, 'r') as in_json:
         config = json.load(in_json)
 
-    # initialize the json scheme class 
+    # interpret the json
     interpret_json(config)
 
 
