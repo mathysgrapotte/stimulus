@@ -12,9 +12,7 @@ from typing import Any
 from .spliters import spliters as spliters
 from .encoding import encoders as encoders
 from .noise import noise_generators as noise_generators
-from copy import deepcopy
 
-import numpy as np
 
 class AbstractExperiment(ABC):
     """
@@ -39,19 +37,19 @@ class AbstractExperiment(ABC):
         """
         return getattr(self, data_type)['encoder'].encode_all
     
-    def add_noise_all(self, data_type, noise_generator: str) -> list:
+    def add_noise_all(self, data_type: str, noise_generator: str) -> Any:
         """
         This method adds noise to all the entries.
         """
-        raise getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
+        return getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
     
+
 class DnaToFloatExperiment(AbstractExperiment):
     """
     Class for dealing with DNA to float predictions (for instance regression from DNA sequence to CAGE value)
     """
     def __init__(self):
         super().__init__()
-        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
-        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'uniform_float_masker': noise_generators.GaussianNoise()}}
-        #self.protein = {'encoder': encoders.TextOneHotEncoder(), 'noise_generators': {'uniform_text_masker': noise_generators.UniformTextMasker()}}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker()}}
+        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
 

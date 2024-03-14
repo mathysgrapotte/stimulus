@@ -1,13 +1,39 @@
-import unittest
+import json
 import os
-from bin.src.data.csv import CsvLoader
+import unittest
+from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment
+
+
+class TestDnaToFloatCsvProcessing(unittest.TestCase):
+
+    def setUp(self):
+        self.csv_path = os.path.abspath("bin/tests/test_data/test.csv")
+        with open('bin/tests/test_data/test_config.json', 'rb') as f:
+            self.configs = json.load(f)
+
+    def test_load_csv(self):
+        """
+        It tests that it can load the csv file correctly.
+        """
+        csv_processing = CsvProcessing(DnaToFloatExperiment(), self.csv_path)
+        self.assertEqual(csv_processing.data.shape[0], 2)
+        self.assertEqual(csv_processing.data.shape[1], 2)
+
+    def test_add_noise_dna(self):
+        """
+        It tests the add_noise method for dna data.
+        """
+        csv_processing = CsvProcessing(DnaToFloatExperiment(), self.csv_path)
+        csv_processing.add_noise(self.configs['noise'])
+        self.assertEqual(list(csv_processing.data['hello:input:dna'])[0], 'ACTGACTGATCGATNN')
+        self.assertEqual(12.68, round(list(csv_processing.data['hola:label:float'])[0],2))
+
 
 class TestDnaToFloatCsvLoader(unittest.TestCase):
 
     def setUp(self):
         self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
 
     def test_get_encoded_item_unique(self):
         """ 

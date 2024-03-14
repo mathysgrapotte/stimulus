@@ -77,19 +77,25 @@ class CsvProcessing(CsvHandler):
 
     def __init__(self, experiment: Any, csv_path: str) -> None:
         super().__init__(experiment, csv_path)
-        self.data = self.load_csv(self.csv_path)
+        self.data = self.load_csv()
     
-    def add_noise_to_column(self, column: str) -> None:
+    def add_noise(self, configs: list) -> None:
         """
-        Adds noise to the data from a specific column.
+        Adds noise to the data.
+        Noise is added for each column with the configurations specified in the configs list.
         """
-        pass
-        
+        for dictionary in configs:
+            key = dictionary['column_name']
+            data_type = key.split(':')[2]
+            noise_generator = dictionary['name']
+            new_column = self.experiment.add_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
+            self.data = self.data.with_columns(pl.Series(key, new_column))
+
     def save(self, path: str) -> None:
         """
         Saves the data to a csv file.
         """
-        pass
+        self.data.write_csv(path)
 
     
 class CsvLoader(CsvHandler):
