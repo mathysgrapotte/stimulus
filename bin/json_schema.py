@@ -101,10 +101,12 @@ class JsonSchema(ABC):
                     params_to_be_added = "default"
                 else:
                     params_to_be_added =  col_name_dictionary['params'][k]
-                # handle the case of multiple noiser with same name in the same list
-                if noiser_name in col_name_dictionary["column_name"]:
-                    print(noiser_name, col_name_dictionary["column_name"])
-                noise_dict.setdefault(col_name_dictionary["column_name"], []).append( {noiser_name : params_to_be_added} )
+                # handle the case of multiple noiser with same name in the same list associated to the column_name, solution -> create a scheme to modify the name
+                if noise_dict.get(col_name_dictionary["column_name"]) and noiser_name in noise_dict.get(col_name_dictionary["column_name"]) :
+                    # Modify the noiser name already present appending a unique key to it
+                    noiser_name = noiser_name + '-#' + str(k)
+                #noise_dict.setdefault(col_name_dictionary["column_name"], []).append( {noiser_name : params_to_be_added} )
+                noise_dict.setdefault(col_name_dictionary["column_name"], {})[noiser_name] = params_to_be_added
         return noise_dict
 
 
@@ -169,7 +171,7 @@ class JsonSchema(ABC):
             noiser2 (p1 = 3.5) - othernoiser (p1 = 6, p2 = 9)
         """
 
-        # transform noise entry in a real dictionary and not jus a list of dicitionaries, with structure {col_names:[(noise_name, params_dict), (oise_name, params_dict)]}
+        # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {parameters : {p1 : [1]} }}}
         noise_as_dict = self._transform_noise_dict()
 
         print("noise as dict -> ", noise_as_dict)
