@@ -4,23 +4,23 @@
         {
             "column_name": "input1",
             "name": "UniformTextMasker",
-            "params": [{"probability": [0.1]}]
+            "params": {"probability": 0.1}
         },
         {
             "column_name": "input2",
             "name": "UniformTextMasker",
-            "params": [{"probability": [0.4]}]
+            "params": {"probability": 0.4}
         },
         {
             "column_name": "label",
             "name": "GaussianNoise",
-            "params": [{"mean": [0.5], "std": [0.1]}]
+            "params": {"mean": 0.5, "std": 0.1}
         }
     ],
     "split": [
         {
             "name": "RandomSplitter",
-            "params": [{"split": [[0.6, 0.8]]}]
+            "params": {"split": [0.6, 0.8]}
         }
     ]
 }
