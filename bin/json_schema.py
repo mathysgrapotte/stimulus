@@ -5,7 +5,9 @@ from itertools import product
 
 class JsonSchema(ABC):
     """
-    This class helps decode and work on a difened Json schema used by the stimulus pipeline
+    This class helps decode and work on a difened Json schema used by the stimulus pipeline.
+    TODO add Json.schema real library to control that each noise, split have the correct keys associated to them.
+    link -> https://json-schema.org/learn/getting-started-step-by-step#create
     """
     def __init__(self, schema: dict ) -> None:
         self.schema                = schema
@@ -26,10 +28,14 @@ class JsonSchema(ABC):
         # check that inside noise dictionary there are no repeated column_nmae values and return them otherwise send error
         self.column_names = self._check_repeated_column_names()
 
-
         # check that noise dictionary have a coherent number of parameters values in case of column_wise for self.interpret_parmas_mode
-        self.number_culumn_wise_val = self._check_params_schema()
-  
+        self.number_culumn_wise_val = self._check_noise_params_schema()
+
+        # check that split dictionary have a coherent number of parameters values in case of column_wise for self.interpret_parmas_mode
+        self.number_prams_value_in_split = self._check_noise_params_schema()
+
+
+
     def _check_repeated_column_names(self) -> list:
         """
         Helper function that ensures that inside noise dictionary there are no column:names repeated values
@@ -52,16 +58,16 @@ class JsonSchema(ABC):
 
 
 
-    def _check_params_schema(self) -> int:
+    def _check_noise_params_schema(self) -> int:
         """
-        Help function to check if the number of values in params in the noise dictionary is consisten among all params.
+        Help function to check if the number of values in params in the noise dictionary is consistent among all params.
         If there is {"NoiserName" : { "params": [{"val1":[0, 1]}], "OtherNoiser" : { "params": [{"val1":[2, 3], "val3":[4]}]}}
         it will raise error because the val3 has only a list of len() 1 instead of 2
         otherwise it resturn the len()
         """
 
-        # in case there is no noise dictionary but a custom one instead or if interpret_params_mode is in all_combinations mode
-        if (not self.noise_arg and self.custom_arg) or self.interpret_params_mode == 'all_combinations' :
+        # in case there is no noise dictionary or if interpret_params_mode is in all_combinations mode
+        if not self.noise_arg  or self.interpret_params_mode == 'all_combinations' :
             return None
 
         num_params_list = []
@@ -84,6 +90,7 @@ class JsonSchema(ABC):
             return num_params_list[0]
         else:
             raise ValueError(f"Expected the same number of values for all the params under noise value, but received a discordant ammount instead.")
+
 
 
     def _transform_noise_dict(self):
@@ -184,7 +191,7 @@ class JsonSchema(ABC):
             noiser2 (p1 = 3.5) - othernoiser (p1 = 6, p2 = 9)
         """
 
-        # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {parameters : {p1 : [1]} }}}
+        # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {p1 : [1]} }}
         noise_as_dict = self._transform_noise_dict()
             
         # Create cartesian product of noiser names based on the above dictionary
@@ -203,7 +210,7 @@ class JsonSchema(ABC):
                     # reorder the entries by key alphabetically for readability
                     sorted_dict = {key: single_param_dict[key] for key in sorted(single_param_dict)}
                     noise_list.append(sorted_dict)
-                all_noise_combination.append({'noise' : noise_list })
+                all_noise_combination.append(noise_list)
         return all_noise_combination
 
 
@@ -223,4 +230,26 @@ class JsonSchema(ABC):
         TODO add description
         """
 
+        list_split_comibinations = []
         # iterate through the split entry and return a list of split possibilities, where each splitter_name has one/set of one parametyers
+        for i, split_dict in enumerate(self.split_arg):
+            # jsut create a new dictionary for each set of params associated to each split_name, basically if a splitter has more than one element in his params: then they should be decoupled so to have each splitter with only one value for params:
+            # if the value of params: is "default" just return the dictionary itself preopended by split : 
+            if split_dict['params'] == "default":
+                list_split_comibinations.append({ "split" : [split_dict]})
+            else:
+                # Get lengths of all lists
+                lengths = {key: len(value) for key, value in split_dict['params'][0].items()}
+
+                # Check if all lengths are the same
+                all_lengths_same = set(lengths.values())
+
+                if len(all_lengths_same) != 1 :
+                    raise ValueError(f"All split params for teh same splitter have to have the same number of elements, this splitter does not: {split_dict['name']}.")
+                else:
+                    # iterate at level of number of params_values 
+                    for params_index in range(list(all_lengths_same)[0]):
+                        # making the split into a dict the _handle_parameter_selection can use
+                        single_param_dict = self._handle_parameter_selection({split_dict['name']: split_dict['params'][0] }, params_index)
+                        list_split_comibinations.append(single_param_dict)
+        return list_split_comibinations

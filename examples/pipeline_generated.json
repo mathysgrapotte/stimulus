@@ -17,10 +17,9 @@
             "params": {"mean": 0.5, "std": 0.1}
         }
     ],
-    "split": [
+    "split": 
         {
             "name": "RandomSplitter",
-            "params": {"split": [0.6, 0.8]}
+            "params": {"split": [0.6, 0.2, 0.2]}
         }
-    ]
 }
