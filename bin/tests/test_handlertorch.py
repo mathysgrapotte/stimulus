@@ -9,8 +9,8 @@ from bin.src.data.experiments import DnaToFloatExperiment
 class TestDnaToFloatTorchDataset(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.torchdataset_same_length = TorchDataset(csvpath=os.path.abspath("bin/tests/test_data/test.csv"), experiment=DnaToFloatExperiment())
-        self.torchdataset_different_length = TorchDataset(csvpath=os.path.abspath("bin/tests/test_data/test_unequal_dna_float.csv"), experiment=DnaToFloatExperiment())
+        self.torchdataset_same_length = TorchDataset(csvpath=os.path.abspath("bin/tests/test_data/dna_experiment/test.csv"), experiment=DnaToFloatExperiment())
+        self.torchdataset_different_length = TorchDataset(csvpath=os.path.abspath("bin/tests/test_data/dna_experiment/test_unequal_dna_float.csv"), experiment=DnaToFloatExperiment())
 
     def test_len_same_length(self):
         self.assertEqual(len(self.torchdataset_same_length),2)
@@ -28,7 +28,6 @@ class TestDnaToFloatTorchDataset(unittest.TestCase):
         self.assertIsNone(mask_dict["hello"])
         self.assertIsInstance(output_dict["hola"], torch.Tensor)
         self.assertIsNone(mask_dict["hola"])
-
 
         input_data = self.torchdataset_same_length.parser[slice(0, 2)]
         output_dict, mask_dict = self.torchdataset_same_length.convert_dict_to_tensor(input_data[0])
@@ -73,5 +72,3 @@ class TestDnaToFloatTorchDataset(unittest.TestCase):
         self.assertIsInstance(x, dict)
         self.assertIsInstance(y, dict)
         self.assertIsInstance(meta, dict)
-
-

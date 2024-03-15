@@ -34,7 +34,7 @@ import unittest
 from bin.src.data.encoding.encoders import TextOneHotEncoder
 
 
-class TestTextOneHotEncoder(unittest.TestCase):
+class TestTextOneHotEncoderDna(unittest.TestCase):
 
     def setUp(self):
         self.text_encoder = TextOneHotEncoder("acgt")
@@ -53,7 +53,6 @@ class TestTextOneHotEncoder(unittest.TestCase):
         self.assertEqual(encoded_data_out_alphabet.shape, (5, 4))  # Expected shape for one-hot encoding of 5 letter word
         correct_output_out_alphabet = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0]])
         npt.assert_array_equal(encoded_data_out_alphabet, correct_output_out_alphabet, "The encoded matrix is not correct") # Make sure is elements wise correct
-
 
     def test_decode(self):
         # Test decoding a one-hot encoded sequence
@@ -90,6 +89,7 @@ class TestTextOneHotEncoder(unittest.TestCase):
         self.assertEqual(encoded_data[0].shape, (4, 4))
         self.assertEqual(encoded_data[1].shape, (3, 4))
         self.assertEqual(encoded_data[2].shape, (2, 4))
+
 
 if __name__ == "__main__":
     unittest.main()

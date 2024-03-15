@@ -102,7 +102,7 @@ class CsvLoader(CsvHandler):
     """
     Class for loading and splitting the csv data, and then encode the information.
     
-    It will parse the CSV file into four dictionaries, one for each category [input, label, meta, split].
+    It will parse the CSV file into four dictionaries, one for each category [input, label, split].
     So each dictionary will have the keys in the form name:type, and the values will be the column values.
     Afterwards, one can get one or many items from the data, encoded.
     """
@@ -125,7 +125,7 @@ class CsvLoader(CsvHandler):
             prefered_load_method = self.load_csv
 
         # parse csv and split into categories
-        self.input, self.label, self.split, self.meta = self.parse_csv_to_input_label_split_meta(prefered_load_method)
+        self.input, self.label, self.meta = self.parse_csv_to_input_label_meta(prefered_load_method)
     
     def load_csv_per_split(self, split: int) -> pl.DataFrame:
         """
@@ -143,7 +143,7 @@ class CsvLoader(CsvHandler):
         colname = colname[0]
         return pl.scan_csv(self.csv_path).filter(pl.col(colname) == split).collect()
     
-    def parse_csv_to_input_label_split_meta(self, load_method: Any) -> Tuple[dict, dict, dict]:
+    def parse_csv_to_input_label_meta(self, load_method: Any) -> Tuple[dict, dict, dict]:
         """
         This function reads the csv file into a dictionary, 
         and then parses each key with the form name:category:type 
@@ -154,7 +154,7 @@ class CsvLoader(CsvHandler):
         # the keys of the dictionary are the column names and the values are the column values
         data = load_method().to_dict(as_series=False)
         
-        # parse the dictionary into three dictionaries, one for each category [input, label, split, meta]
+        # parse the dictionary into three dictionaries, one for each category [input, label, meta]
         input_data, label_data, split_data, meta_data = {}, {}, {}, {}
         for key in data:
             name, category, data_type = key.split(":")
@@ -162,11 +162,9 @@ class CsvLoader(CsvHandler):
                 input_data[f"{name}:{data_type}"] = data[key]
             elif category.lower() == "label":
                 label_data[f"{name}:{data_type}"] = data[key]
-            elif category.lower() == 'split':
-                split_data[f"{name}:{data_type}"] = data[key]
             elif category.lower() == "meta":
                 meta_data[f"{name}:{data_type}"] = data[key]
-        return input_data, label_data, split_data, meta_data
+        return input_data, label_data, meta_data
     
     def get_and_encode(self, dictionary: dict, idx: Any) -> dict:
         """
@@ -216,5 +214,11 @@ class CsvLoader(CsvHandler):
         """
         x = self.get_and_encode(self.input, idx)
         y = self.get_and_encode(self.label, idx)
-        return x, y, self.meta
+        meta = {}
+        for key in self.meta:
+            data = self.meta[key][idx]
+            if not isinstance(data, list):
+                data = [data]
+            meta[key] = data
+        return x, y, meta
     
