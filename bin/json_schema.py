@@ -76,7 +76,6 @@ class JsonSchema(ABC):
             
             # take into account that there could be the keyword default
             if col_name_dictionary["params"] == "default":
-                # TODO think what to do in this case
                 continue
 
             # iterate throught the possible multiple parmaeters, some noisers could have more than one parameter flag
@@ -149,9 +148,9 @@ class JsonSchema(ABC):
         for key, param_dict in d.items():
             # remove the appendix used to handle same noise names for same column_name, this is done in the _transform_noise_dict function, this line does nothing if that key is not present afterall
             key = key.split('-#')[0]
-            # handle "defualt" as params value
+            # handle "defualt" as params value returning a empty dict 
             if param_dict == 'default':
-                return {"name" : key, "params" : param_dict}
+                return {"name" : key, "params" : {}}
             else:
                 tmp_param_dict = {}
                 # iterate through the possible multiple parameter otpions
@@ -234,8 +233,9 @@ class JsonSchema(ABC):
         # iterate through the split entry and return a list of split possibilities, where each splitter_name has one/set of one parametyers
         for i, split_dict in enumerate(self.split_arg):
             # jsut create a new dictionary for each set of params associated to each split_name, basically if a splitter has more than one element in his params: then they should be decoupled so to have each splitter with only one value for params:
-            # if the value of params: is "default" just return the dictionary itself preopended by split : 
+            # if the value of params: is "default" just return the dictionary  with an empty dict as value of params : 
             if split_dict['params'] == "default":
+                split_dict['params'] = {}
                 list_split_comibinations.append({ "split" : [split_dict]})
             else:
                 # Get lengths of all lists
