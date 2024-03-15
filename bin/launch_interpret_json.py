@@ -32,17 +32,33 @@ def interpret_json(input_json: dict) -> list:
 
     # compute all noise combinations
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
+    # both function output an empty list if there is no noise argument
     function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
     list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
 
-    # compute all split combinations, this will only be all vs all because there is no concept of column_name
+    # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
     list_split_combinations = schema.split_combination()
 
     # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
     list_of_json_to_write = []
-    for noiser_dict in list_noise_combinations:
-        for splitter_dict in list_split_combinations:
-            list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split" : splitter_dict})
+
+    # Check if both lists are empty
+    if not list_noise_combinations and not list_split_combinations:
+        list_of_json_to_write.append({"experiment": schema.experiment})
+    else:
+        if not list_split_combinations:  # Check if list_split_combinations is empty
+            for noiser_dict in list_noise_combinations:
+                list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict})
+        else:
+            for splitter_dict in list_split_combinations:
+                if not list_noise_combinations:  # Check if list_noise_combinations is empty
+                    list_of_json_to_write.append({"experiment": schema.experiment, "split": splitter_dict})
+                else:
+                    list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
+
+    # deal wiht custom if present, in this case nothing at all will be done to the dictionary, it will just be passed as it is
+    for custom_dict in schema.custom_arg :
+        list_of_json_to_write.append(custom_dict)
 
     return list_of_json_to_write
 

@@ -31,9 +31,6 @@ class JsonSchema(ABC):
         # check that noise dictionary have a coherent number of parameters values in case of column_wise for self.interpret_parmas_mode
         self.number_culumn_wise_val = self._check_noise_params_schema()
 
-        # check that split dictionary have a coherent number of parameters values in case of column_wise for self.interpret_parmas_mode
-        self.number_prams_value_in_split = self._check_noise_params_schema()
-
 
 
     def _check_repeated_column_names(self) -> list:
@@ -68,7 +65,7 @@ class JsonSchema(ABC):
 
         # in case there is no noise dictionary or if interpret_params_mode is in all_combinations mode
         if not self.noise_arg  or self.interpret_params_mode == 'all_combinations' :
-            return None
+            return 0
 
         num_params_list = []
         # Iterate through the given dictionary becuse more than one column_name values could be specified for ex.
