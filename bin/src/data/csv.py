@@ -88,7 +88,11 @@ class CsvProcessing(CsvHandler):
             key = dictionary['column_name']
             data_type = key.split(':')[2]
             noise_generator = dictionary['name']
+
+            # add noise to the column using the desired noise generator and params
             new_column = self.experiment.get_function_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
+
+            # change the column with the new values
             self.data = self.data.with_columns(pl.Series(key, new_column))
 
     def save(self, path: str) -> None:
@@ -102,7 +106,7 @@ class CsvLoader(CsvHandler):
     """
     Class for loading and splitting the csv data, and then encode the information.
     
-    It will parse the CSV file into four dictionaries, one for each category [input, label, split].
+    It will parse the CSV file into four dictionaries, one for each category [input, label, meta].
     So each dictionary will have the keys in the form name:type, and the values will be the column values.
     Afterwards, one can get one or many items from the data, encoded.
     """
