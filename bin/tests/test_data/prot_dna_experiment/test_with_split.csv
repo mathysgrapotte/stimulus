@@ -1,0 +1,4 @@
+hello:input:dna,bonjour:input:prot,hola:label:float,split:split:int,pet:meta:str
+ACTGACTGATCGATGC,GPRTTIKAKQLETLK,12,0,cat
+ACTGACTGATCGATGC,GPRTTIKAKQLETLK,12,1,dog
+ACTGACTGATCGATGC,GPRTTIKAKQLETLK,12,2,bird
