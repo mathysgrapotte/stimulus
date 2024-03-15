@@ -218,3 +218,9 @@ class JsonSchema(ABC):
             
     
 
+    def split_combination(self) -> list:
+        """
+        TODO add description
+        """
+
+        # iterate through the split entry and return a list of split possibilities, where each splitter_name has one/set of one parametyers

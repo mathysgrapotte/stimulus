@@ -38,10 +38,11 @@ def interpret_json(input_json: dict) -> list:
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
     function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
     list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
+    print(list_noise_combinations, len(list_noise_combinations))
 
     # compute all split combinations, this will only be all vs all because there is no concept of column_name
-    #list_split_combinations = schema.split_combination()
-    #print(list_split_combinations, len(list_split_combinations))
+    list_split_combinations = schema.split_combination()
+    print(list_split_combinations, len(list_split_combinations))
    
 
 def main(config_json: str) -> str:
