@@ -23,13 +23,6 @@ class AbstractExperiment(ABC):
     def __init__(self, seed: float = None) -> None:
         # allow ability to add a seed for reproducibility
         self.seed = seed
-
-
-    def get_split_indexes(self, data: list, split: tuple) -> list | list | list:
-        """
-        Returns the indexes of the split data.
-        """
-        raise NotImplementedError
         
     def get_function_encode_all(self, data_type: str) -> Any:
         """
@@ -42,6 +35,12 @@ class AbstractExperiment(ABC):
         This method adds noise to all the entries.
         """
         return getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
+
+    def get_function_split(self, split_method: str) -> Any:
+        """
+        This method returns the function for splitting the data.
+        """
+        return self.split[split_method].get_split_indexes
     
 
 class DnaToFloatExperiment(AbstractExperiment):
@@ -52,6 +51,7 @@ class DnaToFloatExperiment(AbstractExperiment):
         super().__init__()
         self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
         self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
+        self.split = {'RandomSplitter': spliters.RandomSplitter()}
 
 
 class ProtDnaToFloatExperiment(DnaToFloatExperiment):

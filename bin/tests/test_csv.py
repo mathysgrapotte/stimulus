@@ -1,6 +1,8 @@
 import json
 import os
 import unittest
+import sys
+sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
 from bin.src.data.experiments import DnaToFloatExperiment, ProtDnaToFloatExperiment
@@ -9,12 +11,27 @@ class AbstractTestCsvProcessing(unittest.TestCase):
     """
     Abstract class for testing CsvProcessing class.
     """
-    def _test_data_shape(self):
+    def _test_len(self):
         """
         It tests that it loads correctly the data with the correct shape.
         """
-        self.assertEqual(self.csv_processing.data.shape[0], self.data_shape[0])
-        self.assertEqual(self.csv_processing.data.shape[1], self.data_shape[1])
+        self.assertEqual(len(self.csv_processing.data), self.data_length)
+
+    def _add_split(self):
+        config = self.configs['split']
+        self.csv_processing.add_split(
+            split_method = config['name'],
+            split = config['params']['split'],
+            seed = config['params']['seed']
+        )
+    
+    def _test_random_splitter(self, expected_splits):
+        """
+        It tests that the data is split correctly.
+        """
+        for i in range(self.data_length):
+            col = self.csv_processing.data['split:split:int'][i]
+            self.assertEqual(self.csv_processing.data['split:split:int'][i], expected_splits[i])
 
     def _add_noise(self):
         self.csv_processing.add_noise(self.configs['noise'])
@@ -27,9 +44,6 @@ class AbstractTestCsvProcessing(unittest.TestCase):
         if isinstance(observed_value, float):
             observed_value = round(observed_value, 2)
         self.assertEqual(observed_value, expected_value)
-    
-    def _test_split(self):
-        pass
 
 
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
@@ -42,14 +56,16 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
         with open('bin/tests/test_data/dna_experiment/test_config.json', 'rb') as f:
             self.configs = json.load(f)
+        self.data_length = 2
 
-    def test_data_shape(self):
-        self.data_shape = [2,3]
-        self._test_data_shape()
-    
-    def test_add_noise(self):
+    def test_len(self):
+        self._test_len()
+
+    def test_split_and_noise(self):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
         self._test_value_from_column('hola:label:float', 12)
+        self._add_split()
+        self._test_random_splitter([1, 0])
         self._add_noise()
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
@@ -66,15 +82,17 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
         with open('bin/tests/test_data/prot_dna_experiment/test_config.json', 'rb') as f:
             self.configs = json.load(f)
+        self.data_length = 2
 
-    def test_load_csv(self):
-        self.data_shape = [2,4]
-        self._test_data_shape()
+    def test_len(self):
+        self._test_len()
 
-    def test_add_noise(self):
+    def test_split_and_noise(self):
         self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
         self._test_value_from_column('hola:label:float', 12)
+        self._add_split()
+        self._test_random_splitter([1, 0])
         self._add_noise()
         self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLX')
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
