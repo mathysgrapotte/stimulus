@@ -84,6 +84,7 @@ class CsvProcessing(CsvHandler):
         Adds noise to the data.
         Noise is added for each column with the configurations specified in the configs list.
         """
+        # for each column configuration
         for dictionary in configs:
             key = dictionary['column_name']
             data_type = key.split(':')[2]
@@ -136,6 +137,9 @@ class CsvLoader(CsvHandler):
         Load the part of csv file that has the specified split value.
         Split is a number that for 0 is train, 1 is validation, 2 is test.
         This is accessed through the column with category `split`. Example column name could be `split:split:int`.
+
+        NOTE that the aim of having this function is that depending on the training, validation and test scenarios,
+        we are gonna load only the relevant data for it.
         """
         if 'split' not in self.categories:
             raise ValueError(f"The category split is not present in the csv file")
@@ -216,13 +220,17 @@ class CsvLoader(CsvHandler):
         """
         It gets the data at a given index, and encodes the input and label, leaving meta as it is.
         """
+        # encode input and labels for given index
         x = self.get_and_encode(self.input, idx)
         y = self.get_and_encode(self.label, idx)
+
+        # get the meta data at the given index for each key
         meta = {}
         for key in self.meta:
             data = self.meta[key][idx]
             if not isinstance(data, list):
                 data = [data]
             meta[key] = data
+
         return x, y, meta
     
