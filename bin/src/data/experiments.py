@@ -31,13 +31,13 @@ class AbstractExperiment(ABC):
         """
         raise NotImplementedError
         
-    def get_encoding_all(self, data_type: str) -> Any:
+    def get_function_encode_all(self, data_type: str) -> Any:
         """
         This method gets the encoding function for a specific data type.
         """
         return getattr(self, data_type)['encoder'].encode_all
     
-    def add_noise_all(self, data_type: str, noise_generator: str) -> Any:
+    def get_function_noise_all(self, data_type: str, noise_generator: str) -> Any:
         """
         This method adds noise to all the entries.
         """

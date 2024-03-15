@@ -88,7 +88,7 @@ class CsvProcessing(CsvHandler):
             key = dictionary['column_name']
             data_type = key.split(':')[2]
             noise_generator = dictionary['name']
-            new_column = self.experiment.add_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
+            new_column = self.experiment.get_function_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
             self.data = self.data.with_columns(pl.Series(key, new_column))
 
     def save(self, path: str) -> None:
@@ -198,7 +198,7 @@ class CsvLoader(CsvHandler):
             
             # encode the data at given index
             # For that, it first retrieves the data object and then calls the encode_all method to encode the data
-            output[name] = self.experiment.get_encoding_all(data_type)(dictionary[key][idx])
+            output[name] = self.experiment.get_function_encode_all(data_type)(dictionary[key][idx])
 
         return output
     
