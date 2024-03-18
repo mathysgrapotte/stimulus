@@ -38,22 +38,22 @@ class UniformTextMasker(AbstractNoiseGenerator):
     """
     This noise generators replace characters with a masking character with a given probability.
     """
+    def __init__(self, mask: str) -> None:
+        self.mask = mask
 
-    def add_noise(self, data: str, probability: float = 0.1, mask='N', seed: float = None) -> str:
+    def add_noise(self, data: str, probability: float = 0.1, seed: float = None) -> str:
         """
         Adds noise to the data.
         """
         np.random.seed(seed)
-        return ''.join([c if np.random.rand() > probability else mask for c in data])
+        return ''.join([c if np.random.rand() > probability else self.mask for c in data])
 
-
-    def add_noise_all(self, data: list, probability: float = 0.1, mask='N', seed: float = None) -> list:
-
+    def add_noise_all(self, data: list, probability: float = 0.1, seed: float = None) -> list:
         """
         Adds noise to the data using multiprocessing.
         """
         with mp.Pool(mp.cpu_count()) as pool:
-            function_specific_input = [(item, probability, mask, seed) for item in data]
+            function_specific_input = [(item, probability, seed) for item in data]
             return pool.starmap(self.add_noise, function_specific_input)
         
 

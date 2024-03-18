@@ -1,0 +1,26 @@
+{
+    "experiment": "ProtDnaToFloatExperiment",
+    "noise": [
+        {
+            "column_name": "hello:input:dna",
+            "name": "UniformTextMasker",
+            "params": {"probability": 0.1, "seed": 0}
+        },
+        {
+            "column_name": "bonjour:input:prot",
+            "name": "UniformTextMasker",
+            "params": {"probability": 0.1, "seed": 0}
+        },
+        {
+            "column_name": "hola:label:float",
+            "name": "GaussianNoise",
+            "params": {"mean": 0.5, "std": 0.1, "seed": 0}
+        }
+    ],
+    "split": [
+        {
+            "name": "RandomSplitter",
+            "params": {"split": [0.6, 0.8], "seed": 0}
+        }
+    ]
+}
