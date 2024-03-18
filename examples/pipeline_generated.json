@@ -2,12 +2,16 @@
     "experiment": "DnaToFloatExperiment",
     "noise": [
         {
-            "column_name": "inphello:input1:dnaut1",
+
+            "column_name": "hello:input:dna",
+
             "name": "UniformTextMasker",
             "params": {"probability": 0.1}
         },
         {
-            "column_name": "hello:input2:prot",
+
+            "column_name": "bonjour:input:prot",
+
             "name": "UniformTextMasker",
             "params": {"probability": 0.4}
         },
@@ -17,6 +21,7 @@
             "params": {"mean": 0.5, "std": 0.1}
         }
     ],
+
     "split": 
         {
             "name": "RandomSplitter",
@@ -26,4 +31,5 @@
 
 
         }
+
 }

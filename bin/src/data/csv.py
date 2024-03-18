@@ -11,6 +11,7 @@ type corresponds to the data type of the columns, as specified in the types modu
 The parser is a class that takes as input a CSV file and a experiment class that defines data types to be used, noising procedures, splitting etc. 
 """
 
+import numpy as np
 import polars as pl
 from typing import Any, Tuple, Union
 from functools import partial
@@ -74,15 +75,38 @@ class CsvProcessing(CsvHandler):
     """
     Class to load the input csv data and add noise accordingly.
     """
-
     def __init__(self, experiment: Any, csv_path: str) -> None:
         super().__init__(experiment, csv_path)
         self.data = self.load_csv()
-    
+
+    def add_split(self, split_method: str, split: list, seed: float = None, force=False) -> None:
+        """
+        Add a column specifying the train, validation, test splits of the data.
+        An error exception is raised if the split column is already present in the csv file. This behaviour can be overriden by setting force=True.
+
+        args:
+            split_method (str) : The method to split the data, should be one of the keys of the split dictionary in the experiment class.
+            split (list) : The proportions for [train, validation, test] splits.
+            seed (float) : The seed for reproducibility.
+            force (bool) : If True, the split column will be added even if it is already present in the csv file.
+        """
+        if ('split' in self.categories) and (not force):
+            raise ValueError(f"The category split is already present in the csv file. If you want to still use this function, set force=True")
+        
+        # get the indices for train, validation and test using the specified split method
+        train, validation, test = self.experiment.get_function_split(split_method)(len(self.data), split, seed)
+
+        # add the split column to the data
+        split_column = np.full(len(self.data), np.nan)
+        split_column[train] = 0
+        split_column[validation] = 1
+        split_column[test] = 2
+        self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
+                                                               
     def add_noise(self, configs: list) -> None:
         """
         Adds noise to the data.
-        Noise is added for each column with the configurations specified in the configs list.
+        Noise is added for each column with the specified configurations.
         """
         # for each column configuration
         for dictionary in configs:
@@ -96,11 +120,11 @@ class CsvProcessing(CsvHandler):
             # change the column with the new values
             self.data = self.data.with_columns(pl.Series(key, new_column))
 
-    def save(self, path: str) -> None:
+    def save(self, data: pl.DataFrame, path: str) -> None:
         """
         Saves the data to a csv file.
         """
-        self.data.write_csv(path)
+        data.write_csv(path)
 
     
 class CsvLoader(CsvHandler):
