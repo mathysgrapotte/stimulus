@@ -20,6 +20,11 @@ def get_args():
    
 
 def main(data_csv, config_json):
+    """
+    This launcher will be the connection between the csv and one json configuration.
+    It should also handle some sanity checks.
+    TODO add a check so that it launches error when split is not defined in json neither in the csv data.
+    """
 
     print(data_csv, config_json)
 

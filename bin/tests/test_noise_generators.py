@@ -24,17 +24,26 @@ import numpy.testing as npt
 import numpy as np
 from bin.src.data.noise.noise_generators import UniformTextMasker, GaussianNoise
 
+
 class TestUniformTextMasker(unittest.TestCase):
     def test_add_noise_single(self):
         # Test adding noise to a single string
-        masker = UniformTextMasker()
+        masker = UniformTextMasker(mask='N')
         noisy_data = masker.add_noise("ACGTACGT", seed=42)
         self.assertIsInstance(noisy_data, str)      # making sure output is of correct type
         self.assertEqual(noisy_data, "ACGTACNT")    # checking if given a seed the noise happens in the same way
 
-    def test_add_noise_multiprocess(self):
+    def test_add_noise_multiprocess_with_single_item(self):
+        # Test adding noise to a list of strings using multiprocessing, but when only one item is given
+        masker = UniformTextMasker(mask='N')
+        noisy_data_list = masker.add_noise_all(["ATCGATCGATCG"], seed=42, probability=0.1 )
+        self.assertIsInstance(noisy_data_list, list)     # making sure output is of correct type
+        self.assertIsInstance(noisy_data_list[0], str)
+        self.assertEqual(noisy_data_list, ['ATCGATNGATNG'])    # checking if given a seed the noise happens in the same way
+
+    def test_add_noise_multiprocess_with_multiple_item(self):
         # Test adding noise to a list of strings using multiprocessing
-        masker = UniformTextMasker()
+        masker = UniformTextMasker(mask='N')
         noisy_data_list = masker.add_noise_all(["ATCGATCGATCG", "ATCG"], seed=42, probability=0.1 )
         self.assertIsInstance(noisy_data_list, list)     # making sure output is of correct type
         self.assertIsInstance(noisy_data_list[0], str)
@@ -67,8 +76,5 @@ class TestGaussianNoise(unittest.TestCase):
         self.assertIsInstance(noisy_data[2], float)
 
 
-
-
 if __name__ == "__main__":
     unittest.main()
-

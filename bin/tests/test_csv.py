@@ -1,88 +1,229 @@
-import unittest
+import json
 import os
-from bin.src.data.csv import CsvLoader
-from bin.src.data.experiments import DnaToFloatExperiment
+import unittest
+import sys
+sys.path.append('./')
+from bin.src.data.csv import CsvProcessing, CsvLoader
+from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
+from bin.src.data.experiments import DnaToFloatExperiment, ProtDnaToFloatExperiment
 
-class TestDnaToFloatCsvLoader(unittest.TestCase):
+class AbstractTestCsvProcessing(unittest.TestCase):
+    """
+    Abstract class for testing CsvProcessing class.
+    """
+    def _test_len(self):
+        """
+        It tests that it loads correctly the data with the correct shape.
+        """
+        self.assertEqual(len(self.csv_processing.data), self.data_length)
 
+    def _add_split(self):
+        config = self.configs['split']
+        self.csv_processing.add_split(
+            split_method = config['name'],
+            split = config['params']['split'],
+            seed = config['params']['seed']
+        )
+    
+    def _test_random_splitter(self, expected_splits):
+        """
+        It tests that the data is split correctly.
+        """
+        for i in range(self.data_length):
+            col = self.csv_processing.data['split:split:int'][i]
+            self.assertEqual(self.csv_processing.data['split:split:int'][i], expected_splits[i])
+
+    def _add_noise(self):
+        self.csv_processing.add_noise(self.configs['noise'])
+
+    def _test_value_from_column(self, column_name, expected_value, position=0):
+        """
+        It tests the first value of a specific column.
+        """
+        observed_value = list(self.csv_processing.data[column_name])[position]
+        if isinstance(observed_value, float):
+            observed_value = round(observed_value, 2)
+        self.assertEqual(observed_value, expected_value)
+
+
+class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
+    """ 
+    Test CsvProcessing class for DnaToFloatExperiment
+    """
     def setUp(self):
-        self.csv_loader = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test.csv"))
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
+        self.experiment = DnaToFloatExperiment()
+        self.csv_path = os.path.abspath("bin/tests/test_data/dna_experiment/test.csv")
+        self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
+        with open('bin/tests/test_data/dna_experiment/test_config.json', 'rb') as f:
+            self.configs = json.load(f)
+        self.data_length = 2
 
-    def test_get_encoded_item_unique(self):
+    def test_len(self):
+        self._test_len()
+
+    def test_split_and_noise(self):
+        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
+        self._test_value_from_column('hola:label:float', 12)
+        self._add_split()
+        self._test_random_splitter([1, 0])
+        self._add_noise()
+        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
+        self._test_value_from_column('hola:label:float', 12.68)
+        self._test_value_from_column('pet:meta:str', 'cat')
+    
+
+class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
+    """ 
+    Test CsvProcessing class for ProtDnaToFloatExperiment
+    """
+    def setUp(self):
+        self.experiment = ProtDnaToFloatExperiment()
+        self.csv_path = os.path.abspath("bin/tests/test_data/prot_dna_experiment/test.csv")
+        self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
+        with open('bin/tests/test_data/prot_dna_experiment/test_config.json', 'rb') as f:
+            self.configs = json.load(f)
+        self.data_length = 2
+
+    def test_len(self):
+        self._test_len()
+
+    def test_split_and_noise(self):
+        self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
+        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
+        self._test_value_from_column('hola:label:float', 12)
+        self._add_split()
+        self._test_random_splitter([1, 0])
+        self._add_noise()
+        self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLX')
+        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
+        self._test_value_from_column('hola:label:float', 12.68)
+
+
+class AbstractTestCsvLoader(unittest.TestCase):
+    """
+    Abstract class for testing CsvLoader class.
+    """
+    def _test_len(self):
+        """
+        It tests the length of the dataset.
+        """
+        self.assertEqual(len(self.csv_loader), self.data_shape[0])
+
+    def _test_parse_csv_to_input_label_meta(self):
+        """
+        It tests that the csv is parsed to input, label and meta.
+        """
+        self.assertIsInstance(self.csv_loader.input, dict)
+        self.assertIsInstance(self.csv_loader.label, dict)
+        self.assertIsInstance(self.csv_loader.meta, dict)
+
+    def _test_get_encoded_item_unique(self):
         """ 
         It tests that the csv_loader.get_encoded_item works well when getting one item.
-        The following test is performed on the item at idx=0.
         """
         # get the encoded item from the csv file at idx 0
         encoded_item = self.csv_loader[0]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
+        # also each element inside a dictionary is a list of length 1
         self.assertEqual(len(encoded_item), 3)
-        self.assertIsInstance(encoded_item[0], dict)
-        self.assertIsInstance(encoded_item[1], dict)
-        self.assertIsInstance(encoded_item[2], dict)
+        for i in range(3):
+            self.assertIsInstance(encoded_item[i], dict)
+            for key in encoded_item[i].keys():
+                self.assertIsInstance(encoded_item[i][key], list)
+                self.assertEqual(len(encoded_item[i][key]), 1)
 
-        # check that the key of the encoded_item[0] (x) is the same as the key in the csv file
-        self.assertEqual(list(encoded_item[0].keys())[0], "hello")
-
-        # check that the key of the encoded_item[1] (y) is the same as the key in the csv file
-        self.assertEqual(list(encoded_item[1].keys())[0], "hola")
-
-        # check that the meta dictionary is empty 
-        self.assertEqual(encoded_item[2], {})
-
-        # since we retrieved only the data at idx=0, check that input and label both have only one element
-        for key in encoded_item[0].keys():
-            self.assertEqual(len(encoded_item[0][key]), 1)
-        for key in encoded_item[1].keys():
-            self.assertEqual(len(encoded_item[1][key]), 1)
-
-    def test_get_encoded_item_multiple(self):
+    def _test_get_encoded_item_multiple(self):
         """
         It tests that the csv_loader.get_encoded_item works well when getting multiple items using slice.
-        The following test is performed on the item at idx=0 and idx=1.
         """
-        
         # get the encoded items from the csv file at idx 0 and 1
         encoded_item = self.csv_loader[slice(0, 2)]
-        
+
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
+        # also each element inside a dictionary is a list of length 2
         self.assertEqual(len(encoded_item), 3)
-        self.assertIsInstance(encoded_item[0], dict)
-        self.assertIsInstance(encoded_item[1], dict)
-        self.assertIsInstance(encoded_item[2], dict)
+        for i in range(3):
+            self.assertIsInstance(encoded_item[i], dict)
+            for key in encoded_item[i].keys():
+                self.assertIsInstance(encoded_item[i][key], list)
+                self.assertEqual(len(encoded_item[i][key]), 2)
 
-        # check that the key of the encoded_item[0] (x) is the same as the key in the csv file
-        self.assertEqual(list(encoded_item[0].keys())[0], "hello")
+    def _test_load_with_split(self):
+        """
+        Test that the csv_loader works well when split is provided.
+        """
+        # test when split is not provided
+        self.csv_loader_split = CsvLoader(self.experiment, self.csv_path_split)
+        self.assertEqual(len(self.csv_loader_split), self.data_shape_split[0])
 
-        # check that the key of the encoded_item[1] (y) is the same as the key in the csv file
-        self.assertEqual(list(encoded_item[1].keys())[0], "hola")
+        # test when split is 0, 1 or 2
+        for i in [0, 1, 2]:
+            self.csv_loader_split = CsvLoader(self.experiment, self.csv_path_split, split=i)
+            self.assertEqual(len(self.csv_loader_split.input['hello:dna']), self.shape_splits[i])
 
-        # check that the meta dictionary is empty 
-        self.assertEqual(encoded_item[2], {})
-        
-        # since we retrieved only the data at idx=0 and idx=1, check that input and label both have two elements
-        for key in encoded_item[0].keys():
-            self.assertEqual(len(encoded_item[0][key]), 2)
-        for key in encoded_item[1].keys():
-            self.assertEqual(len(encoded_item[1][key]), 2)
+        # test when split is not valid
+        with self.assertRaises(ValueError): # should raise an error
+            self.csv_loader_split = CsvLoader(self.experiment, self.csv_path_split, split=3)
+
+
+class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
+    """
+    Test CsvLoader class for DnaToFloatExperiment
+    """
+    def setUp(self):
+        self.csv_path = os.path.abspath("bin/tests/test_data/dna_experiment/test.csv")
+        self.csv_path_split = os.path.abspath("bin/tests/test_data/dna_experiment/test_with_split.csv")
+        self.experiment = DnaToFloatExperiment()
+        self.csv_loader = CsvLoader(self.experiment, self.csv_path)
+        self.data_shape = [2,3]
+        self.data_shape_split = [3,4]
+        self.shape_splits = {0: 1, 1: 1, 2: 1}
 
     def test_len(self):
-        self.assertEqual(len(self.csv_loader), 2)
+        self._test_len()
+
+    def test_parse_csv_to_input_label_meta(self):
+        self._test_parse_csv_to_input_label_meta()
+
+    def test_get_encoded_item_unique(self):
+        self._test_get_encoded_item_unique()
+
+    def test_get_encoded_item_multiple(self):
+        self._test_get_encoded_item_multiple()
 
     def test_load_with_split(self):
-        # try loading with different split values, should run with 0,1 and 2 and raise an error for other values
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=0)
-        # self.csv_loader_split.input['hello'] should have only one value 
-        self.assertEqual(len(self.csv_loader_split.input['hello:dna']), 1)
-        # check that self.csv_loader_split.meta has only one value in the ['split:int'] column which is 0
-        self.assertEqual(len(self.csv_loader_split.meta['split:int']), 1)
-        self.assertEqual(self.csv_loader_split.meta['split:int'][0], 0)
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=1)
-        self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=2)
-        with self.assertRaises(ValueError): # should raise an error
-            self.csv_loader_split = CsvLoader(DnaToFloatExperiment(), os.path.abspath("bin/tests/test_data/test_with_split.csv"), split=3)
+        self._test_load_with_split()
 
-        
-        
+
+class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
+    """
+    Test CsvLoader class for ProtDnaToFloatExperiment
+    """
+    def setUp(self):
+        self.csv_path = os.path.abspath("bin/tests/test_data/prot_dna_experiment/test.csv")
+        self.csv_path_split = os.path.abspath("bin/tests/test_data/prot_dna_experiment/test_with_split.csv")
+        self.experiment = ProtDnaToFloatExperiment()
+        self.csv_loader = CsvLoader(self.experiment, self.csv_path)
+        self.data_shape = [2,4]
+        self.data_shape_split = [3,5]
+        self.shape_splits = {0: 1, 1: 1, 2: 1}
+
+    def test_len(self):
+        self._test_len()
+
+    def test_parse_csv_to_input_label_meta(self):
+        self._test_parse_csv_to_input_label_meta()
+
+    def test_get_encoded_item_unique(self):
+        self._test_get_encoded_item_unique()
+
+    def test_get_encoded_item_multiple(self):
+        self._test_get_encoded_item_multiple()
+
+    def test_load_with_split(self):
+        self._test_load_with_split()
+
+
+if __name__ == "__main__":
+    unittest.main()

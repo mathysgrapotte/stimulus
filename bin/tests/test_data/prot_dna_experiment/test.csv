@@ -1,0 +1,3 @@
+hello:input:dna,bonjour:input:prot,hola:label:float,pet:meta:str
+ACTGACTGATCGATGC,GPRTTIKAKQLETLK,12,cat
+ACTGACTGATCGATGC,GPRTTIKAKQLETLK,12,dog

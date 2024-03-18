@@ -5,6 +5,7 @@ LABEL maintainer="Alessio Vignoli" \
         description="Docker image containing python packages required for model-check pipeline"
 
 # installing python needed packages
+# TODO one can add the requirements.txt and install the packages from there
 RUN pip install \
     numpy==1.26.0 \
     pytorch-lightning==2.0.1 \
