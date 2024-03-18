@@ -11,7 +11,7 @@ process INTERPRET_JSON {
     stdout emit: standardout
 
     """
-    launch_interpret_json.py -j ${user_json}
+    launch_interpret_json.py -j ${user_json} -d tmp
     """
 
 }
