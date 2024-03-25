@@ -19,15 +19,16 @@ class TestDnaToFloatTorchDataset(unittest.TestCase):
         data = [np.array([1,2,3]), np.array([4,5,6])]
         tensor, mask = self.torchdataset_same_length.convert_list_of_numpy_arrays_to_tensor(data)
         self.assertIsInstance(tensor, torch.Tensor)
-        self.assertIsNone(mask)
+        self.assertEqual(mask, {})
 
     def test_convert_dict_to_tensor_same_lengths(self):
         data = {"hello": [np.array([1,2,3]), np.array([4,5,6])], "hola": [np.array([1,2,3]), np.array([4,5,6])]}
         output_dict, mask_dict = self.torchdataset_same_length.convert_dict_to_tensor(data)
         self.assertIsInstance(output_dict["hello"], torch.Tensor)
-        self.assertIsNone(mask_dict["hello"])
+        # check if the mask is an empty directory, which is '{}'
+        self.assertEqual(mask_dict["hello"], {})
         self.assertIsInstance(output_dict["hola"], torch.Tensor)
-        self.assertIsNone(mask_dict["hola"])
+        self.assertEqual(mask_dict["hola"], {})
 
         input_data = self.torchdataset_same_length.parser[slice(0, 2)]
         output_dict, mask_dict = self.torchdataset_same_length.convert_dict_to_tensor(input_data[0])
