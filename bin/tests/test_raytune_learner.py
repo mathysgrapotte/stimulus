@@ -8,7 +8,7 @@ class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
         config = CONFIG_EXAMPLE
         config["model"] = SimpleModel
-        config["data_path"] = os.path.abspath("bin/tests/test_data/test_with_split.csv")
+        config["data_path"] = os.path.abspath("bin/tests/test_data/dna_experiment/test_with_split.csv")
         config["experiment"] = DnaToFloatExperiment()
         self.learner = RayTuneLearner(config = config)
 
