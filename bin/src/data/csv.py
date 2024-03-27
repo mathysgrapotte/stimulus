@@ -252,8 +252,8 @@ class CsvLoader(CsvHandler):
         meta = {}
         for key in self.meta:
             data = self.meta[key][idx]
-            if not isinstance(data, list):
-                data = [data]
+            if not isinstance(data, np.ndarray):
+                data = np.array(data)
             meta[key] = data
 
         return x, y, meta

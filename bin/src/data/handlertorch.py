@@ -51,6 +51,12 @@ class TorchDataset(Dataset):
 
         else:
             return torch.tensor(data[0]), {}
+        
+    def convert_same_shape_list_of_numpy_arrays_to_tensor(self, data: list) -> torch.Tensor:
+        """
+        convert a list of numpy arrays to a single pytorch tensor, numpy arrays should have the same shape
+        """
+        return torch.tensor(np.array(data))
 
     def convert_dict_to_tensor(self, data: dict) -> dict:
         """

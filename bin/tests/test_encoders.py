@@ -72,7 +72,7 @@ class TestTextOneHotEncoderDna(unittest.TestCase):
         # Test encoding a list of sequences
         sequences = ["ACGT", "ACGT", "ACGT"]
         encoded_data = self.text_encoder.encode_all(sequences)
-        self.assertIsInstance(encoded_data, list)
+        self.assertIsInstance(encoded_data, np.ndarray)
         self.assertEqual(len(encoded_data), 3)
         # check the shapes within the list 
         for encoded_sequence in encoded_data:

@@ -72,16 +72,25 @@ class TextOneHotEncoder(AbstractEncoder):
         """
         return np.squeeze(np.stack(self.encoder.fit_transform(self._sequence_to_array(data)).toarray()))
     
-    def encode_all(self, data: Union[list, str]) -> np.array:
+    def encode_all(self, data: Union[list, str]) -> Union[np.array, list]:
         """
         Encodes the data, if the list is length one, call encode instead.
         It resturns a list with all the encoded data entries.
         """
         # check if the data is not a list, in this case it should use the encode method
         if not isinstance(data, list):
-            return [self.encode(data)]
+            encoded_data = self.encode(data)
+            # reshape the array in a batch of 1 configuration as a np.ndarray (so shape is (1, sequence_length, alphabet_length))
+            return np.array([encoded_data])
+
         else:
-            return self.encode_multiprocess(data)
+            encoded_data = self.encode_multiprocess(data)
+            # try to transform the list of arrays to a single array and return it 
+            try:
+                return np.array(encoded_data)
+            # if it fails (when the list of arrays is not of the same length), return the list of arrays
+            except ValueError:
+                return encoded_data
     
     def decode(self, data: np.array) -> str:
         """
@@ -100,7 +109,7 @@ class FloatEncoder(AbstractEncoder):
         """
         return float(data)
     
-    def encode_all(self, data: list) -> list:
+    def encode_all(self, data: list) -> np.array:
         """
         Encodes the data. 
         This method takes as input a list of data points, should be mappable to a single output. 
@@ -108,9 +117,9 @@ class FloatEncoder(AbstractEncoder):
 
         # check if data is not a list, in that case it should use the encode sequence method
         if not isinstance(data, list):
-            return [self.encode(data)]
+            return np.array(self.encode(data))
         else:
-            return [float(d) for d in data]
+            return np.array([self.encode(d) for d in data])
     
     def decode(self, data: float) -> float:
         """

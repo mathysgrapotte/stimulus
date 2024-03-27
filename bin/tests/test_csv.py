@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 import sys
+import numpy as np
+import numpy.testing as npt
 sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
@@ -125,13 +127,17 @@ class AbstractTestCsvLoader(unittest.TestCase):
         encoded_item = self.csv_loader[0]
         
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
-        # also each element inside a dictionary is a list of length 1
+        # also each element inside a dictionary is a np array of length 1
         self.assertEqual(len(encoded_item), 3)
         for i in range(3):
             self.assertIsInstance(encoded_item[i], dict)
             for key in encoded_item[i].keys():
-                self.assertIsInstance(encoded_item[i][key], list)
-                self.assertEqual(len(encoded_item[i][key]), 1)
+                self.assertIsInstance(encoded_item[i][key], np.ndarray)
+                try:
+                    self.assertEqual(len(encoded_item[i][key]), 1)
+                except TypeError: 
+                    # scalars do not have a length and return a TypeError if len() is called on them
+                    self.assertEqual(encoded_item[i][key].size, 1)
 
     def _test_get_encoded_item_multiple(self):
         """
@@ -146,7 +152,7 @@ class AbstractTestCsvLoader(unittest.TestCase):
         for i in range(3):
             self.assertIsInstance(encoded_item[i], dict)
             for key in encoded_item[i].keys():
-                self.assertIsInstance(encoded_item[i][key], list)
+                self.assertIsInstance(encoded_item[i][key], np.ndarray)
                 self.assertEqual(len(encoded_item[i][key]), 2)
 
     def _test_load_with_split(self):
