@@ -234,6 +234,33 @@ class CsvLoader(CsvHandler):
 
         return output
     
+    def get_and_encode_all(self, dictionary: dict) -> dict:
+        """
+        It gets the data and encodes it according to the data_type.
+
+        `dictionary`:
+            The keys of the dictionaries are always in the form `name:type`.
+            `type` should always match the name of the initialized data_types in the Experiment class. So if there is a `dna` data_type in the Experiment class, then the input key should be `name:dna`
+
+        The return value is a dictionary containing numpy array of the encoded data.
+        """
+        output = {}
+        for key in dictionary:
+            name = key.split(":")[0]
+            data_type = key.split(":")[1]
+            data = dictionary[key]
+            if not isinstance(data, list):
+                data = [data]
+            if not hasattr(self.experiment, data_type.lower()):
+                raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
+            output[name] = self.experiment.get_function_encode_all(data_type)(dictionary[key])
+
+    def get_all_items(self) -> Tuple[dict, dict, dict]:
+        """
+        Returns all the items in the csv file, encoded.
+        """
+        return self.get_and_encode_all(self.input), self.get_and_encode_all(self.label), self.get_and_encode_all(self.meta)
+    
     def __len__(self) -> int:
         """
         returns the length of the first list in input, assumes that all are the same length
