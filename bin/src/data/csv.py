@@ -255,11 +255,14 @@ class CsvLoader(CsvHandler):
                 raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
             output[name] = self.experiment.get_function_encode_all(data_type)(dictionary[key])
 
-    def get_all_items(self) -> Tuple[dict, dict, dict]:
+    def get_all_items(self, return_length: bool = False) -> Tuple[dict, dict, dict]:
         """
         Returns all the items in the csv file, encoded.
         """
-        return self.get_and_encode_all(self.input), self.get_and_encode_all(self.label), self.get_and_encode_all(self.meta)
+        if return_length:
+            return self.get_and_encode_all(self.input), self.get_and_encode_all(self.label), self.get_and_encode_all(self.meta), len(self)
+        else: 
+            return self.get_and_encode_all(self.input), self.get_and_encode_all(self.label), self.get_and_encode_all(self.meta)
     
     def __len__(self) -> int:
         """
