@@ -49,8 +49,11 @@ class TorchDataset(Dataset):
         Pads the sequences in the data with a value
         kwargs are padding_value and batch_first, see pad_sequence documentation in pytorch for more information
         """
+
         padding_value = transform_kwargs.get('padding_value', 0)
         batch_first = transform_kwargs.get('batch_first', True)
+        # convert each element of data to a torch tensor
+        data = [torch.tensor(item) for item in data]
         return pad_sequence(data, batch_first=batch_first, padding_value=padding_value)
     
     def get_directory_per_idx(self, dictionary: dict, idx: int) -> dict:

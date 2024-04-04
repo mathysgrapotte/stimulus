@@ -172,6 +172,15 @@ class AbstractTestCsvLoader(unittest.TestCase):
         with self.assertRaises(ValueError): # should raise an error
             self.csv_loader_split = CsvLoader(self.experiment, self.csv_path_split, split=3)
 
+    def _test_get_all_items(self):
+        """
+        Test that the csv_loader.get_all_items works well.
+        """
+        input_data, label_data, meta_data = self.csv_loader.get_all_items()
+        self.assertIsInstance(input_data, dict)
+        self.assertIsInstance(label_data, dict)
+        self.assertIsInstance(meta_data, dict)
+
 
 class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
@@ -200,6 +209,9 @@ class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
 
     def test_load_with_split(self):
         self._test_load_with_split()
+
+    def test_get_all_items(self):
+        self._test_get_all_items()
 
 
 class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
