@@ -26,7 +26,7 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             split = config['params']['split'],
             seed = config['params']['seed']
         )
-    
+
     def _test_random_splitter(self, expected_splits):
         """
         It tests that the data is split correctly.
@@ -47,9 +47,8 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             observed_value = round(observed_value, 2)
         self.assertEqual(observed_value, expected_value)
 
-
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
-    """ 
+    """
     Test CsvProcessing class for DnaToFloatExperiment
     """
     def setUp(self):
@@ -72,10 +71,9 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
         self._test_value_from_column('pet:meta:str', 'cat')
-    
 
 class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
-    """ 
+    """
     Test CsvProcessing class for ProtDnaToFloatExperiment
     """
     def setUp(self):
@@ -100,7 +98,6 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
 
-
 class AbstractTestCsvLoader(unittest.TestCase):
     """
     Abstract class for testing CsvLoader class.
@@ -120,12 +117,12 @@ class AbstractTestCsvLoader(unittest.TestCase):
         self.assertIsInstance(self.csv_loader.meta, dict)
 
     def _test_get_encoded_item_unique(self):
-        """ 
+        """
         It tests that the csv_loader.get_encoded_item works well when getting one item.
         """
         # get the encoded item from the csv file at idx 0
         encoded_item = self.csv_loader[0]
-        
+
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
         # also each element inside a dictionary is a np array of length 1
         self.assertEqual(len(encoded_item), 3)
@@ -135,7 +132,7 @@ class AbstractTestCsvLoader(unittest.TestCase):
                 self.assertIsInstance(encoded_item[i][key], np.ndarray)
                 try:
                     self.assertEqual(len(encoded_item[i][key]), 1)
-                except TypeError: 
+                except TypeError:
                     # scalars do not have a length and return a TypeError if len() is called on them
                     self.assertEqual(encoded_item[i][key].size, 1)
 
@@ -181,7 +178,6 @@ class AbstractTestCsvLoader(unittest.TestCase):
         self.assertIsInstance(label_data, dict)
         self.assertIsInstance(meta_data, dict)
 
-
 class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
     Test CsvLoader class for DnaToFloatExperiment
@@ -213,7 +209,6 @@ class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     def test_get_all_items(self):
         self._test_get_all_items()
 
-
 class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
     Test CsvLoader class for ProtDnaToFloatExperiment
@@ -241,6 +236,9 @@ class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
 
     def test_load_with_split(self):
         self._test_load_with_split()
+
+    def test_get_all_items(self):
+        self._test_get_all_items()
 
 
 if __name__ == "__main__":

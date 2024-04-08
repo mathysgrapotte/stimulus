@@ -68,6 +68,14 @@ class TestTextOneHotEncoderDna(unittest.TestCase):
         self.assertIsInstance(decoded_sequence_out_alphabet, np.ndarray)
         self.assertEqual(decoded_sequence_out_alphabet.size, 5)  # Expected size for the decoded sequence
 
+    def test_encode_all_one_element(self):
+        # Test encoding a single sequence
+        encoded_data = self.text_encoder.encode_all(["ACGT"])
+        self.assertIsInstance(encoded_data, np.ndarray)
+        self.assertEqual(encoded_data.shape, (1, 4, 4))
+        correct_output = np.array([[[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]])
+        npt.assert_array_equal(encoded_data, correct_output, "The encoded matrix is not correct")  # Make sure is elements wise correct
+
     def test_encode_all_same_length(self):
         # Test encoding a list of sequences
         sequences = ["ACGT", "ACGT", "ACGT"]
