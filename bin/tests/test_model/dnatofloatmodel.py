@@ -5,14 +5,16 @@ import torch
 CONFIG_EXAMPLE = {
     'model_params': {
         'kernel_size': 3,
-        'pool_size': 2
+        'pool_size': 2,
+        'loss': { 'loss_1' :['MSELoss', 'CrossEntropyLoss'],
+                 'loss_2': 'CrossEntropyLoss'
+
+        } ,
     },
 
     'optimizer': {
         'name': 'Adam',
         'params':{}},
-
-    'loss_fn': 'MSELoss',
 
     'data_params': {
         'batch_size': 64
@@ -33,3 +35,7 @@ class SimpleModel(torch.nn.Module):
         x = self.pool(x)
         x = self.softmax(x)
         return x
+    
+    def step(self, optimizer, loss_fn1, loss_fn2, y_hello):
+        pass
+        

@@ -39,7 +39,7 @@ class TuneModel(Trainable):
 
     def step(self):
         self.model.train()
-        for x, y, mask_x, mask_y, meta in self.train:
+        for x, y, meta in self.train:
             self.optimizer.zero_grad()
             output = self.model(**x)
             loss = self.loss_fn(output, y['hola'].to(torch.float32))
@@ -48,6 +48,8 @@ class TuneModel(Trainable):
             #    loss = loss * mask_x
             loss.backward()
             self.optimizer.step()
+
+        
 
         return self.objective()
     
