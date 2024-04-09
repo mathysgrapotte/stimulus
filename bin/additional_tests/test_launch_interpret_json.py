@@ -2,7 +2,19 @@ import unittest
 from bin.launch_interpret_json import interpret_json
 
 """ 
-to run this test you need to put a relatibve inmport in the JsonSchema import line in launch_interpret_json
+to run this test you need to put a relatibve inmport in the JsonSchema import line in launch_interpret_json.py.
+
+To explain this further launch_interpret_json.py is meant to be launched as it is:
+python3 launch_interpret_json.py 
+
+So it can not have relative imports inside, (it can but it gets complicated quickly). 
+But here to test it we have to import it, and once we do that it will throw an error because the absolute import it has for
+the JsonSchema class will not be resolved. 
+
+Basically there is no simple way to have the louncher in bin keeping the opverall directory organization 
+and a nice set of tests for it that live in another directory. Hence the need to manually mnodify that file when the need for test arise.
+
+TODO find a clean solution at the above problem.
 """
 
 # initialize unittest class
