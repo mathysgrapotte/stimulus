@@ -31,7 +31,7 @@ def interpret_json(input_json: dict) -> list:
     # compute all noise combinations
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
     # both function output an empty list if there is no noise argument
-    function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
+    function_call_dict = {"column_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
     list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
 
     # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function

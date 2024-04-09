@@ -11,7 +11,7 @@ class JsonSchema(ABC):
     """
     def __init__(self, schema: dict ) -> None:
         self.schema                = schema
-        self.interpret_params_mode = schema.get('interpret_parmas_mode', "culumn_wise")
+        self.interpret_params_mode = schema.get('interpret_params_mode', 'column_wise')
         self.experiment            = schema.get('experiment', None)
         self.noise_arg             = schema.get('noise', [])
         self.split_arg             = schema.get('split', [])
@@ -22,14 +22,14 @@ class JsonSchema(ABC):
             raise ValueError(f"No experiment name given, the Json should always have a experiment:'ExperimentName' field")
 
         # Send error if self.interpret_parmas_mode is not of possibility
-        if self.interpret_params_mode not in ["culumn_wise", "all_combinations"]:
-            raise ValueError(f"interpret_params_mode value can only be one of the following keywords -> ['culumn_wise', 'all_combinations']")
+        if self.interpret_params_mode not in ["column_wise", "all_combinations"]:
+            raise ValueError(f"interpret_params_mode value can only be one of the following keywords -> ['column_wise', 'all_combinations']")
 
         # check that inside noise dictionary there are no repeated column_nmae values and return them otherwise send error
         self.column_names = self._check_repeated_column_names()
 
         # check that noise dictionary have a coherent number of parameters values in case of column_wise for self.interpret_parmas_mode
-        self.number_culumn_wise_val = self._check_noise_params_schema()
+        self.number_column_wise_val = self._check_noise_params_schema()
 
 
 
@@ -197,7 +197,7 @@ class JsonSchema(ABC):
         all_noise_combination = []
         for noise_combo in noiser_combination_list:
             # select the parameter iterating through the total number of parameters value fopr each col type 
-            for params_index in range(self.number_culumn_wise_val):
+            for params_index in range(self.number_column_wise_val):
                 noise_list = []
                 for col_name, noise_dict in noise_combo.items():
                     single_param_dict = self._handle_parameter_selection(noise_dict, params_index)

@@ -73,7 +73,7 @@ class TestInterpretJson(unittest.TestCase):
     def test_interpret_json_with_column_wise(self):
         d = {
             "experiment": "MyCustomExperiment",
-            "interpret_parmas_mode": "culumn_wise", 
+            "interpret_params_mode": "column_wise", 
             "noise": [
                 {
                     "column_name": "hello:input1:dna",
