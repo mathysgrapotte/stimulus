@@ -193,7 +193,7 @@ class CsvLoader(CsvHandler):
             elif category.lower() == "label":
                 label_data[f"{name}:{data_type}"] = data[key]
             elif category.lower() == "meta":
-                meta_data[f"{name}:{data_type}"] = data[key]
+                meta_data[f"{name}"] = data[key]
         return input_data, label_data, meta_data
 
     def get_and_encode(self, dictionary: dict, idx: Any = None) -> dict:
