@@ -49,6 +49,41 @@ class TestInterpretJson(unittest.TestCase):
         {'experiment': 'MyCustomExperiment', 'noise': None, 'split': {'name': 'SomeSplitter1', 'params': {}}}]
         self.assertEqual(interpret_json(d), out_l)
 
+    
+    def test_interpret_json_without_split_arg_column_wise(self):
+        d = {
+            "experiment": "MyCustomExperiment",
+            "interpret_params_mode": "column_wise", 
+            "noise": [
+                {
+                    "column_name": "hello:input1:dna",
+                    "name": ["UniformTextMasker", "AnotherNoiser", "AnotherNoiser"],
+                    "params": [{"probability": [0.1, 0.2]}, "default", {"probability": [0.12, 0.22], "seed": [0, 0]}]
+                },
+                {
+                    "column_name": "hello:input2:prot",
+                    "name": ["UniformTextMasker", "AnotherNoiser1"],
+                    "params": ["default", {"p": [1, 2], "s": [3, 4]}]
+                },
+                {
+                    "column_name": "hello:label:int",
+                    "name": ["YetAnotherNoiser"],
+                    "params": "default"
+                }]}
+        out_l =[{'experiment': 'MyCustomExperiment', 'noise': None, 'split': None},
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None},
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 1, 's': 3}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 2, 's': 4}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 1, 's': 3}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 2, 's': 4}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.12, 'seed': 0}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.22, 'seed': 0}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.12, 'seed': 0}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 1, 's': 3}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}, 
+        {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.22, 'seed': 0}}, {'column_name': 'hello:input2:prot', 'name': 'AnotherNoiser1', 'params': {'p': 2, 's': 4}}, {'column_name': 'hello:label:int', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': None}]
+        self.assertEqual(interpret_json(d), out_l)
+
 
 
     def test_interpret_json_with_custom_dict(self):
@@ -103,12 +138,12 @@ class TestInterpretJson(unittest.TestCase):
             "noise": [
                 {
                     "column_name": "hello:input1:dna",
-                    "name": ["UniformTextMasker", "AnotherNoiser", "AnotherNoiser"],
-                    "params": [{"probability": [0.1, 0.2]}, "default", {"mean": [0.5, 0.6], "std": [0.1, 0.2]}]
+                    "name": ["UniformTextMasker", "AnotherNoiser"],
+                    "params": ["default", {"mean": [0.5, 0.6], "std": [0.1, 0.2]}]
                 },
                 {
                     "column_name": "hello:input2:prot",
-                    "name": ["UniformTextMasker", "YetAnotherNoiser"],
+                    "name": ["YetAnotherNoiser"],
                     "params": ["default", {"p1": [1, 2]}]
                 }],
             "split": [
@@ -120,54 +155,21 @@ class TestInterpretJson(unittest.TestCase):
                     "name": "SomeSplitter",
                     "params": "default"
             }]}
+
         
-        """tmp = interpret_json(d)
-        print(len(tmp))
-        for i, di in enumerate(tmp):
-           print(i, di, "\n")
-        """
-        """
         out_list = [
-            {'experiment': 'MyCustomExperiment', 'noise': None, 'split': None} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.11}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'probability': 0.21}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}} ,
-            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'split': [{'name': 'SomeSplitter', 'params': {}}]}}
-        ]
+            {'experiment': 'MyCustomExperiment', 'noise': None, 'split': None},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'SomeSplitter', 'params': {}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.5, 'std': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'SomeSplitter', 'params': {}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}},
+            {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'AnotherNoiser', 'params': {'mean': 0.6, 'std': 0.2}}, {'column_name': 'hello:input2:prot', 'name': 'YetAnotherNoiser', 'params': {}}], 'split': {'name': 'SomeSplitter', 'params': {}}}
+            ]
 
         d_to_test = interpret_json(d)
-        self.assertEqual(len(d_to_test), 37)
+        self.assertEqual(len(d_to_test), 10)
         self.assertEqual(d_to_test, out_list)
-        """
