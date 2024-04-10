@@ -40,24 +40,21 @@ def interpret_json(input_json: dict) -> list:
     # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
     list_of_json_to_write = []
 
-    # The  pipeline has always to happen at least once, aka on the data itself untouched. this sould always be passed through the pipeline. This line is creating the json for that.
+    # The  pipeline has always to happen at least once, aka on the data itself untouched. this sould always be passed through the pipeline. 
     list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
 
     # if only noise is present, we do not care for the presence of custom in this case bacause it is handled by itself later on
     if list_noise_combinations and not list_split_combinations:
-        for noiser_dict in list_noise_combinations:
-            list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": None})
-
+        list_split_combinations = [None]
+        
     # if only split is present, again custom is not influential
     elif list_split_combinations and not list_noise_combinations:
+        list_split_combinations = [None]
+         
+    # We the above if and elif we made so that all combination of presence of noise or split can be handled by the following nested for loops
+    for noiser_dict in list_noise_combinations:
         for splitter_dict in list_split_combinations:
-            list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": splitter_dict})
-    
-    # when both noise and split flag are present
-    else:
-        for noiser_dict in list_noise_combinations:
-            for splitter_dict in list_split_combinations:
-                list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
+            list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
 
     # deal wiht custom if present, in this case nothing at all will be done to the dictionaries present in the list except adding the experiment name to it. The user is responsible for the dict inside custom to be correct and ready for the csv_launcher
     for custom_dict in schema.custom_arg :

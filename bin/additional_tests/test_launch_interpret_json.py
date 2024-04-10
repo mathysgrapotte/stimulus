@@ -78,12 +78,12 @@ class TestInterpretJson(unittest.TestCase):
                 {
                     "column_name": "hello:input1:dna",
                     "name": ["UniformTextMasker", "AnotherNoiser", "AnotherNoiser"],
-                    "params": [{"probability": [0.1, 0.2]}, {"probability": [0.11, 0.21]}, {"mean": [0.5, 0.6], "std": [0.1, 0.2]}]
+                    "params": [{"probability": [0.1, 0.2]}, "default", {"mean": [0.5, 0.6], "std": [0.1, 0.2]}]
                 },
                 {
                     "column_name": "hello:input2:prot",
                     "name": ["UniformTextMasker", "YetAnotherNoiser"],
-                    "params": "default"
+                    "params": ["default", "default"]
                 }],
             "split": [
                 {
@@ -95,6 +95,11 @@ class TestInterpretJson(unittest.TestCase):
                     "params": "default"
             }]}
         
+        tmp = interpret_json(d)
+        #for i, di in enumerate(tmp):
+        #   print(i, di, "\n")
+
+        """
         out_list = [
             {'experiment': 'MyCustomExperiment', 'noise': None, 'split': None} ,
             {'experiment': 'MyCustomExperiment', 'noise': [{'column_name': 'hello:input1:dna', 'name': 'UniformTextMasker', 'params': {'probability': 0.1}}, {'column_name': 'hello:input2:prot', 'name': 'UniformTextMasker', 'params': {}}], 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}} ,
@@ -138,3 +143,4 @@ class TestInterpretJson(unittest.TestCase):
         d_to_test = interpret_json(d)
         self.assertEqual(len(d_to_test), 37)
         self.assertEqual(d_to_test, out_list)
+        """

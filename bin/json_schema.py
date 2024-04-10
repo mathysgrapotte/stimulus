@@ -78,6 +78,9 @@ class JsonSchema(ABC):
             # iterate throught the possible multiple parmaeters, some noisers could have more than one parameter flag
             else:
                 for k, params_dict in enumerate(col_name_dictionary["params"]):
+                    # even the single set of parameters of a given noisername can be set to default
+                    if params_dict == "default":
+                        continue
                     for params_flag, params_list in params_dict.items():
                         num_params_list.append(len(params_list))
         
@@ -89,7 +92,7 @@ class JsonSchema(ABC):
 
 
 
-    def _transform_noise_dict(self):
+    def _transform_noise_dict(self) -> dict:
         """
         TODO helper fucntion section
         """
@@ -97,7 +100,7 @@ class JsonSchema(ABC):
         for col_name_dictionary in self.noise_arg:
             # The name: field of a noise: can be either a simlpe string or list of strings, so convert such variable to a list if it's a string, otherwise leave it unchanged
             noiser_list = [col_name_dictionary['name']] if isinstance(col_name_dictionary['name'], str) else col_name_dictionary['name']
-            # Now get the parametrs or set of parameters associated with each noiser and store bot in a tuple and append to list noiser names associated to a given clumn_name
+            # Now get the parametrs or set of parameters associated with each noiser and store both in a tuple and append to list noiser names associated to a given clumn_name
             for k, noiser_name in enumerate(noiser_list):
                 # handle the fact that params can have "default" as value and not a list
                 if col_name_dictionary['params'] == "default":
@@ -123,15 +126,24 @@ class JsonSchema(ABC):
 
         # Generate Cartesian product of value lists
         combinations = product(*value_lists)
-
         # Create dictionaries for each combination
         result = []
         for combination in combinations:
             combined_dict = {}
+            # flag to check if all the parameters values associated to one combination of nopiser are all default
+            all_param_value_default = True
             for key, value in zip(keys, combination):
-                nested_dict = {value : d[key][value]}
+                param_field =  d[key][value] 
+                nested_dict = {value : param_field}
                 combined_dict.update({key: nested_dict})
-            result.append(combined_dict)
+                # now check if the param is a default or not 
+                if param_field != "default":
+                    all_param_value_default = False  
+            # now append the value to the combo dict that rapresent how many parameters combination there are for such noisers combination.
+            tmp_tuple = (combined_dict, self.number_column_wise_val)
+            if all_param_value_default:
+                tmp_tuple = (combined_dict, 1)       
+            result.append(tmp_tuple)
 
         return result
 
@@ -187,19 +199,20 @@ class JsonSchema(ABC):
             noiser2 (p1 = 3.5) - othernoiser (p1 = 6, p2 = 9)
         """
 
-        # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {p1 : [1]} }}
+        # transform noise entry in a nested dictionary, with structure {col_name: { noiser_name : {p1 : [1]} }} 
         noise_as_dict = self._transform_noise_dict()
             
-        # Create cartesian product of noiser names based on the above dictionary
+        # Create cartesian product of noiser names based on the above dictionary and check if the single combination does not fall under the special case where all parametrs associated to each noisers in the combination are set to "default". in such a case the code that follows in a specific for loop should be executed only once, instead of self.number_column_wise_val times.
         noiser_combination_list = self._generate_cartesian_product_combinations(noise_as_dict)
 
         # for each noiser combination create the column wise selection of parameters associated
         all_noise_combination = []
-        for noise_combo in noiser_combination_list:
-            # select the parameter iterating through the total number of parameters value fopr each col type 
-            for params_index in range(self.number_column_wise_val):
+        for noise_combo_tuple in noiser_combination_list:
+            # select the parameter iterating through the total number of parameters associated to the specific noiser combination under selection. This value is the second value of the tuple in which the actual dictionary of noiser combination is.
+            for params_index in range(noise_combo_tuple[1]):
                 noise_list = []
-                for col_name, noise_dict in noise_combo.items():
+                # noise_combo_tuple[0] is the actual dictionary with the noiser name parameters for the given combination
+                for col_name, noise_dict in noise_combo_tuple[0].items():
                     single_param_dict = self._handle_parameter_selection(noise_dict, params_index)
                     # add the column_name field to this dictionary
                     single_param_dict["column_name"] = col_name
@@ -207,6 +220,7 @@ class JsonSchema(ABC):
                     sorted_dict = {key: single_param_dict[key] for key in sorted(single_param_dict)}
                     noise_list.append(sorted_dict)
                 all_noise_combination.append(noise_list)
+
         return all_noise_combination
 
 
