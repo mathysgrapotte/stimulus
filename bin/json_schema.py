@@ -21,7 +21,7 @@ class JsonSchema(ABC):
         if not self.experiment:
             raise ValueError(f"No experiment name given, the Json should always have a experiment:'ExperimentName' field")
 
-        # Send error if self.interpret_parmas_mode is not of possibility
+        # Send error if self.interpret_parmas_mode is not among the possible ones
         if self.interpret_params_mode not in ["column_wise", "all_combinations"]:
             raise ValueError(f"interpret_params_mode value can only be one of the following keywords -> ['column_wise', 'all_combinations']")
 
@@ -245,9 +245,9 @@ class JsonSchema(ABC):
         for i, split_dict in enumerate(self.split_arg):
             # jsut create a new dictionary for each set of params associated to each split_name, basically if a splitter has more than one element in his params: then they should be decoupled so to have each splitter with only one value for params:
             # if the value of params: is "default" just return the dictionary  with an empty dict as value of params : 
-            if split_dict['params'] == "default":
+            if split_dict['params'] == "default" or split_dict['params'] == ["default"]:
                 split_dict['params'] = {}
-                list_split_comibinations.append({ "split" : [split_dict]})
+                list_split_comibinations.append( split_dict )
             else:
                 # Get lengths of all lists
                 lengths = {key: len(value) for key, value in split_dict['params'][0].items()}
@@ -256,7 +256,7 @@ class JsonSchema(ABC):
                 all_lengths_same = set(lengths.values())
 
                 if len(all_lengths_same) != 1 :
-                    raise ValueError(f"All split params for teh same splitter have to have the same number of elements, this splitter does not: {split_dict['name']}.")
+                    raise ValueError(f"All split params for the same splitter have to have the same number of elements, this splitter does not: {split_dict['name']}.")
                 else:
                     # iterate at level of number of params_values 
                     for params_index in range(list(all_lengths_same)[0]):

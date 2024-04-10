@@ -32,26 +32,26 @@ def interpret_json(input_json: dict) -> list:
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
     # both function output an empty list if there is no noise argument
     function_call_dict = {"column_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
-    list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
-
-    # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
-    list_split_combinations = schema.split_combination()
+    
+    # if noise is not present no need to compute the list of possibilities
+    list_noise_combinations = [None]
+    if schema.noise_arg:
+        list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
+        
+    # if split is present, again like above
+    list_split_combinations = [None]
+    if schema.split_arg:
+        # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
+        list_split_combinations = schema.split_combination()
 
     # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
     list_of_json_to_write = []
 
-    # The  pipeline has always to happen at least once, aka on the data itself untouched. this sould always be passed through the pipeline. 
-    list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
-
-    # if only noise is present, we do not care for the presence of custom in this case bacause it is handled by itself later on
-    if list_noise_combinations and not list_split_combinations:
-        list_split_combinations = [None]
-        
-    # if only split is present, again custom is not influential
-    elif list_split_combinations and not list_noise_combinations:
-        list_split_combinations = [None]
+    # The  pipeline has always to happen at least once, aka on the data itself untouched. This line is not necessary only in the case of missing both noise and spli arguments in the inpèut Json.
+    if schema.noise_arg or schema.split_arg:
+        list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
          
-    # We the above if and elif we made so that all combination of presence of noise or split can be handled by the following nested for loops
+    # The following lines generate all the ready to write json dictionaries, combining all vs all the noisers combination with the splitter combinations
     for noiser_dict in list_noise_combinations:
         for splitter_dict in list_split_combinations:
             list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})

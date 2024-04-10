@@ -24,6 +24,32 @@ class TestInterpretJson(unittest.TestCase):
         d = {"experiment": "MyCustomExperiment"}
         out_l = [{"experiment": "MyCustomExperiment", "noise": None, "split": None}]
         self.assertEqual(interpret_json(d), out_l)
+    
+
+    def test_interpret_json_without_noise_arg(self):
+        d = {
+            "experiment": "MyCustomExperiment",
+            "split": [
+                {
+                    "name": "RandomSplitter",
+                    "params": [{"split": [[0.6, 0.2, 0.2], [0.7, 0.15, 0.15]]}]
+                },
+                {
+                    "name": "SomeSplitter",
+                    "params": "default"
+                },
+                {
+                    "name": "SomeSplitter1",
+                    "params": ["default"]
+            }]}
+        out_l = [{'experiment': 'MyCustomExperiment', 'noise': None, 'split': None},
+        {'experiment': 'MyCustomExperiment', 'noise': None, 'split': {'name': 'RandomSplitter', 'params': {'split': [0.6, 0.2, 0.2]}}},
+        {'experiment': 'MyCustomExperiment', 'noise': None, 'split': {'name': 'RandomSplitter', 'params': {'split': [0.7, 0.15, 0.15]}}},
+        {'experiment': 'MyCustomExperiment', 'noise': None, 'split': {'name': 'SomeSplitter', 'params': {}}},
+        {'experiment': 'MyCustomExperiment', 'noise': None, 'split': {'name': 'SomeSplitter1', 'params': {}}}]
+        self.assertEqual(interpret_json(d), out_l)
+
+
 
     def test_interpret_json_with_custom_dict(self):
         d = {
@@ -83,7 +109,7 @@ class TestInterpretJson(unittest.TestCase):
                 {
                     "column_name": "hello:input2:prot",
                     "name": ["UniformTextMasker", "YetAnotherNoiser"],
-                    "params": ["default", "default"]
+                    "params": ["default", {"p1": [1, 2]}]
                 }],
             "split": [
                 {
@@ -95,10 +121,11 @@ class TestInterpretJson(unittest.TestCase):
                     "params": "default"
             }]}
         
-        tmp = interpret_json(d)
-        #for i, di in enumerate(tmp):
-        #   print(i, di, "\n")
-
+        """tmp = interpret_json(d)
+        print(len(tmp))
+        for i, di in enumerate(tmp):
+           print(i, di, "\n")
+        """
         """
         out_list = [
             {'experiment': 'MyCustomExperiment', 'noise': None, 'split': None} ,
