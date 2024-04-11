@@ -4,14 +4,13 @@ process STIMULUS_NOISE_CSV {
     container 'alessiovignoli3/stimulus:torch_scikit_numpy'
 
     input:
-    path csv
-    path json
+    tuple path(csv), val(user_json), path(parsed_json)
 
     output:
     stdout emit: standardout
 
     script:
     """
-     -c csv -j json
+    echo ${csv} ${user_json} ${parsed_json}
     """
 }
