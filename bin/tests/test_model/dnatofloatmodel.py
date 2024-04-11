@@ -18,6 +18,8 @@ CONFIG_EXAMPLE = {
 
     'epochs': 10,
 
+    'lr' : 0.001,
+
     'data_params': {
         'batch_size': 64
     }

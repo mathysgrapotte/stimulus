@@ -36,16 +36,20 @@ class TuneModel(Trainable):
         # get epochs from the config
         self.epochs = config['epochs']
 
+        # get learning rate
+        self.lr = config['lr']
+
         # get the train and validation data from the config
         # run dataloader on them
         self.train = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=0), batch_size=config['data_params']['batch_size'])
         self.validation = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=1), batch_size=config['data_params']['batch_size'])
 
-    def run_epoch(self):
+    def step(self) -> dict:
         """
         Train the model for one epoch.
         For each batch in the training data, calculate the loss and update the model parameters.
         This calculation is performed based on the model's step function.
+        At the end, return the objective metric(s) for the tuning process.
         """
         loss = 0.0
         self.model.train()

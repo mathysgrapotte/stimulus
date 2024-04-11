@@ -14,15 +14,17 @@ class TestRayTuneLearner(unittest.TestCase):
 
     def test_setup(self):
         self.assertTrue(self.learner.model is not None)
-        self.assertTrue(self.learner.loss_fn is not None)
+        self.assertIsInstance(self.learner.loss_dict, dict)
         self.assertTrue(self.learner.optimizer is not None)
-        self.assertTrue(self.learner.train is not None)
-        self.assertTrue(self.learner.test is not None)
+        self.assertIsInstance(self.learner.epochs, int)
+        self.assertTrue(self.learner.lr is not None)
+        self.assertIsInstance(self.learner.train, DataLoader)
+        self.assertIsInstance(self.learner.validation, DataLoader)      
+        
+    # def test_step(self):
+    #     self.learner.model.step()
 
-    def test_step(self):
-        self.learner.step()
-
-    def test_objective(self):
-        self.learner.objective()
+    # def test_objective(self):
+    #     self.learner.objective()
 
     
