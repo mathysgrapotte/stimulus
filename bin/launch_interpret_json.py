@@ -25,40 +25,41 @@ def get_args():
 
 def interpret_json(input_json: dict) -> list:
 
-    # TODO handle no noise or splitter
-
     # Initialize json schema it checks for correctness of the Json architecture and fields / values
     schema = JsonSchema(input_json)
 
     # compute all noise combinations
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
     # both function output an empty list if there is no noise argument
-    function_call_dict = {"culumn_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
-    list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
-
-    # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
-    list_split_combinations = schema.split_combination()
+    function_call_dict = {"column_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
+    
+    # if noise is not present no need to compute the list of possibilities
+    list_noise_combinations = [None]
+    if schema.noise_arg:
+        list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
+        
+    # if split is present, again like above
+    list_split_combinations = [None]
+    if schema.split_arg:
+        # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
+        list_split_combinations = schema.split_combination()
 
     # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
     list_of_json_to_write = []
 
-    # Check if both lists are empty
-    if not list_noise_combinations and not list_split_combinations:
-        list_of_json_to_write.append({"experiment": schema.experiment})
-    else:
-        if not list_split_combinations:  # Check if list_split_combinations is empty
-            for noiser_dict in list_noise_combinations:
-                list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict})
-        else:
-            for splitter_dict in list_split_combinations:
-                if not list_noise_combinations:  # Check if list_noise_combinations is empty
-                    list_of_json_to_write.append({"experiment": schema.experiment, "split": splitter_dict})
-                else:
-                    list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
+    # The  pipeline has always to happen at least once, aka on the data itself untouched. This line is not necessary only in the case of missing both noise and spli arguments in the inpèut Json.
+    if schema.noise_arg or schema.split_arg:
+        list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
+         
+    # The following lines generate all the ready to write json dictionaries, combining all vs all the noisers combination with the splitter combinations
+    for noiser_dict in list_noise_combinations:
+        for splitter_dict in list_split_combinations:
+            list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
 
-    # deal wiht custom if present, in this case nothing at all will be done to the dictionary, it will just be passed as it is
+    # deal wiht custom if present, in this case nothing at all will be done to the dictionaries present in the list except adding the experiment name to it. The user is responsible for the dict inside custom to be correct and ready for the csv_launcher
     for custom_dict in schema.custom_arg :
-        list_of_json_to_write.append(custom_dict)
+        new_dict = {**{"experiment": schema.experiment}, **custom_dict}
+        list_of_json_to_write.append(new_dict)
 
     return list_of_json_to_write
 
@@ -79,11 +80,11 @@ def main(config_json: str, out_dir_path: str) -> str:
     os.makedirs(out_dir_path, exist_ok=True)
 
     # Populate the directory with files containing the single SJon combination
-    for i, elements in enumerate(list_json):
+    for i, interpreted_json in enumerate(list_json):
         suffix = os.path.splitext(os.path.basename(config_json))[0]
         file_path = os.path.join(out_dir_path, f"{suffix}-#{i+1}.json")
-        with open(file_path, 'w') as file:
-            file.write(f"{elements}\n")
+        with open(file_path, 'w') as json_file:
+            json.dump(interpreted_json, json_file)
 
 
 if __name__ == "__main__":
