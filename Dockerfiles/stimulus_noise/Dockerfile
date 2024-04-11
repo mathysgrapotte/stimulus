@@ -1,4 +1,4 @@
-# python 3.11.8-slim-bullseye
+# python 3.11.8-slim-bullseye intes64
 FROM python@sha256:a2d01031695ff170831430810ee30dd06d8413b08f72ad978b43fd10daa6b86e
 LABEL maintainer="Alessio Vignoli" \
         name="alessiovignoli3/stimulus:torch_scikit_numpy" \
@@ -8,5 +8,5 @@ LABEL maintainer="Alessio Vignoli" \
 # TODO one can add the requirements.txt and install the packages from there
 RUN pip install \
     numpy==1.26.0 \
-    polars==0.20.15 \
+    polars-lts-cpu==0.20.19 \
     scikit-learn==1.3.0
