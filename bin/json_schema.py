@@ -94,8 +94,12 @@ class JsonSchema(ABC):
 
     def _transform_noise_dict(self) -> dict:
         """
-        TODO helper fucntion section
+        This function transforms the noise argument from the JSON schema into a nested dictionary structure.
+        It iterates through each noise dictionary entry, extracting the column_name and name fields.
+        If the name field is a string, it converts it to a list with a single element. It then creates a dictionary for each noise name, associating it with its parameters.
+        It handles cases where noise names are repeated for the same column_name by appending a unique key to the noise name. key = -#num
         """
+
         noise_dict = {}
         for col_name_dictionary in self.noise_arg:
             # The name: field of a noise: can be either a simlpe string or list of strings, so convert such variable to a list if it's a string, otherwise leave it unchanged
@@ -119,7 +123,14 @@ class JsonSchema(ABC):
     def _generate_cartesian_product_combinations(self, d: dict) -> list:
         """
         Helper function for creating cartesian product combinations out of a dictionary.
-        TODO expand explanation
+        Once all the cartesian product combinations of the values of the dictionary are created it iterates through them 
+        to reassign each value to his key. But know the resulting dict has only one value for each key.
+        And the list of this dictionaries is the total set of possible combinations of such values.
+
+        The only other thing that is done is to check if whithin a combination all parameters fiels iside the values are all default.
+        If that is the case the value associated to this combination dict is 1, otherwise is the number of parameters values.
+        This value is used later on in the step of noise handling. 
+        for example to know how many time through each combination should the for loop go to select the singular set of parameters values.
         """
         keys = d.keys()
         value_lists = d.values()
@@ -151,7 +162,11 @@ class JsonSchema(ABC):
     
     def _handle_parameter_selection(self, d: dict, param_index: int) -> dict:
         """
-        TODO helper fucntion section
+        This function handles the selection of parameters for a given noise dictionary.
+        It takes a dictionary containing noise parameters and an index indicating which parameter combination to select.
+        It iterates through the parameters, extracting the parameter values associated with the given index.
+        It returns a dictionary containing the selected noise name and parameters for the specified index.
+        The output dictionary will have the same structure of the input one but only one value for each paramter instead of a lst of them.
         """
         
         for key, param_dict in d.items():
@@ -237,7 +252,10 @@ class JsonSchema(ABC):
 
     def split_combination(self) -> list:
         """
-        TODO add description
+        This function computes all possible combinations of parameters for splits defined in the schema.
+        It iterates through the split argument in the JSON schema, extracting the name and params fields.
+        It creates separate dictionaries for each parameter combination, ensuring that each splitter has only one value for its parameters.
+        It returns a list of dictionaries, where each dictionary represents a combination of parameters for a split.
         """
 
         list_split_comibinations = []

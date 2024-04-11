@@ -9,10 +9,20 @@ import os
 def get_args():
 
     """get the arguments when using from the commandline
-    TODO write help function description"""
+    
+    This script reads a Json with very defined structure and creates all the Json files ready to be passed to 
+    the stimulus package. 
+    
+    The structure of the Json is described here -> TODO paste here link to documentation.
+    This Json and it's structure summarize how to generate all the noise - split and respective parameters combinations.
+    Each resulting Json will hold only one combination of the above three things.
+
+    This script will always generate at least on Json file that represent the combination that does not touch the data (no noise)
+    and uses the defalut split behaviour.
+    """
     
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all parameter info')
+    parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all noise - split - parameter info')
     parser.add_argument("-d", "--out_dir", type=str, required=True, metavar="DIR", help='The output dir where all he jason are written to. Output Json will be called input_json_nam-#[number].json')
 
     args = parser.parse_args()
