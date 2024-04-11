@@ -5,7 +5,7 @@
 */
 
 include { INTERPRET_JSON } from '../modules/interpret_json.nf'
-include { HANDLE_CSV     } from '../modules/handle_csv.nf'
+//include { NOISE_CSV      } from '../subworkflows/noise_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,14 +30,14 @@ workflow HANDLE_DATA {
     // read the json 
     INTERPRET_JSON(json)
 
-    // launch the actual noise and splitting / transforming process
-    //HANDLE_CSV(csv, json)
+    // launch the actual noise subworkflow
+    //NOISE_CSV(csv, json)
 
 
 
     emit:
 
-    debug = INTERPRET_JSON.out.standardout
+    debug = INTERPRET_JSON.out.interpreted_json
 
 }
 

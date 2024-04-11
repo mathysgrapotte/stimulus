@@ -1,5 +1,5 @@
 
-process HANDLE_CSV {
+process STIMULUS_NOISE_CSV {
 
     container 'alessiovignoli3/stimulus:torch_scikit_numpy'
 
@@ -12,6 +12,6 @@ process HANDLE_CSV {
 
     script:
     """
-    launch_csv_handling.py -c csv -j json
+     -c csv -j json
     """
 }

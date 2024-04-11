@@ -8,10 +8,11 @@ process INTERPRET_JSON {
     path user_json
 
     output:
+    tuple val(user_json), path("json_dir/*.json"), emit: interpreted_json
     stdout emit: standardout
 
     """
-    launch_interpret_json.py -j ${user_json} -d tmp
+    launch_interpret_json.py -j ${user_json} -d json_dir 
     """
 
 }
