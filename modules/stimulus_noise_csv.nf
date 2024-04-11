@@ -11,6 +11,6 @@ process STIMULUS_NOISE_CSV {
 
     script:
     """
-    echo ${csv} ${user_json} ${parsed_json}
+    launch_noise_csv.py -c ${csv} -j ${parsed_json}
     """
 }

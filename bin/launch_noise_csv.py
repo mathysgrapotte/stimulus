@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from src.data.csv_parser import CSVParser
+from src.data.csv import CsvProcessing, CsvLoader
 import src.data.experiments as exp
 
 
@@ -23,7 +23,6 @@ def main(data_csv, config_json):
     """
     This launcher will be the connection between the csv and one json configuration.
     It should also handle some sanity checks.
-    TODO add a check so that it launches error when split is not defined in json neither in the csv data.
     """
 
     print(data_csv, config_json)
