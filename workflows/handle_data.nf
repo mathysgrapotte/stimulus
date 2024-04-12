@@ -40,6 +40,7 @@ workflow HANDLE_DATA {
     emit:
 
     debug = NOISE_CSV.out.debug
+    data  = NOISE_CSV.out.noised_data
 
 }
 

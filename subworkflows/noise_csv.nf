@@ -31,7 +31,8 @@ workflow NOISE_CSV {
 
     emit:
 
-    debug = STIMULUS_NOISE_CSV.out.standardout
+    debug       = STIMULUS_NOISE_CSV.out.standardout
+    noised_data = STIMULUS_NOISE_CSV.out.noised_data
 
 }
 
