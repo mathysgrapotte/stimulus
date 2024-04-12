@@ -1,4 +1,5 @@
 import torch 
+from abc import ABC, abstractmethod
 
 ## this is a simple model that takes as input a 1D tensor of any size, apply some convolutional layer and outputs a single value using a maxpooling layer and a softmax function.
 
@@ -25,7 +26,7 @@ CONFIG_EXAMPLE = {
     }
 }
 
-class AbstractModel(torch.nn.Module):
+class AbstractModel(torch.nn.Module, ABC):
 
     @abstractmethod
     def forward(self) -> torch.Tensor:
