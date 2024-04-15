@@ -1,5 +1,5 @@
 {
-    "experiment": "MyCustomExperiment",
+    "experiment": "DnaToFloatExperiment",
     "interpret_parmas_mode": "culumn_wise", 
     "noise": [
         {
