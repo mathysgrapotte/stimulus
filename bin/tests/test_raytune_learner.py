@@ -1,13 +1,20 @@
 import unittest
 import os
+import random
+import numpy as np
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel as RayTuneLearner
-from bin.tests.test_model.dnatofloatmodel import SimpleModel, CONFIG_EXAMPLE
+from bin.tests.test_model.dnatofloatmodel import SimpleModel
 from torch.utils.data import DataLoader
 
 class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
-        config = CONFIG_EXAMPLE
+        random.seed(1234)
+        np.random.seed(1234)
+        config = {}
+        # load config dictionary from "bin/tests/test_data/dna_experiment/simple.config"
+        with open("bin/tests/test_model/simple.config", "r") as f:
+            config = eval(f.read())
         config["model"] = SimpleModel
         config["data_path"] = os.path.abspath("bin/tests/test_data/dna_experiment/test_with_split.csv")
         config["experiment"] = DnaToFloatExperiment()

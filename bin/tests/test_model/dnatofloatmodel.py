@@ -3,31 +3,6 @@ from abc import ABC, abstractmethod
 
 ## this is a simple model that takes as input a 1D tensor of any size, apply some convolutional layer and outputs a single value using a maxpooling layer and a softmax function.
 
-CONFIG_EXAMPLE = {
-
-    'model_params': {
-        'kernel_size': 3,
-        'pool_size': 2
-    },
-
-    'loss_fn': {'loss_fn1': {'function': 'MSELoss', 'target': 'hola'},
-                'loss_fn2': {'function': 'CrossEntropyLoss', 'target': 'hola'}
-    }, 
-    
-    'optimizer': {
-        'name': 'Adam',
-        'params':{}},
-
-    'epochs': 10,
-
-    'lr' : 0.001,
-
-    'data_params': {
-        'batch_size': 64
-    }
-
-
-}
 
 class AbstractModel(torch.nn.Module, ABC):
 
