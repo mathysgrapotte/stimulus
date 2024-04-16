@@ -38,6 +38,7 @@ workflow {
         params.exp_conf
     )
     HANDLE_DATA.out.debug.view()
+    HANDLE_DATA.out.data.view()
 
     // HANDLE_TRAINING()
 

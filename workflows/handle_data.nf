@@ -5,7 +5,8 @@
 */
 
 include { INTERPRET_JSON } from '../modules/interpret_json.nf'
-include { HANDLE_CSV     } from '../modules/handle_csv.nf'
+include { NOISE_CSV      } from '../subworkflows/noise_csv.nf'
+include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,17 +28,23 @@ workflow HANDLE_DATA {
     csv  = Channel.fromPath( input_csv  )
     json = Channel.fromPath( input_json )
 
-    // read the json 
+    // read the json and create many json as there are combinations of noisers and splitters
     INTERPRET_JSON(json)
 
-    // launch the actual noise and splitting / transforming process
-    //HANDLE_CSV(csv, json)
+    // parse the tuple so that each interpreted_json is associated to the name of the User Json that created it
+    json_tuple = INTERPRET_JSON.out.interpreted_json.transpose()
+    
+    // launch splitting subworkflow 
+    SPLIT_CSV(csv, json_tuple)
 
+    // launch the actual noise subworkflow
+    NOISE_CSV( SPLIT_CSV.out.split_data )
 
 
     emit:
 
-    debug = INTERPRET_JSON.out.standardout
+    debug = NOISE_CSV.out.debug
+    data  = NOISE_CSV.out.noised_data
 
 }
 

@@ -119,11 +119,11 @@ class CsvProcessing(CsvHandler):
             # change the column with the new values
             self.data = self.data.with_columns(pl.Series(key, new_column))
 
-    def save(self, data: pl.DataFrame, path: str) -> None:
+    def save(self, path: str) -> None:
         """
         Saves the data to a csv file.
         """
-        data.write_csv(path)
+        self.data.write_csv(path)
 
 class CsvLoader(CsvHandler):
     """
