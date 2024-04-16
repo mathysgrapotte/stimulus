@@ -14,7 +14,6 @@ class TestRayTuneLearner(unittest.TestCase):
         self.learner = RayTuneLearner(config = config)
 
     def test_setup(self):
-        self.assertTrue(1==1)
         self.assertIsInstance(self.learner.loss_dict, dict)
         self.assertTrue(self.learner.optimizer is not None)
         self.assertIsInstance(self.learner.epochs, int)
@@ -22,17 +21,28 @@ class TestRayTuneLearner(unittest.TestCase):
         self.assertIsInstance(self.learner.train, DataLoader)
         self.assertIsInstance(self.learner.validation, DataLoader) 
 
-    # def test_step(self):
-    #     self.learner.step()
+    def test_step(self):
+        self.learner.step()
 
-    # def test_objective(self):
-    #     self.learner.objective()
+    def test_objective(self):
+        obj = self.learner.objective()
+        self.assertIsInstance(obj, dict)
+        self.assertTrue("val_loss" in obj.keys())
+        self.assertIsInstance(obj["val_loss"], float)
 
-    # def test_compute_val_loss(self):
-    #     self.learner.compute_val_loss()
+    def test_compute_val_loss(self):
+        val_loss = self.learner.compute_val_loss()
+        self.assertIsInstance(val_loss, float)
+
+    def test_export_model(self):
+        self.learner.export_model("bin/tests/test_data/dna_experiment/test_model.pth")
+        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_model.pth"))
     
-    
-        
+    def test_save_checkpoint(self):
+        checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
+        self.assertIsInstance(checkpoint, dict)
+        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_checkpoint.pth"))
+
 
 if __name__ == "__main__":
     unittest.main()
