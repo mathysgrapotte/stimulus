@@ -13,7 +13,7 @@ class AbstractSplitter(ABC):
     """
 
     @abstractmethod
-    def get_split_indexes(self, length_of_data: int, split: list, seed: float = None) -> list:
+    def get_split_indexes(self, data: pl.DataFrame, seed: float = None ) -> list:
         """
         Splits the data. Always return indices mapping to the original list. 
         """
