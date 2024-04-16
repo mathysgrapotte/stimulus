@@ -57,8 +57,9 @@ class RandomSplitter(AbstractSplitter):
         """
         if len(split) != 3:
             raise ValueError("The split argument should be a list with length 3 that contains the proportions for [train, validation, test] splits.")
-        if sum(split) != 1.0:
-            raise ValueError("The sum of the split proportions should be 1.")
+        # Use round to avoid errors due to floating point imprecisions
+        if round(sum(split),3) <  1.0:
+            raise ValueError("The sum of the split proportions should be 1. Instead, it is {}.".format(sum(split)))
         
         # Generate a list of indices and shuffle it
         indices = np.arange(length_of_data)

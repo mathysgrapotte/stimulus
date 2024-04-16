@@ -9,7 +9,7 @@ Here we provide standard experiments as well as an absctract class for users to 
 
 from abc import ABC, abstractmethod
 from typing import Any
-from .spliters import spliters as spliters
+from .splitters import splitters as splitters
 from .encoding import encoders as encoders
 from .noise import noise_generators as noise_generators
 
@@ -51,7 +51,7 @@ class DnaToFloatExperiment(AbstractExperiment):
         super().__init__()
         self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
         self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
-        self.split = {'RandomSplitter': spliters.RandomSplitter()}
+        self.split = {'RandomSplitter': splitters.RandomSplitter()}
 
 
 class ProtDnaToFloatExperiment(DnaToFloatExperiment):

@@ -6,6 +6,7 @@
 
 include { INTERPRET_JSON } from '../modules/interpret_json.nf'
 include { NOISE_CSV      } from '../subworkflows/noise_csv.nf'
+include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,9 +33,12 @@ workflow HANDLE_DATA {
 
     // parse the tuple so that each interpreted_json is associated to the name of the User Json that created it
     json_tuple = INTERPRET_JSON.out.interpreted_json.transpose()
+    
+    // launch splitting subworkflow 
+    SPLIT_CSV(csv, json_tuple)
 
     // launch the actual noise subworkflow
-    NOISE_CSV(csv, json_tuple)
+    NOISE_CSV( SPLIT_CSV.out.split_data )
 
 
     emit:
