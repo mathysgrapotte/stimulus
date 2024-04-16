@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_SPLIT_CSV } from '../modules/stimulus_noise_csv.nf'
+include { STIMULUS_SPLIT_CSV } from '../modules/stimulus_split_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +28,7 @@ workflow SPLIT_CSV {
     emit:
 
     debug       = STIMULUS_SPLIT_CSV.out.standardout
-    noised_data = STIMULUS_SPLIT_CSV.out.noised_data
+    split_data  = STIMULUS_SPLIT_CSV.out.csv_with_split
 
 }
 

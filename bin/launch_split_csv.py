@@ -40,10 +40,33 @@ def main(data_csv, config_json, out_path):
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
     
-    # noise the data according to what defined in the experiment class and the specifics of the user in the Json
-    # in case of no noiser specification so when the config has "noise" : None  just save a copy of the original csv file, hat will later be removed by the pipeline when the split has been performed
-    if config["split"]: 
-        csv_obj.add_split(config["split"])
+    print(csv_obj.check_and_get_categories())
+
+    # CASE 1: SPLIT in csv, not in json --> keep the split from the csv
+    if "split" in csv_obj.check_and_get_categories(): 
+        if config["split"] == None:
+            next
+        else:
+            # CASE 2: SPLIT in csv and in json --> use the split from the json
+            split_method = config["split"]["name"]
+            split = config["split"]["params"]["split"]
+            csv_obj.add_split(split_method, split, force = True)   
+    
+    # CASE 3: SPLIT nor in csv and or json --> use the default RandomSplitter
+    elif("split" not in csv_obj.check_and_get_categories() and config["split"] == None): 
+        # In case no split is provided, we use the default RandomSplitter
+        # TODO add warning message
+        print("IN CASE 2: SPLIT nor in csv and or json --> use the default RandomSplitter")
+        split_method = "RandomSplitter"
+        split = [1.0, 0, 0]
+        csv_obj.add_split(split_method, split)
+
+    # CASE 4: SPLIT in json, not in csv --> use the split from the json
+    else:
+        print("IN CASE 3: SPLIT in json, not in csv  or split in both--> use the split from the json")
+        split_method = config["split"]["name"]
+        split = config["split"]["params"]["split"]
+        csv_obj.add_split(split_method, split, force = True)
 
     # save the modified csv
     csv_obj.save(out_path)
