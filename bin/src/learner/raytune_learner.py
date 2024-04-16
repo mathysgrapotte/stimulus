@@ -20,10 +20,10 @@ class TuneModel(Trainable):
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
         # where the key is the name of the loss function and the value is the loss function itself.
-        self.loss_dict = config["model_params"]["loss_fn"]
+        self.loss_dict = config["loss_fn"]
         for key, loss_fn in self.loss_dict.items():
             try:
-                self.loss_dict[key] = getattr(nn, loss_fn)()
+                self.loss_dict[key] = getattr(nn, loss_fn["function"])()
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
         

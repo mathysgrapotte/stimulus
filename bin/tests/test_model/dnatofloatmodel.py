@@ -7,12 +7,13 @@ CONFIG_EXAMPLE = {
 
     'model_params': {
         'kernel_size': 3,
-        'pool_size': 2,
-        'loss_fn': {'loss_fn1': {'function': 'MSELoss', 'target': 'hola'},
-                    'loss_fn2': {'function': 'CrossEntropyLoss', 'target': 'hola'}
-        }
+        'pool_size': 2
     },
 
+    'loss_fn': {'loss_fn1': {'function': 'MSELoss', 'target': 'hola'},
+                'loss_fn2': {'function': 'CrossEntropyLoss', 'target': 'hola'}
+    }, 
+    
     'optimizer': {
         'name': 'Adam',
         'params':{}},
@@ -24,6 +25,8 @@ CONFIG_EXAMPLE = {
     'data_params': {
         'batch_size': 64
     }
+
+
 }
 
 class AbstractModel(torch.nn.Module, ABC):
@@ -59,7 +62,7 @@ class SimpleModel(AbstractModel):
     def step(self, x, y, loss_dict) -> torch.Tensor:
         output = self(**x)
         loss = {}
-        for key, dic in loss_fn.items():
+        for key, dic in loss_dict.items():
             loss[key] = dic['function'](output, y[dic['target']].to(torch.float32))
         loss = sum(loss.values())
         return loss
