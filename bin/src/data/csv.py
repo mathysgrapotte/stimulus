@@ -79,8 +79,7 @@ class CsvProcessing(CsvHandler):
         super().__init__(experiment, csv_path)
         self.data = self.load_csv()
 
-    #def add_split(self, split_method: str, split: list, seed: float = None, force=False) -> None:
-    def add_split(self, config: dict,  force=False)
+    def add_split(self, config: dict,  force=False) -> None:
         """
         Add a column specifying the train, validation, test splits of the data.
         An error exception is raised if the split column is already present in the csv file. This behaviour can be overriden by setting force=True.

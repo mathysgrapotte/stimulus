@@ -18,12 +18,7 @@ class AbstractTestCsvProcessing(unittest.TestCase):
         self.assertEqual(len(self.csv_processing.data), self.data_length)
 
     def _add_split(self):
-        config = self.configs['split']
-        self.csv_processing.add_split(
-            split_method = config['name'],
-            split = config['params']['split'],
-            seed = config['params']['seed']
-        )
+        self.csv_processing.add_split(self.configs['split'])
     
     def _test_random_splitter(self, expected_splits):
         """

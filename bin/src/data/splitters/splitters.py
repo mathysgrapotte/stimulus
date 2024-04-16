@@ -4,7 +4,7 @@ This file contains the splitter classes for splitting data accordingly
 
 from abc import ABC, abstractmethod
 from typing import Any
-
+import polars as pl
 import numpy as np
 
 class AbstractSplitter(ABC):
@@ -23,7 +23,7 @@ class AbstractSplitter(ABC):
     # def distance(self, data_one: Any, data_two: Any) -> float:
     #     """
     #     Calculates the distance between two elements of the data.
-    #     """
+    #     """+
     #     raise NotImplementedError
     
 
