@@ -33,7 +33,6 @@ workflow HANDLE_DATA {
 
     // parse the tuple so that each interpreted_json is associated to the name of the User Json that created it
     json_tuple = INTERPRET_JSON.out.interpreted_json.transpose()
-
     
     // launch splitting subworkflow 
     SPLIT_CSV(csv, json_tuple)
@@ -41,7 +40,7 @@ workflow HANDLE_DATA {
     // make output of splitting subworkflow formatted for the noise subworkflow
     SPLIT_CSV.out.split_data
          .multiMap{
-            csv_split,json_name,json ->
+            csv_name,csv_split,json_name,json ->
             csv:  csv_split
             json_tuple: [json_name,json]
          }.set{split_data}
