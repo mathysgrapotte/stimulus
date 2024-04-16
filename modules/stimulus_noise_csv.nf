@@ -11,7 +11,7 @@ process STIMULUS_NOISE_CSV {
     stdout emit: standardout
 
     script:
-    output = "${csv.baseName}-${parsed_json.baseName}.csv"
+    output = "${csv.baseName}-noised.csv"
     """
     launch_noise_csv.py -c ${csv} -j ${parsed_json} -o ${output}
     """
