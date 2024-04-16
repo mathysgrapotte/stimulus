@@ -38,16 +38,16 @@ workflow HANDLE_DATA {
     SPLIT_CSV(csv, json_tuple)
 
     // make output of splitting subworkflow formatted for the noise subworkflow
-    SPLIT_CSV.out.split_data
-         .multiMap{
-            csv_name,csv_split,json_name,json ->
-            csv:  csv_split
-            json_tuple: [json_name,json]
-         }.set{split_data}
+// SPLIT_CSV.out.split_data
+//         .multiMap{
+//         csv_name,csv_split,json_name,json ->
+//         csv:  csv_split
+//         json_tuple: [json_name,json]
+//         }.set{split_data}
 
 
     // launch the actual noise subworkflow
-    NOISE_CSV(split_data.csv, split_data.json_tuple)
+    NOISE_CSV( SPLIT_CSV.out.split_data )
 
 
     emit:

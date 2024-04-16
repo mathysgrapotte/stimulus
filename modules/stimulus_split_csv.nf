@@ -7,7 +7,7 @@ process STIMULUS_SPLIT_CSV {
     tuple path(csv), val(user_json), path(parsed_json)
 
     output:
-    tuple val("${csv}"),  path(output), val("${user_json}"), path(parsed_json), emit: csv_with_split
+    tuple path(output), val("${user_json}"), path(parsed_json), emit: csv_with_split
     stdout emit: standardout
 
     script:
