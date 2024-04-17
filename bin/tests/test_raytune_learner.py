@@ -12,7 +12,6 @@ class TestRayTuneLearner(unittest.TestCase):
         random.seed(1234)
         np.random.seed(1234)
         config = {}
-        # load config dictionary from "bin/tests/test_data/dna_experiment/simple.config"
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
         config["model"] = SimpleModel
@@ -49,6 +48,17 @@ class TestRayTuneLearner(unittest.TestCase):
         checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         self.assertIsInstance(checkpoint, dict)
         self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_checkpoint.pth"))
+
+    def test_load_checkpoint(self):
+        checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
+        self.learner.load_checkpoint(checkpoint)
+        self.assertTrue(True)
+    
+    def tearDown(self):
+        os.remove("bin/tests/test_data/dna_experiment/test_model.pth")
+        os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
+    
+    
 
 
 if __name__ == "__main__":

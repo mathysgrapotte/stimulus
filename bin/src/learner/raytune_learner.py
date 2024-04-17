@@ -23,7 +23,8 @@ class TuneModel(Trainable):
         self.loss_dict = config["loss_fn"]
         for key, loss_fn in self.loss_dict.items():
             try:
-                self.loss_dict[key] = getattr(nn, loss_fn["function"])()
+                #self.loss_dict[key] = getattr(nn, loss_fn)()
+                self.loss_dict[key] = loss_fn
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
         
@@ -82,7 +83,7 @@ class TuneModel(Trainable):
                 loss += self.model.step(x, y, self.loss_dict).item()
         loss /= len(self.validation)
         return loss
-    
+        
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 
@@ -92,10 +93,12 @@ class TuneModel(Trainable):
             self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
     def save_checkpoint(self, checkpoint_dir: str) -> Dict | None:
-        return {
+        checkpoint = {
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict()
         }
+        torch.save(checkpoint, checkpoint_dir)
+        return checkpoint
         
 
         
