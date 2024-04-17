@@ -14,9 +14,6 @@ class TestRayTuneLearner(unittest.TestCase):
         config = {}
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
-        config["model"] = SimpleModel
-        config["data_path"] = os.path.abspath("bin/tests/test_data/dna_experiment/test_with_split.csv")
-        config["experiment"] = DnaToFloatExperiment()
         self.learner = RayTuneLearner(config = config)
 
     def test_setup(self):
