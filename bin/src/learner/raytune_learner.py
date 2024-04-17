@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 from ray.tune import Trainable
 from ..data.handlertorch import TorchDataset
 from typing import Any, Dict
+import importlib
 
 #TODO write a wrapper to the TuneModel class that takes a model, a experiment, a data_path and a config, add the model, data_path and experiment to the config and pass it to the TuneModel class.
 
@@ -14,8 +15,15 @@ class TuneModel(Trainable):
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
-        # get the model from the config
-        self.model = config['model'](**config["model_params"])
+
+        # Load model from string path
+        module_name, class_name = config["model"].rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        model = getattr(module, class_name)
+        self.model = model(**config["model_params"])
+
+        # Add data path
+        self.data_path = config["data_path"]
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
