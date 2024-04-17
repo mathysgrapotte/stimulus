@@ -25,6 +25,11 @@ class TuneModel(Trainable):
         # Add data path
         self.data_path = config["data_path"]
 
+        # Add experiment
+        module_name, class_name = config["experiment"].rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        self.experiment = getattr(module, class_name)()
+
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
         # where the key is the name of the loss function and the value is the loss function itself.
@@ -50,8 +55,8 @@ class TuneModel(Trainable):
 
         # get the train and validation data from the config
         # run dataloader on them
-        self.train = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=0), batch_size=config['data_params']['batch_size'])
-        self.validation = DataLoader(TorchDataset(config['data_path'], config['experiment'], split=1), batch_size=config['data_params']['batch_size'])
+        self.train = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
+        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
 
     def step(self) -> dict:
         """
