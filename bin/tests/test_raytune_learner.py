@@ -1,7 +1,6 @@
 import unittest
 import os
-import random
-import numpy as np
+import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel as RayTuneLearner
 from bin.tests.test_model.dnatofloatmodel import SimpleModel
@@ -9,8 +8,7 @@ from torch.utils.data import DataLoader
 
 class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
-        random.seed(1234)
-        np.random.seed(1234)
+        torch.manual_seed(1234)
         config = {}
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
@@ -21,11 +19,15 @@ class TestRayTuneLearner(unittest.TestCase):
         self.assertTrue(self.learner.optimizer is not None)
         self.assertIsInstance(self.learner.epochs, int)
         self.assertTrue(self.learner.lr is not None)
-        self.assertIsInstance(self.learner.train, DataLoader)
+        self.assertIsInstance(self.learner.training, DataLoader)
         self.assertIsInstance(self.learner.validation, DataLoader) 
 
     def test_step(self):
         self.learner.step()
+        test_data = next(iter(self.learner.training))[0]["hello"]
+        test_output = self.learner.model(test_data)
+        test_output = round(test_output.item(),4)
+        self.assertEqual(test_output, 0.2298)
 
     def test_objective(self):
         obj = self.learner.objective()
@@ -40,22 +42,20 @@ class TestRayTuneLearner(unittest.TestCase):
     def test_export_model(self):
         self.learner.export_model("bin/tests/test_data/dna_experiment/test_model.pth")
         self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_model.pth"))
+        os.remove("bin/tests/test_data/dna_experiment/test_model.pth")
     
     def test_save_checkpoint(self):
         checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         self.assertIsInstance(checkpoint, dict)
         self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_checkpoint.pth"))
+        os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
 
     def test_load_checkpoint(self):
+        self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         self.learner.load_checkpoint(checkpoint)
         self.assertTrue(True)
-    
-    def tearDown(self):
-        os.remove("bin/tests/test_data/dna_experiment/test_model.pth")
         os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
-    
-    
 
 
 if __name__ == "__main__":

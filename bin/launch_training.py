@@ -84,9 +84,13 @@ def main(config, model, output, best_config_path):
     with open(best_config_path, "w") as f:
         f.write(str(best_config))
 
+    # Train the model with the best config ( checkpoint saving is not implemented yet )
+    learner = RayTuneLearner(config=best_config)
+    for epoch in range(learner.epochs):
+        learner.train()
 
-
-
+    # Save the model
+    learner.export_model(output)
 
 
 if __name__ == "__main__":
