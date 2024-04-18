@@ -23,6 +23,8 @@ class AbstractExperiment(ABC):
     def __init__(self, seed: float = None) -> None:
         # allow ability to add a seed for reproducibility
         self.seed = seed
+        # added because if the user does not define this it does not crach the get_function_split, random split works for every class afteralll
+        self.split = {'RandomSplitter': splitters.RandomSplitter()}
         
     def get_function_encode_all(self, data_type: str) -> Any:
         """
