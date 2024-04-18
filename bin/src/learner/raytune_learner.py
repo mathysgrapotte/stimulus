@@ -55,10 +55,8 @@ class TuneModel(Trainable):
 
         # get the train and validation data from the config
         # run dataloader on them
-        self.train = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
+        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
-
-        print("Setup complete")
 
     def step(self) -> dict:
         """
@@ -67,17 +65,15 @@ class TuneModel(Trainable):
         This calculation is performed based on the model's step function.
         At the end, return the objective metric(s) for the tuning process.
         """
-        print("Training model")
         loss = 0.0
-        for epoch in range(self.epochs):
-            #self.model.train()
-            for x, y, meta in self.train:
-                self.optimizer.zero_grad()
-                current_loss = self.model.step(x, y, self.loss_dict)
-                loss += current_loss.item()
-                current_loss.backward()
-                self.optimizer.step()
-        loss /= len(self.train)
+        self.model.train()
+        for x, y, meta in self.training:
+            self.optimizer.zero_grad()
+            current_loss = self.model.step(x, y, self.loss_dict)
+            loss += current_loss.item()
+            current_loss.backward()
+            self.optimizer.step()
+        loss /= len(self.training)
         return self.objective()
 
     def objective(self):
