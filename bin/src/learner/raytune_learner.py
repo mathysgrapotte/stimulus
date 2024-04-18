@@ -6,8 +6,105 @@ from ray.tune import Trainable
 from ..data.handlertorch import TorchDataset
 from typing import Any, Dict
 import importlib
+from ray import train, tune
+import ray.tune.schedulers as schedulers
+import os
 
-#TODO write a wrapper to the TuneModel class that takes a model, a experiment, a data_path and a config, add the model, data_path and experiment to the config and pass it to the TuneModel class.
+
+        
+class TuneTrainWrapper():
+    def __init__(self, config_path, model_path, experiment_path, data_path):
+        """
+        Initialize the TuneWrapper with the paths to the config, model, experiment and data.
+        """
+        # Load the config
+        self.config = {}
+        with open(config_path, "r") as f:
+            # TODO figure out a better way to load the config
+            self.config = eval(f.read())
+        
+        self.config["model"] = model_path
+        self.config["experiment"] = experiment_path
+        self.config["data_path"] = data_path
+
+        try:
+            self.scheduler = getattr(schedulers, self.config["scheduler"]["name"])( **self.config["scheduler"]["params"])
+        except AttributeError:
+            raise ValueError(f"Invalid optimizer: {self.config['scheduler']['name']}, check PyTorch for documentation on available optimizers")
+
+        # Get the tune config
+        try: 
+            self.tune_config = getattr(tune, self.config["tune_config"]["name"])(scheduler = self.scheduler, **self.config["tune_config"]["params"])
+        except AttributeError:
+            raise ValueError(f"Invalid tune_config: {self.config['tune_config']['name']}, check PyTorch for documentation on how a tune_config should be defined")
+
+        # Get checkpoint config 
+        try:
+            self.checkpoint_config = getattr(train, self.config["checkpoint_config"]["name"])(**self.config["checkpoint_config"]["params"])
+        except AttributeError:
+            raise ValueError(f"Invalid checkpoint_config: {self.config['checkpoint_config']['name']}, check PyTorch for documentation on how a checkpoint_config should be defined")
+
+        # Get the run config
+        try:
+            self.run_config = getattr(train, self.config["run_config"]["name"])(checkpoint_config = self.checkpoint_config, **self.config["run_config"]["params"])
+        except AttributeError:
+            raise ValueError(f"Invalid run_config: {self.config['run_config']['name']}, check PyTorch for documentation on how a run_config should be defined")
+
+        self.tuner = None
+        self.results = None
+        self.best_config = None
+        self.learner = None
+
+    def _prep_tuner(self):
+        """
+        Prepare the tuner with the configs.
+        """
+        self.tuner = tune.Tuner(TuneModel,
+                            tune_config= self.tune_config,
+                            param_space=self.config,
+                            run_config=self.run_config,
+                        )
+
+
+    def _update_best_config(self):
+        """
+        Get the best config from the tuning process and store it in the best_config attribute.
+        """
+        best_result = self.results.get_best_result()
+        best_config = os.path.join(best_result.path, "params.json")
+        self.best_config = eval(open(best_config, "r").read())
+
+
+    def tune(self):
+        """
+        Run the tuning process.
+        """
+        tuner = self._prep_tuner()
+        self.results = tuner.fit()
+        self._update_best_config()
+    
+    def store_best_config(self, path):
+        """
+        Store the best config in a file.
+        """
+        with open(path, "w") as f:
+            f.write(str(self.best_config))            
+
+    def train_with_config(self,config): 
+        """
+        Train the model with a given config.
+        """
+        self.trainer = TuneModel()
+        self.trainer.setup(config)
+        for i in range(config["epochs"]):
+            self.trainer.step()
+    
+    def train(self): 
+        """
+        Train the model with the best config.
+        """
+        self.trainer.train_with_config(self.best_config)
+
 
 class TuneModel(Trainable):
 
@@ -114,7 +211,6 @@ class TuneModel(Trainable):
         return checkpoint
         
 
-        
 
 
         

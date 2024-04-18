@@ -4,7 +4,9 @@ import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel as RayTuneLearner
 from bin.tests.test_model.dnatofloatmodel import SimpleModel
+from bin.src.learner.raytune_learner import TuneTrainWrapper 
 from torch.utils.data import DataLoader
+from ray import train, tune
 
 class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
@@ -58,6 +60,26 @@ class TestRayTuneLearner(unittest.TestCase):
         os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
 
 
+class TestTrainTuneWrapper(unittest.TestCase):
+    def setUp(self):
+        torch.manual_seed(1234)
+        config_path = "bin/tests/test_model/simple.config"
+        model_path = 'bin.tests.test_model.dnatofloatmodel.SimpleModel'
+        experiment_path = 'bin.src.data.experiments.DnaToFloatExperiment'
+        data_path = 'bin/tests/test_data/dna_experiment/test_with_split.csv'
+        self.learner = TuneTrainWrapper(config_path, model_path, experiment_path, data_path)
+    
+    def test_setup(self):
+        self.assertIsInstance(self.learner.config, dict)
+        self.assertTrue(self.learner.tune_config is not None)
+        self.assertTrue(self.learner.checkpoint_config is not None)
+        self.assertTrue(self.learner.run_config is not None)
+        self.assertTrue(self.learner.scheduler is not None)
+        
+
+
+
 if __name__ == "__main__":
     unittest.main()
+    
     
