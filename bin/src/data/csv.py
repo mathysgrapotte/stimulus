@@ -222,10 +222,8 @@ class CsvLoader(CsvHandler):
             # get the data at the given index
             # if the data is not a list, it is converted to a list
             # otherwise it breaks Float().encode_all(data) because it expects a list
-            if idx is None:
-                data = dictionary[key]
-            else:
-                data = dictionary[key][idx]
+            data = dictionary[key] if idx is None else dictionary[key][idx]
+            
             if not isinstance(data, list):
                 data = [data]
 

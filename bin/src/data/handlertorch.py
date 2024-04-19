@@ -14,7 +14,7 @@ class TorchDataset(Dataset):
     Class for creating a torch dataset
     """
     def __init__(self, csvpath: str, experiment: Any, split: Tuple[None, int] = None) -> None:
-        self.input, self.label, self.meta, self.length = CsvLoader(experiment, csvpath, split=split).get_all_items_and_length()
+        self.input, self.label, self.meta, self.length = CsvLoader(experiment, csvpath, split=split).get_all_items_and_length() # getting the data and length at once is better for memory management. 
         self.input, self.label = self.convert_dict_to_dict_of_tensors(self.input), self.convert_dict_to_dict_of_tensors(self.label)
 
     def convert_to_tensor(self, data: Union[np.ndarray, list], transform_method: Literal['pad_sequences'] = 'pad_sequences', **transform_kwargs) -> Union[torch.tensor, list]:
