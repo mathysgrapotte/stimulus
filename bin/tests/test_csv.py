@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 import sys
+import numpy as np
+import numpy.testing as npt
 sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
@@ -40,9 +42,8 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             observed_value = round(observed_value, 2)
         self.assertEqual(observed_value, expected_value)
 
-
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
-    """ 
+    """
     Test CsvProcessing class for DnaToFloatExperiment
     """
     def setUp(self):
@@ -65,10 +66,9 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
         self._test_value_from_column('pet:meta:str', 'cat')
-    
 
 class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
-    """ 
+    """
     Test CsvProcessing class for ProtDnaToFloatExperiment
     """
     def setUp(self):
@@ -93,7 +93,6 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
 
-
 class AbstractTestCsvLoader(unittest.TestCase):
     """
     Abstract class for testing CsvLoader class.
@@ -113,20 +112,24 @@ class AbstractTestCsvLoader(unittest.TestCase):
         self.assertIsInstance(self.csv_loader.meta, dict)
 
     def _test_get_encoded_item_unique(self):
-        """ 
+        """
         It tests that the csv_loader.get_encoded_item works well when getting one item.
         """
         # get the encoded item from the csv file at idx 0
         encoded_item = self.csv_loader[0]
-        
+
         # test that the encoded item is a tuple of three dictionaries [input, label, meta]
-        # also each element inside a dictionary is a list of length 1
+        # also each element inside a dictionary is a np array of length 1
         self.assertEqual(len(encoded_item), 3)
         for i in range(3):
             self.assertIsInstance(encoded_item[i], dict)
             for key in encoded_item[i].keys():
-                self.assertIsInstance(encoded_item[i][key], list)
-                self.assertEqual(len(encoded_item[i][key]), 1)
+                self.assertIsInstance(encoded_item[i][key], np.ndarray)
+                try:
+                    self.assertEqual(len(encoded_item[i][key]), 1)
+                except TypeError:
+                    # scalars do not have a length and return a TypeError if len() is called on them
+                    self.assertEqual(encoded_item[i][key].size, 1)
 
     def _test_get_encoded_item_multiple(self):
         """
@@ -141,7 +144,7 @@ class AbstractTestCsvLoader(unittest.TestCase):
         for i in range(3):
             self.assertIsInstance(encoded_item[i], dict)
             for key in encoded_item[i].keys():
-                self.assertIsInstance(encoded_item[i][key], list)
+                self.assertIsInstance(encoded_item[i][key], np.ndarray)
                 self.assertEqual(len(encoded_item[i][key]), 2)
 
     def _test_load_with_split(self):
@@ -161,6 +164,14 @@ class AbstractTestCsvLoader(unittest.TestCase):
         with self.assertRaises(ValueError): # should raise an error
             self.csv_loader_split = CsvLoader(self.experiment, self.csv_path_split, split=3)
 
+    def _test_get_all_items(self):
+        """
+        Test that the csv_loader.get_all_items works well.
+        """
+        input_data, label_data, meta_data = self.csv_loader.get_all_items()
+        self.assertIsInstance(input_data, dict)
+        self.assertIsInstance(label_data, dict)
+        self.assertIsInstance(meta_data, dict)
 
 class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
@@ -190,6 +201,8 @@ class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     def test_load_with_split(self):
         self._test_load_with_split()
 
+    def test_get_all_items(self):
+        self._test_get_all_items()
 
 class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
@@ -218,6 +231,9 @@ class TestProtDnaToFloatCsvLoader(AbstractTestCsvLoader):
 
     def test_load_with_split(self):
         self._test_load_with_split()
+
+    def test_get_all_items(self):
+        self._test_get_all_items()
 
 
 if __name__ == "__main__":
