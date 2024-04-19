@@ -53,7 +53,7 @@ class TuneTrainWrapper():
         self.tuner = None
         self.results = None
         self.best_config = None
-        self.learner = None
+        self.trainer = None
 
     def _prep_tuner(self):
         """
@@ -65,23 +65,17 @@ class TuneTrainWrapper():
                             run_config=self.run_config,
                         )
 
-
-    def _update_best_config(self):
-        """
-        Get the best config from the tuning process and store it in the best_config attribute.
-        """
-        best_result = self.results.get_best_result()
-        best_config = os.path.join(best_result.path, "params.json")
-        self.best_config = eval(open(best_config, "r").read())
-
-
     def tune(self):
         """
         Run the tuning process.
         """
-        tuner = self._prep_tuner()
-        self.results = tuner.fit()
-        self._update_best_config()
+        self._prep_tuner()
+        self.results = self.tuner.fit()
+        # assert that data is not None
+        
+        self.results.get_best_result()
+        #best_config = os.path.join(self.results.get_best_result().path, "params.json")
+        # self.best_config = eval(open(best_config, "r").read())
     
     def store_best_config(self, path):
         """
@@ -147,6 +141,9 @@ class TuneModel(Trainable):
         # get epochs from the config
         self.epochs = config['epochs']
 
+        # get step size from the config
+        self.step_size = config['step_size']
+
         # get learning rate
         self.lr = config['lr']
 
@@ -164,13 +161,14 @@ class TuneModel(Trainable):
         """
         loss = 0.0
         self.model.train()
-        for x, y, meta in self.training:
-            self.optimizer.zero_grad()
-            current_loss = self.model.step(x, y, self.loss_dict)
-            loss += current_loss.item()
-            current_loss.backward()
-            self.optimizer.step()
-        loss /= len(self.training)
+        for step_size in range(self.step_size):
+            for x, y, meta in self.training:
+                self.optimizer.zero_grad()
+                current_loss = self.model.step(x, y, self.loss_dict)
+                loss += current_loss.item()
+                current_loss.backward()
+                self.optimizer.step()
+            loss /= len(self.training)
         return self.objective()
 
     def objective(self):

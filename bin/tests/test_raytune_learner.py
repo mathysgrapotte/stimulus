@@ -66,7 +66,9 @@ class TestTrainTuneWrapper(unittest.TestCase):
         config_path = "bin/tests/test_model/simple.config"
         model_path = 'bin.tests.test_model.dnatofloatmodel.SimpleModel'
         experiment_path = 'bin.src.data.experiments.DnaToFloatExperiment'
-        data_path = 'bin/tests/test_data/dna_experiment/test_with_split.csv'
+        # TODO fix the fact that the data path has to be absolute
+        data_path = os.path.join( os.getcwd(), "../test_data/dna_experiment/test_with_split.csv" )
+        data_path = "/home/luisasantus/Desktop/crg_cluster/projects/stimulus/bin/tests/test_data/dna_experiment/test_with_split.csv"
         self.learner = TuneTrainWrapper(config_path, model_path, experiment_path, data_path)
     
     def test_setup(self):
@@ -75,9 +77,27 @@ class TestTrainTuneWrapper(unittest.TestCase):
         self.assertTrue(self.learner.checkpoint_config is not None)
         self.assertTrue(self.learner.run_config is not None)
         self.assertTrue(self.learner.scheduler is not None)
-        
+    
+    def test_prep_tuner(self):
+        self.learner._prep_tuner()
+        self.assertTrue(self.learner.tuner is not None)
+    
+    def test_tune(self):
+        self.learner.tune()
+        self.assertTrue(self.learner.results is not None)
+    
+    def test_store_best_config(self):
+        self.learner.store_best_config("bin/tests/test_data/dna_experiment/best_config.json")
+        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/best_config.json"))
+        os.remove("bin/tests/test_data/dna_experiment/best_config.json")
 
-
+    def test_train_with_config(self):
+        self.learner.train_with_config(self.learner.best_config)
+        self.assertTrue(True)
+    
+    def test_train(self):
+        self.learner.train()
+        self.assertTrue(True)
 
 if __name__ == "__main__":
     unittest.main()
