@@ -10,7 +10,7 @@
         {
             "column_name": "hello:input2:prot",
             "name": ["UniformTextMasker", "AnotherNoiser"],
-            "params": "default"
+            "params": ["default"]
         },
         {
             "column_name": "hola:label:float",
