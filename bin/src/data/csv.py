@@ -78,22 +78,28 @@ class CsvProcessing(CsvHandler):
         super().__init__(experiment, csv_path)
         self.data = self.load_csv()
 
-    def add_split(self, split_method: str, split: list, seed: float = None, force=False) -> None:
+    def add_split(self, config: dict,  force=False) -> None:
         """
         Add a column specifying the train, validation, test splits of the data.
         An error exception is raised if the split column is already present in the csv file. This behaviour can be overriden by setting force=True.
 
         args:
-            split_method (str) : The method to split the data, should be one of the keys of the split dictionary in the experiment class.
-            split (list) : The proportions for [train, validation, test] splits.
-            seed (float) : The seed for reproducibility.
+            config (dict) : the dictionary containing  the following keys:
+                            "name" (str)        : the split_function name, as defined in the splitters class and experiment.
+                            "parameters" (dict) : the split_function specific optional parameters, passed here as a dict with keys named as in the split function definition.
             force (bool) : If True, the split column will be added even if it is already present in the csv file.
         """
         if ('split' in self.categories) and (not force):
             raise ValueError(f"The category split is already present in the csv file. If you want to still use this function, set force=True")
+<<<<<<< HEAD
+=======
+        
+        # set the split name method
+        split_method = config["name"]
+>>>>>>> main
 
         # get the indices for train, validation and test using the specified split method
-        train, validation, test = self.experiment.get_function_split(split_method)(len(self.data), split, seed)
+        train, validation, test = self.experiment.get_function_split(split_method)(self.data, **config['params'])
 
         # add the split column to the data
         split_column = np.full(len(self.data), np.nan)

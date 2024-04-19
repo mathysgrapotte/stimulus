@@ -20,6 +20,7 @@ class AbstractTestCsvProcessing(unittest.TestCase):
         self.assertEqual(len(self.csv_processing.data), self.data_length)
 
     def _add_split(self):
+<<<<<<< HEAD
         config = self.configs['split']
         self.csv_processing.add_split(
             split_method = config['name'],
@@ -27,6 +28,10 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             seed = config['params']['seed']
         )
 
+=======
+        self.csv_processing.add_split(self.configs['split'])
+    
+>>>>>>> main
     def _test_random_splitter(self, expected_splits):
         """
         It tests that the data is split correctly.
