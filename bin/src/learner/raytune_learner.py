@@ -9,6 +9,7 @@ import importlib
 from ray import train, tune
 import ray.tune.schedulers as schedulers
 import os
+import json
 
 
         
@@ -21,7 +22,7 @@ class TuneTrainWrapper():
         self.config = {}
         with open(config_path, "r") as f:
             # TODO figure out a better way to load the config
-            self.config = eval(f.read())
+            self.config =eval(f.read())
         
         self.config["model"] = model_path
         self.config["experiment"] = experiment_path
@@ -40,7 +41,8 @@ class TuneTrainWrapper():
 
         # Get checkpoint config 
         try:
-            self.checkpoint_config = getattr(train, self.config["checkpoint_config"]["name"])(**self.config["checkpoint_config"]["params"])
+            # TODO: once the file reading is fixed, add the checkpoint_at_end parameter in the config file directly
+            self.checkpoint_config = getattr(train, self.config["checkpoint_config"]["name"])(checkpoint_at_end = False, **self.config["checkpoint_config"]["params"])
         except AttributeError:
             raise ValueError(f"Invalid checkpoint_config: {self.config['checkpoint_config']['name']}, check PyTorch for documentation on how a checkpoint_config should be defined")
 
@@ -50,9 +52,12 @@ class TuneTrainWrapper():
         except AttributeError:
             raise ValueError(f"Invalid run_config: {self.config['run_config']['name']}, check PyTorch for documentation on how a run_config should be defined")
 
+        # substite in the checkpoint_config everything that is a bool in string with the actual bool
+            
+
         self.tuner = None
-        self.results = None
         self.best_config = None
+        self.results = None
         self.trainer = None
 
     def _prep_tuner(self):
@@ -65,39 +70,52 @@ class TuneTrainWrapper():
                             run_config=self.run_config,
                         )
 
-    def tune(self):
+    def tune(self, overwrite=False):
         """
         Run the tuning process.
         """
-        self._prep_tuner()
-        self.results = self.tuner.fit()
-        # assert that data is not None
-        
-        self.results.get_best_result()
-        #best_config = os.path.join(self.results.get_best_result().path, "params.json")
-        # self.best_config = eval(open(best_config, "r").read())
-    
+        if overwrite:
+            self.tuner = None
+            self.best_config = None
+            
+        if self.tuner is None:
+            self._prep_tuner()
+            self.results = self.tuner.fit()
+            best_config = os.path.join(self.results.get_best_result().path, "params.json")
+
+            print(f"Best config: {best_config}")
+            try: 
+                assert os.path.exists(best_config)
+            except AssertionError:
+                raise ValueError("Best config file not found.")
+            with open(best_config, "r") as f:
+                self.best_config = eval(f.read())
+        else:
+            raise ValueError("Tuner already exists - if you want to overwrite it, please set overwrite=True.")     
+
     def store_best_config(self, path):
         """
         Store the best config in a file.
         """
         with open(path, "w") as f:
             f.write(str(self.best_config))            
-
-    def train_with_config(self,config): 
+    
+    def train(self, config): 
         """
-        Train the model with a given config.
+        Train the model with the config.
         """
+        if config is None:
+            config = self.best_config
+        
+        try: 
+            assert config is not None
+        except AssertionError:
+            raise ValueError("No config provided - please provide a config to train the model with or tune first by calling the tune() method.")
+        
         self.trainer = TuneModel()
         self.trainer.setup(config)
         for i in range(config["epochs"]):
             self.trainer.step()
-    
-    def train(self): 
-        """
-        Train the model with the best config.
-        """
-        self.trainer.train_with_config(self.best_config)
 
 
 class TuneModel(Trainable):

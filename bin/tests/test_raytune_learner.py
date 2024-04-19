@@ -14,6 +14,9 @@ class TestRayTuneLearner(unittest.TestCase):
         config = {}
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
+        config["model"] = "bin.tests.test_model.dnatofloatmodel.SimpleModel"
+        config["experiment"] = "bin.src.data.experiments.DnaToFloatExperiment"
+        config["data_path"] = "bin/tests/test_data/dna_experiment/test_with_split.csv"
         self.learner = RayTuneLearner(config = config)
 
     def test_setup(self):
@@ -90,14 +93,10 @@ class TestTrainTuneWrapper(unittest.TestCase):
         self.learner.store_best_config("bin/tests/test_data/dna_experiment/best_config.json")
         self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/best_config.json"))
         os.remove("bin/tests/test_data/dna_experiment/best_config.json")
-
-    def test_train_with_config(self):
-        self.learner.train_with_config(self.learner.best_config)
-        self.assertTrue(True)
     
     def test_train(self):
+        self.learner.tune()
         self.learner.train()
-        self.assertTrue(True)
 
 if __name__ == "__main__":
     unittest.main()
