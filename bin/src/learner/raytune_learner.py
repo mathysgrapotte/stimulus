@@ -73,6 +73,8 @@ class TuneTrainWrapper():
                             param_space=self.config,
                             run_config=self.run_config,
                         )
+        # set tuner to tuning mode
+        # validation dataset is used for tuning
         self.tuner.tuning = True
 
     def tune(self, overwrite=False):
@@ -115,6 +117,7 @@ class TuneTrainWrapper():
             raise ValueError("No config provided - please provide a config to train the model with or tune first by calling the tune() method.")
         
         self.trainer = TuneModel(config=config)
+        # set trainer to training mode (training dataset is used for training)
         self.trainer.tuning = False
         for i in range(config["epochs"]):
             self.trainer.step()
@@ -172,6 +175,9 @@ class TuneModel(Trainable):
         self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
 
+        # The tuning variable is used to determine whether the model is being tuned or trained.
+        # This is used to determin which data to use (training or validation).
+        # TODO we could implement this outside of this class
         self.tuning = False
 
     def step(self) -> dict:

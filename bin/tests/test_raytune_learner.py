@@ -59,7 +59,6 @@ class TestRayTuneLearner(unittest.TestCase):
         self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
         self.learner.load_checkpoint(checkpoint)
-        self.assertTrue(True)
         os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
 
 
