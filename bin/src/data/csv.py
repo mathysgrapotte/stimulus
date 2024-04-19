@@ -91,12 +91,9 @@ class CsvProcessing(CsvHandler):
         """
         if ('split' in self.categories) and (not force):
             raise ValueError(f"The category split is already present in the csv file. If you want to still use this function, set force=True")
-<<<<<<< HEAD
-=======
         
         # set the split name method
         split_method = config["name"]
->>>>>>> main
 
         # get the indices for train, validation and test using the specified split method
         train, validation, test = self.experiment.get_function_split(split_method)(self.data, **config['params'])

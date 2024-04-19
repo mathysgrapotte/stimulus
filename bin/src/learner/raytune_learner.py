@@ -73,6 +73,7 @@ class TuneTrainWrapper():
                             param_space=self.config,
                             run_config=self.run_config,
                         )
+        self.tuner.tuning = True
 
     def tune(self, overwrite=False):
         """
@@ -86,8 +87,6 @@ class TuneTrainWrapper():
             self._prep_tuner()
             self.results = self.tuner.fit()
             best_config = os.path.join(self.results.get_best_result().path, "params.json")
-
-            print(f"Best config: {best_config}")
             try: 
                 assert os.path.exists(best_config)
             except AssertionError:
@@ -116,6 +115,7 @@ class TuneTrainWrapper():
             raise ValueError("No config provided - please provide a config to train the model with or tune first by calling the tune() method.")
         
         self.trainer = TuneModel(config=config)
+        self.trainer.tuning = False
         for i in range(config["epochs"]):
             self.trainer.step()
 
@@ -172,6 +172,8 @@ class TuneModel(Trainable):
         self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
 
+        self.tuning = False
+
     def step(self) -> dict:
         """
         Train the model for one epoch.
@@ -179,16 +181,21 @@ class TuneModel(Trainable):
         This calculation is performed based on the model's step function.
         At the end, return the objective metric(s) for the tuning process.
         """
+        
+        if self.tuning: 
+            dataloader = self.validation
+        else:
+            dataloader = self.training
+        
         loss = 0.0
-        self.model.train()
         for step_size in range(self.step_size):
-            for x, y, meta in self.training:
+            for x, y, meta in dataloader:
                 self.optimizer.zero_grad()
                 current_loss = self.model.step(x, y, self.loss_dict)
                 loss += current_loss.item()
                 current_loss.backward()
                 self.optimizer.step()
-            loss /= len(self.training)
+            loss /= len(dataloader)
         return self.objective()
 
     def objective(self):
