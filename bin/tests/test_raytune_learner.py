@@ -97,6 +97,7 @@ class TestTrainTuneWrapper(unittest.TestCase):
     def test_train(self):
         self.learner.tune()
         self.learner.train()
+        self.assertTrue(self.learner.trainer is not None)
 
 if __name__ == "__main__":
     unittest.main()

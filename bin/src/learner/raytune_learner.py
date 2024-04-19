@@ -53,8 +53,6 @@ class TuneTrainWrapper():
             raise ValueError(f"Invalid run_config: {self.config['run_config']['name']}, check PyTorch for documentation on how a run_config should be defined")
 
         # substite in the checkpoint_config everything that is a bool in string with the actual bool
-            
-
         self.tuner = None
         self.best_config = None
         self.results = None
@@ -100,20 +98,18 @@ class TuneTrainWrapper():
         with open(path, "w") as f:
             f.write(str(self.best_config))            
     
-    def train(self, config): 
+    def train(self, config = None): 
         """
         Train the model with the config.
         """
         if config is None:
             config = self.best_config
-        
         try: 
             assert config is not None
         except AssertionError:
             raise ValueError("No config provided - please provide a config to train the model with or tune first by calling the tune() method.")
         
-        self.trainer = TuneModel()
-        self.trainer.setup(config)
+        self.trainer = TuneModel(config=config)
         for i in range(config["epochs"]):
             self.trainer.step()
 
