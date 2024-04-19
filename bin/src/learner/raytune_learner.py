@@ -26,7 +26,13 @@ class TuneTrainWrapper():
         
         self.config["model"] = model_path
         self.config["experiment"] = experiment_path
-        self.config["data_path"] = data_path
+
+        try :
+            assert os.path.exists(data_path)
+            self.config["data_path"] = data_path
+        except AssertionError:
+
+            raise ValueError("Data path does not exist. Given path:" + data_path)           
 
         try:
             self.scheduler = getattr(schedulers, self.config["scheduler"]["name"])( **self.config["scheduler"]["params"])
