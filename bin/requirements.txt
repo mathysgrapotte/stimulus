@@ -4,3 +4,4 @@ numpy==1.26.0
 pytorch-lightning==2.0.1
 scikit-learn==1.3.0
 polars-lts-cpu==0.20.19
+ray==2.8.0
