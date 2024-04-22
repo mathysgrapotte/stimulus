@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INTERPRET_JSON } from '../modules/interpret_json.nf'
+include { TORCH_TRAIN } from '../modules/torch_train.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,13 +29,14 @@ workflow HANDLE_TRAIN {
 
     // assign a madel and a train_config to each data
     model_conf_pair = model.combine(train_config)
+    model_conf_data = model_conf_pair.combine(data).map{ it -> [it[2], it[1], it[0], it[4], it[3]]}   // just reordering according to the inputs of the launch_training.py
     
-
-    
+    // train the torch model, TODO in future here switch training on basis of model type, keras tensorflow ecc.
+    TORCH_TRAIN( model_conf_data )
 
     emit:
 
-    debug = 
+    debug = TORCH_TRAIN.out.standardout
     //data  = train_config
 
 }

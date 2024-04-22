@@ -14,9 +14,9 @@ import json
 
         
 class TuneTrainWrapper():
-    def __init__(self, config_path, model_path, experiment_path, data_path):
+    def __init__(self, config_path, model_class, data_path, experiment_name):
         """
-        Initialize the TuneWrapper with the paths to the config, model, experiment and data.
+        Initialize the TuneWrapper with the paths to the config, model, and data.
         """
         # Load the config
         self.config = {}
@@ -24,12 +24,13 @@ class TuneTrainWrapper():
             # TODO figure out a better way to load the config
             self.config =eval(f.read())
         
-        self.config["model"] = model_path
-        self.config["experiment"] = experiment_path
+        self.config["model"] = model_class
+        self.config["experiment"] = experiment_name
 
         try :
             assert os.path.exists(data_path)
-            self.config["data_path"] = data_path
+            # make the path absolute so that ray does not complain on relative file paths
+            self.config["data_path"] = os.path.abspath(data_path)
         except AssertionError:
 
             raise ValueError("Data path does not exist. Given path:" + data_path)           
@@ -130,19 +131,14 @@ class TuneModel(Trainable):
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
 
-        # Load model from string path
-        module_name, class_name = config["model"].rsplit('.', 1)
-        module = importlib.import_module(module_name)
-        model = getattr(module, class_name)
-        self.model = model(**config["model_params"])
+        # Initialize model with the config params
+        self.model = config["model"](**config["model_params"])
 
         # Add data path
         self.data_path = config["data_path"]
 
-        # Add experiment
-        module_name, class_name = config["experiment"].rsplit('.', 1)
-        module = importlib.import_module(module_name)
-        self.experiment = getattr(module, class_name)()
+        # Use the already initialized experiment class      
+        self.experiment = config["experiment"]
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 

@@ -3,7 +3,7 @@ import os
 import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel as RayTuneLearner
-from bin.tests.test_model.dnatofloatmodel import SimpleModel
+from bin.tests.test_model.dnatofloatmodel import ModelSimple
 from bin.src.learner.raytune_learner import TuneTrainWrapper 
 from torch.utils.data import DataLoader
 from ray import train, tune
@@ -14,8 +14,8 @@ class TestRayTuneLearner(unittest.TestCase):
         config = {}
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
-        config["model"] = "bin.tests.test_model.dnatofloatmodel.SimpleModel"
-        config["experiment"] = "bin.src.data.experiments.DnaToFloatExperiment"
+        config["model"] = "bin/tests/test_model/dnatofloatmodel.py"
+        config["experiment"] = "DnaToFloatExperiment"
         config["data_path"] = "bin/tests/test_data/dna_experiment/test_with_split.csv"
         self.learner = RayTuneLearner(config = config)
 
@@ -66,8 +66,8 @@ class TestTrainTuneWrapper(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)
         config_path = "bin/tests/test_model/simple.config"
-        model_path = 'bin.tests.test_model.dnatofloatmodel.SimpleModel'
-        experiment_path = 'bin.src.data.experiments.DnaToFloatExperiment'
+        model_path = 'bin/tests/test_model/dnatofloatmodel.py'
+        experiment_path = 'DnaToFloatExperiment'
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
         data_path = os.path.abspath(data_path)
         self.wrapper = TuneTrainWrapper(config_path, model_path, experiment_path, data_path)
