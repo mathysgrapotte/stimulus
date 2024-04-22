@@ -4,10 +4,10 @@ process STIMULUS_SPLIT_CSV {
     container 'alessiovignoli3/stimulus:stimulus_noise'
 
     input:
-    tuple path(csv), val(user_json), path(parsed_json)
+    tuple path(csv), path(parsed_json)
 
     output:
-    tuple path(output), val("${user_json}"), path(parsed_json), emit: csv_with_split
+    tuple val("${csv}"), path(parsed_json), path(output), emit: csv_with_split
     stdout emit: standardout
 
     script:
