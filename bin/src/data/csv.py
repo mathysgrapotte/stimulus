@@ -122,6 +122,14 @@ class CsvProcessing(CsvHandler):
             # change the column with the new values
             self.data = self.data.with_columns(pl.Series(key, new_column))
 
+    def shuffle_labels(self) -> None:
+        """
+        Shuffles the labels in the data.
+        """
+        label_keys = self.get_keys_based_on_name_category_dtype(category='label')
+        for key in label_keys:
+            self.data = self.data.with_columns(pl.Series(key, np.random.permutation(self.data[key])))
+
     def save(self, path: str) -> None:
         """
         Saves the data to a csv file.
@@ -130,7 +138,7 @@ class CsvProcessing(CsvHandler):
 
 class CsvLoader(CsvHandler):
     """
-    Class for loading and splitting the csv data, and then encode the information.
+    Class for loading the csv data, and then encode the information.
 
     It will parse the CSV file into four dictionaries, one for each category [input, label, meta].
     So each dictionary will have the keys in the form name:type, and the values will be the column values.

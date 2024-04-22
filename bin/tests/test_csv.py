@@ -4,6 +4,7 @@ import unittest
 import sys
 import numpy as np
 import numpy.testing as npt
+import polars as pl
 sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
@@ -50,6 +51,10 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.experiment = DnaToFloatExperiment()
         self.csv_path = os.path.abspath("bin/tests/test_data/dna_experiment/test.csv")
         self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
+        self.csv_shuffle_long_path = os.path.abspath("bin/tests/test_data/dna_experiment/test_shuffling_long.csv")
+        self.csv_shuffle_long = CsvProcessing(self.experiment, self.csv_shuffle_long_path)
+        self.csv_shuffle_long_shuffled_path = os.path.abspath("bin/tests/test_data/dna_experiment/test_shuffling_long_shuffled.csv")
+        self.csv_shuffle_long_shuffled = CsvProcessing(self.experiment, self.csv_shuffle_long_shuffled_path)
         with open('bin/tests/test_data/dna_experiment/test_config.json', 'rb') as f:
             self.configs = json.load(f)
         self.data_length = 2
@@ -66,6 +71,14 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
         self._test_value_from_column('hola:label:float', 12.68)
         self._test_value_from_column('pet:meta:str', 'cat')
+
+    def test_shuffle_labels(self):
+        # initialize seed to 42 to make the test reproducible
+        np.random.seed(42)
+        self.csv_shuffle_long.shuffle_labels()
+        npt.assert_array_equal(self.csv_shuffle_long.data['hola:label:float'], self.csv_shuffle_long_shuffled.data['hola:label:float'])
+
+
 
 class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
@@ -172,6 +185,7 @@ class AbstractTestCsvLoader(unittest.TestCase):
         self.assertIsInstance(input_data, dict)
         self.assertIsInstance(label_data, dict)
         self.assertIsInstance(meta_data, dict)
+
 
 class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
     """
