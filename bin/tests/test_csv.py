@@ -4,6 +4,7 @@ import unittest
 import sys
 import numpy as np
 import numpy.testing as npt
+import polars as pl
 sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
@@ -42,14 +43,6 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             observed_value = round(observed_value, 2)
         self.assertEqual(observed_value, expected_value)
 
-    def _test_shuffle_labels(self, value):
-        """
-        Test that shuffling runs without errors.
-        """
-        self.csv_processing.shuffle_labels()
-        # check that the first label is the inputed value
-        self.assertEqual(self.csv_processing.data['hola:label:float'][0], value)
-
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
     Test CsvProcessing class for DnaToFloatExperiment
@@ -58,6 +51,10 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.experiment = DnaToFloatExperiment()
         self.csv_path = os.path.abspath("bin/tests/test_data/dna_experiment/test.csv")
         self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
+        self.csv_shuffle_long_path = os.path.abspath("bin/tests/test_data/dna_experiment/test_shuffling_long.csv")
+        self.csv_shuffle_long = CsvProcessing(self.experiment, self.csv_shuffle_long_path)
+        self.csv_shuffle_long_shuffled_path = os.path.abspath("bin/tests/test_data/dna_experiment/test_shuffling_long_shuffled.csv")
+        self.csv_shuffle_long_shuffled = CsvProcessing(self.experiment, self.csv_shuffle_long_shuffled_path)
         with open('bin/tests/test_data/dna_experiment/test_config.json', 'rb') as f:
             self.configs = json.load(f)
         self.data_length = 2
@@ -78,7 +75,10 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     def test_shuffle_labels(self):
         # initialize seed to 42 to make the test reproducible
         np.random.seed(42)
-        self._test_shuffle_labels(value=12)
+        self.csv_shuffle_long.shuffle_labels()
+        npt.assert_array_equal(self.csv_shuffle_long.data['hola:label:float'], self.csv_shuffle_long_shuffled.data['hola:label:float'])
+
+
 
 class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
