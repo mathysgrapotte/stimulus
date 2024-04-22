@@ -37,7 +37,7 @@ workflow HANDLE_TRAIN {
     emit:
 
     debug = TORCH_TRAIN.out.standardout
-    //data  = train_config
+    data  = TORCH_TRAIN.out.train_specs
 
 }
 

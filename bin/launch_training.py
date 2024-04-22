@@ -81,9 +81,10 @@ def main(config_path: str, model_path: str, data_path: str, json_experiment: str
     # save best config
     learner.store_best_config(best_config_path)
 
+    # TODO report best model
+
     # Train the model with the best config and best model, aka fine-tuning
     #learner.train()
-
     # Save the model fine-tuned model
     #learner.trainer.export_model(output)
     

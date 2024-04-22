@@ -47,8 +47,8 @@ workflow {
         params.train_conf,
         prepared_data
     )
-    HANDLE_TRAIN.out.debug.view()
-    //HANDLE_TRAIN.out.data.view()
+    //HANDLE_TRAIN.out.debug.view()
+    HANDLE_TRAIN.out.data.view()
 
     // HANDLE_ANALYSIS()
 
