@@ -42,11 +42,13 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             observed_value = round(observed_value, 2)
         self.assertEqual(observed_value, expected_value)
 
-    def _test_shuffle_labels(self):
+    def _test_shuffle_labels(self, value):
         """
         Test that shuffling runs without errors.
         """
         self.csv_processing.shuffle_labels()
+        # check that the first label is the inputed value
+        self.assertEqual(self.csv_processing.data['hola:label:float'][0], value)
 
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
@@ -74,7 +76,9 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_value_from_column('pet:meta:str', 'cat')
 
     def test_shuffle_labels(self):
-        self._test_shuffle_labels()
+        # initialize seed to 42 to make the test reproducible
+        np.random.seed(42)
+        self._test_shuffle_labels(value=12)
 
 class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
