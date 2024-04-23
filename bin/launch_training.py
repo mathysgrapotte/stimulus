@@ -29,9 +29,6 @@ def get_args():
 
 def import_class_from_file(file_path: str) -> type:
 
-    # Resolve to the absolute path of the filepath given
-    # use os.path.abspath in such case
-
     # Extract directory path and file name
     directory, file_name = os.path.split(file_path)
     module_name = os.path.splitext(file_name)[0]  # Remove extension to get module name
@@ -62,7 +59,7 @@ def main(config_path: str, model_path: str, data_path: str, json_experiment: str
     This launcher use ray tune to find the best hyperparameters for a given model.
     """
 
-    # import the model correctly but do not initialize it yet, ray_tune does that vy itself
+    # import the model correctly but do not initialize it yet, ray_tune does that itself
     model_class = import_class_from_file(model_path)
 
     # read json and retrieve experiment name and then initialize the experiment class

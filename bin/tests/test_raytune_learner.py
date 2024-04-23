@@ -14,8 +14,8 @@ class TestRayTuneLearner(unittest.TestCase):
         config = {}
         with open("bin/tests/test_model/simple.config", "r") as f:
             config = eval(f.read())
-        config["model"] = "bin/tests/test_model/dnatofloatmodel.py"
-        config["experiment"] = "DnaToFloatExperiment"
+        config["model"] = ModelSimple
+        config["experiment"] = DnaToFloatExperiment()
         config["data_path"] = "bin/tests/test_data/dna_experiment/test_with_split.csv"
         self.learner = RayTuneLearner(config = config)
 
@@ -66,11 +66,10 @@ class TestTrainTuneWrapper(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)
         config_path = "bin/tests/test_model/simple.config"
-        model_path = 'bin/tests/test_model/dnatofloatmodel.py'
-        experiment_path = 'DnaToFloatExperiment'
+        model_class = ModelSimple
+        experiment_obj = DnaToFloatExperiment()
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
-        data_path = os.path.abspath(data_path)
-        self.wrapper = TuneTrainWrapper(config_path, model_path, experiment_path, data_path)
+        self.wrapper = TuneTrainWrapper(config_path, model_class, data_path, experiment_obj)
     
     def test_setup(self):
         self.assertIsInstance(self.wrapper.config, dict)
