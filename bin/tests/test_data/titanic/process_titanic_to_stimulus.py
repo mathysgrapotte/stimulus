@@ -26,14 +26,14 @@ def main():
 
     # Rename columns to match stimulus format
 
-    df = df.rename({"Survived": "survived:label:int",
-                "Pclass": "pclass:input:int",
-                "Sex": "sex:input:str",
-                "Age": "age:input:int",
-                "SibSp": "sibsp:input:int",
-                "Parch": "parch:input:int",
+    df = df.rename({"Survived": "survived:label:int_class",
+                "Pclass": "pclass:input:int_class",
+                "Sex": "sex:input:str_class",
+                "Age": "age:input:int_reg",
+                "SibSp": "sibsp:input:int_class",
+                "Parch": "parch:input:int_class",
                 "Fare": "fare:input:float",
-                "Embarked": "embarked:input:str",
+                "Embarked": "embarked:input:str_class",
                 "PassengerId": "passenger_id:meta:int"
                 })
 

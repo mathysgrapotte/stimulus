@@ -1,4 +1,4 @@
-passenger_id:meta:int,survived:label:int,pclass:input:int,sex:input:str,age:input:int,sibsp:input:int,parch:input:int,fare:input:float,embarked:input:str
+passenger_id:meta:int,survived:label:int_class,pclass:input:int_class,sex:input:str_class,age:input:int_reg,sibsp:input:int_class,parch:input:int_class,fare:input:float,embarked:input:str_class
 1,0,3,male,22.0,1,0,7.25,S
 2,1,1,female,38.0,1,0,71.2833,C
 3,1,3,female,26.0,0,0,7.925,S
