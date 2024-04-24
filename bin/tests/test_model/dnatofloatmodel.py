@@ -5,7 +5,6 @@ import torch.nn as nn
 ## this is a simple model that takes as input a 1D tensor of any size, apply some convolutional layer and outputs a single value using a maxpooling layer and a softmax function.
 
 class AbstractModel(torch.nn.Module, ABC):
-
     @abstractmethod
     def forward(self) -> torch.Tensor:
         """
@@ -20,9 +19,9 @@ class AbstractModel(torch.nn.Module, ABC):
         """
         raise NotImplementedError
     
-class SimpleModel(AbstractModel):
+class ModelSimple(AbstractModel):
     def __init__(self, kernel_size: int = 3, pool_size: int = 2):
-        super(SimpleModel, self).__init__()
+        super(ModelSimple, self).__init__()
         self.conv1 = torch.nn.Conv1d(in_channels=4, out_channels=1, kernel_size=kernel_size)
         self.pool = torch.nn.MaxPool1d(pool_size, pool_size)
         self.softmax = torch.nn.Softmax(dim=1)

@@ -237,7 +237,7 @@ class CsvLoader(CsvHandler):
 
             # check if 'data_type' is in the experiment class attributes
             if not hasattr(self.experiment, data_type.lower()):
-                raise ValueError(f"The data type {data_type} is not in the experiment class attributes. the column name is {key}, the available attributes are {self.experiment.__dict__}")
+                raise ValueError("The data type", data_type, "is not in the experiment class attributes. the column name is", key, "the available attributes are", self.experiment.__dict__)
 
             # encode the data at given index
             # For that, it first retrieves the data object and then calls the encode_all method to encode the data

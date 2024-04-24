@@ -14,22 +14,23 @@ import json
 
         
 class TuneTrainWrapper():
-    def __init__(self, config_path, model_path, experiment_path, data_path):
+    def __init__(self, config_path: str, model_class: type, data_path: str, experiment_name: object) -> None:
         """
-        Initialize the TuneWrapper with the paths to the config, model, experiment and data.
+        Initialize the TuneWrapper with the paths to the config, model, and data.
         """
         # Load the config
         self.config = {}
         with open(config_path, "r") as f:
             # TODO figure out a better way to load the config
-            self.config =eval(f.read())
+            self.config = json.load(f)
         
-        self.config["model"] = model_path
-        self.config["experiment"] = experiment_path
+        self.config["model"] = model_class
+        self.config["experiment"] = experiment_name
 
         try :
             assert os.path.exists(data_path)
-            self.config["data_path"] = data_path
+            # make the path absolute so that ray does not complain on relative file paths
+            self.config["data_path"] = os.path.abspath(data_path)
         except AssertionError:
 
             raise ValueError("Data path does not exist. Given path:" + data_path)           
@@ -64,7 +65,7 @@ class TuneTrainWrapper():
         self.results = None
         self.trainer = None
 
-    def _prep_tuner(self):
+    def _prep_tuner(self) -> None:
         """
         Prepare the tuner with the configs.
         """
@@ -77,10 +78,11 @@ class TuneTrainWrapper():
         # validation dataset is used for tuning
         self.tuner.tuning = True
 
-    def tune(self, overwrite=False):
+    def tune(self, overwrite: bool = False) -> None:
         """
         Run the tuning process.
         """
+        # This is just in case you want to tune more than once on the same initialization. Otherwise it will complain.
         if overwrite:
             self.tuner = None
             self.best_config = None
@@ -94,28 +96,34 @@ class TuneTrainWrapper():
             except AssertionError:
                 raise ValueError("Best config file not found.")
             with open(best_config, "r") as f:
-                self.best_config = eval(f.read())
+                # TODO find better way to load the file
+                self.best_config = json.load(f)
         else:
             raise ValueError("Tuner already exists - if you want to overwrite it, please set overwrite=True.")     
 
-    def store_best_config(self, path):
+    def store_best_config(self, path: str) -> None:
         """
         Store the best config in a file.
         """
         with open(path, "w") as f:
             f.write(str(self.best_config))            
     
-    def train(self, config = None): 
+    def train(self) -> None: 
         """
         Train the model with the config.
         """
-        if config is None:
-            config = self.best_config
-        try: 
-            assert config is not None
-        except AssertionError:
-            raise ValueError("No config provided - please provide a config to train the model with or tune first by calling the tune() method.")
         
+        config = None
+        # use the config from the tuning if tune was run. Otherwise use the one fromn the initialization of the class.
+        if self.best_config:
+            config = self.best_config
+            # reading the best_config file given by ray tune the model class is interpreted as a string, so it need to be resetted as class
+            config["model"] = self.config["model"]
+            # The same happens for the experiment object
+            config["experiment"] = self.config["experiment"]
+        else:
+            config = self.config
+
         self.trainer = TuneModel(config=config)
         # set trainer to training mode (training dataset is used for training)
         self.trainer.tuning = False
@@ -125,24 +133,19 @@ class TuneTrainWrapper():
 
 class TuneModel(Trainable):
 
-    def setup(self, config: dict):
+    def setup(self, config: dict) -> None:
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
 
-        # Load model from string path
-        module_name, class_name = config["model"].rsplit('.', 1)
-        module = importlib.import_module(module_name)
-        model = getattr(module, class_name)
-        self.model = model(**config["model_params"])
+        # Initialize model with the config params
+        self.model = config["model"](**config["model_params"])
 
         # Add data path
         self.data_path = config["data_path"]
 
-        # Add experiment
-        module_name, class_name = config["experiment"].rsplit('.', 1)
-        module = importlib.import_module(module_name)
-        self.experiment = getattr(module, class_name)()
+        # Use the already initialized experiment class      
+        self.experiment = config["experiment"]
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
@@ -204,13 +207,13 @@ class TuneModel(Trainable):
             loss /= len(dataloader)
         return self.objective()
 
-    def objective(self):
+    def objective(self) -> dict:
         """
         Compute the objective metric(s) for the tuning process.
         """
         return {"val_loss": self.compute_val_loss()}
 
-    def compute_val_loss(self):
+    def compute_val_loss(self) -> float:
         """
         Compute loss on the validation data.
         For each batch in the validation data, calculate the loss.
@@ -228,12 +231,12 @@ class TuneModel(Trainable):
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 
-    def load_checkpoint(self, checkpoint: Dict | None):
+    def load_checkpoint(self, checkpoint: dict | None) -> None:
         if checkpoint:
             self.model.load_state_dict(checkpoint['model_state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-    def save_checkpoint(self, checkpoint_dir: str) -> Dict | None:
+    def save_checkpoint(self, checkpoint_dir: str) -> dict | None:
         checkpoint = {
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict()

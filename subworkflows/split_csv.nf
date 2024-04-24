@@ -16,12 +16,13 @@ workflow SPLIT_CSV {
 
     take:
     data_csv
-    json_tuple
+    json
     
 
     main:
 
-    csv_json_pairs = data_csv.combine(json_tuple)
+    // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
+    csv_json_pairs = data_csv.combine(json)
     STIMULUS_SPLIT_CSV( csv_json_pairs )
 
 
