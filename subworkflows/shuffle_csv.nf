@@ -12,7 +12,7 @@ include { STIMULUS_SHUFFLE_CSV } from '../modules/stimulus_shuffle_csv.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow SPLIT_CSV {
+workflow SHUFFLE_CSV {
 
     take:
     data_csv
@@ -32,8 +32,8 @@ workflow SPLIT_CSV {
 
     emit:
 
-    debug       = STIMULUS_SPLIT_CSV.out.standardout
-    split_data  = STIMULUS_SPLIT_CSV.out.csv_with_split
+    debug         = STIMULUS_SHUFFLE_CSV.out.standardout
+    shuffle_data  = STIMULUS_SHUFFLE_CSV.out.csv_shuffled
 
 }
 

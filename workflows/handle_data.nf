@@ -46,11 +46,14 @@ workflow HANDLE_DATA {
     // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
     SHUFFLE_CSV(csv, parsed_json.first())
 
+    // merge output of shuffle to the output of noise
+    data = NOISE_CSV.out.noised_data.concat(SHUFFLE_CSV.out.shuffle_data)
+
 
     emit:
 
-    debug = SHUFFLE_CSV.out.debug //NOISE_CSV.out.debug
-    data  = NOISE_CSV.out.noised_data
+    debug = NOISE_CSV.out.debug
+    data
 
 }
 

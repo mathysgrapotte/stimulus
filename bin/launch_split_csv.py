@@ -39,28 +39,28 @@ def main(data_csv, config_json, out_path):
 
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
-    
-    print(csv_obj.check_and_get_categories())
 
     # CASE 1: SPLIT in csv, not in json --> keep the split from the csv
-    if "split" in csv_obj.check_and_get_categories(): 
-        if config["split"] == None:
-            next
-        else:
-            # CASE 2: SPLIT in csv and in json --> use the split from the json
-            # TODO change this behaviour to do both, maybe
-            csv_obj.add_split(config["split"], force = True)   
+    if "split" in csv_obj.check_and_get_categories() and config["split"] is None: 
+        next
+
+    # CASE 2: SPLIT in csv and in json --> use the split from the json
+    # TODO change this behaviour to do both, maybe
+    elif "split" in csv_obj.check_and_get_categories() and config["split"]:
+        print("SPLIT present in both csv and json --> use the split from the json")
+        csv_obj.add_split(config["split"], force = True)   
     
     # CASE 3: SPLIT nor in csv and or json --> use the default RandomSplitter
-    elif("split" not in csv_obj.check_and_get_categories() and config["split"] == None): 
+    elif "split" not in csv_obj.check_and_get_categories() and config["split"] is None: 
         # In case no split is provided, we use the default RandomSplitter
         # TODO add warning message
-        print("IN CASE 2: SPLIT nor in csv and or json --> use the default RandomSplitter")
-        csv_obj.add_split(config["split"])
+        print("SPLIT nor in csv and or json --> use the default RandomSplitter")
+        # if the user config is None then set to default splitter -> RandomSplitter. 
+        config_default = {"name": "RandomSplitter", "params": {}}
+        csv_obj.add_split(config_default)
 
     # CASE 4: SPLIT in json, not in csv --> use the split from the json
     else:
-        print("IN CASE 3: SPLIT in json, not in csv  or split in both--> use the split from the json")
         csv_obj.add_split(config["split"], force = True)
 
     # save the modified csv

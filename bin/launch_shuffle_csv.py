@@ -37,7 +37,7 @@ def main(data_csv, config_json, out_path):
         config["split"] = {"name": "RandomSplitter", "params": {}}
 
     # write the config modified, this will be associated to the shuffled data. TODO better solution to renaming like this
-    modified_json = os.path.splitext(os.path.basename(config_json))[0]
+    modified_json = os.path.splitext(os.path.basename(data_csv))[0] + '-shuffled.json'
     with open(modified_json, 'w') as out_json:
         json.dump(config, out_json)
 
