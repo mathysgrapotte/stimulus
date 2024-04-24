@@ -12,8 +12,8 @@ process STIMULUS_SHUFFLE_CSV {
     stdout emit: standardout
 
     script:
-    output = "${splitted_csv.baseName}-shuffled.csv"
+    output = "${original_csv.baseName}-shuffled.csv"
     """
-    launch_noise_csv.py -c ${splitted_csv} -j ${random_parsed_json} -o ${output}
+    launch_shuffle_csv.py -c ${original_csv} -j ${random_parsed_json} -o ${output}
     """
 }
