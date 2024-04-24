@@ -4,7 +4,7 @@ This file contains encoders classes for encoding various types of data.
 
 from abc import ABC, abstractmethod
 from typing import Any, Union
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 import numpy as np
 import multiprocessing as mp
@@ -46,10 +46,10 @@ class AbstractEncoder(ABC):
     
 class TextOneHotEncoder(AbstractEncoder):
     """
-    One hot encoder for text data.
+    One hot encoder for text data
 
-    NOTE that it will onehot encode based on the alphabet. 
-    If there is any character not included in the alphabet, that character will be presented by a vector of zeros.
+    NOTE encodes based on the given alphabet
+    If a character c is not in the alphabet, c will be represented by a vector of zeros.
     """
 
     def __init__(self, alphabet: str = "acgt") -> None:
@@ -123,3 +123,87 @@ class FloatEncoder(AbstractEncoder):
         Decodes the data.
         """
         return data
+    
+class StrClassificationIntEncoder(AbstractEncoder):
+    """
+    Considering a ensemble of strings, this encoder encodes them into integers from 0 to (n-1) where n is the number of unique strings.
+    """
+
+    def encode(self, data: str) -> int:
+        """
+        Returns an error since encoding a single string does not make sense.
+        """
+
+        raise NotImplementedError("Encoding a single string does not make sense. Use encode_all instead.")
+    
+    def encode_all(self, data: list) -> np.array:
+        """
+        Encodes the data. 
+        This method takes as input a list of data points, should be mappable to a single output, using LabelEncoder from scikit learn and returning a numpy array.
+        For more info visit : https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html 
+        """
+
+        if not isinstance(data, list):
+            data = [data]
+        encoder = LabelEncoder()
+        return encoder.fit_transform(data)
+    
+    def decode(self, data: Any) -> Any:
+        """
+        Returns an error since decoding does not make sense without encoder information, which is not yet supported.
+        """
+
+        raise NotImplementedError("Decoding is not yet supported for StrClassificationInt.")
+    
+class StrClassificationScaledEncoder(StrClassificationIntEncoder):
+    """
+    Considering a ensemble of strings, this encoder encodes them into floats from 0 to 1 (essentially scaling the integer encoding).
+    """
+
+    def encode_all(self, data: list) -> np.array:
+        """
+        Encodes the data. 
+        This method takes as input a list of data points, should be mappable to a single output, using LabelEncoder from scikit learn and returning a numpy array.
+        For more info visit : https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html 
+        """
+
+        encoded_data = super().encode_all(data)
+        return encoded_data / (len(np.unique(encoded_data)) - 1)
+    
+    def decode(self, data: Any) -> Any:
+        """
+        Returns an error since decoding does not make sense without encoder information, which is not yet supported.
+        """
+
+        raise NotImplementedError("Decoding is not yet supported for StrClassificationScaled.")
+    
+class FloatRankEncoder(AbstractEncoder):
+    """
+    Considering an ensemble of float values, this encoder encodes them into floats from 0 to 1, where 1 is the maximum value and 0 is the minimum value.
+    """
+
+    def encode(self, data: float) -> float:
+        """
+        Returns an error since encoding a single float does not make sense.
+        """
+
+        raise NotImplementedError("Encoding a single float does not make sense. Use encode_all instead.")
+    
+    def encode_all(self, data: list) -> np.array:
+        """
+        Encodes the data. 
+        This method takes as input a list of data points, should be mappable to a single output, using min-max scaling.
+        """
+
+        if not isinstance(data, list):
+            data = [data]
+        data = np.array(data)
+        return (data - np.min(data)) / (np.max(data) - np.min(data))
+    
+    def decode(self, data: Any) -> Any:
+        """
+        Returns an error since decoding does not make sense without encoder information, which is not yet supported.
+        """
+
+        raise NotImplementedError("Decoding is not yet supported for FloatRank.")
+
