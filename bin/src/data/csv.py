@@ -99,7 +99,7 @@ class CsvProcessing(CsvHandler):
         train, validation, test = self.experiment.get_function_split(split_method)(self.data, **config['params'])
 
         # add the split column to the data
-        split_column = np.full(len(self.data), np.nan)
+        split_column = np.full(len(self.data), np.nan).astype(int)
         split_column[train] = 0
         split_column[validation] = 1
         split_column[test] = 2
