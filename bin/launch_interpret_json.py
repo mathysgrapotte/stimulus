@@ -57,7 +57,7 @@ def interpret_json(input_json: dict) -> list:
     # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
     list_of_json_to_write = []
 
-    # The  pipeline has always to happen at least once, aka on the data itself untouched. This line is not necessary only in the case of missing both noise and spli arguments in the inpèut Json.
+    # The  pipeline has always to happen at least twice, aka on the data itself untouched (line below) and on data with labels shuffled. This line is not necessary only in the case of missing both noise and spli arguments in the inpèut Json.
     if schema.noise_arg or schema.split_arg:
         list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
          
@@ -70,6 +70,7 @@ def interpret_json(input_json: dict) -> list:
     for custom_dict in schema.custom_arg :
         new_dict = {**{"experiment": schema.experiment}, **custom_dict}
         list_of_json_to_write.append(new_dict)
+
 
     return list_of_json_to_write
 
