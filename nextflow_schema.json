@@ -1,0 +1,4 @@
+{"csv":"bin/tests/test_data/dna_experiment/test.csv"
+"exp_conf":"test/test.json"
+"model":"bin/tests/test_model/dnatofloatmodel.py"
+"train_conf":"bin/tests/test_model/simple.confi"}
