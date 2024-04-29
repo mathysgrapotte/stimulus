@@ -1,7 +1,7 @@
 
 process STIMULUS_SHUFFLE_CSV {
 
-    container 'alessiovignoli3/stimulus:stimulus_noise'
+    container 'alessiovignoli3/stimulus:latest'
 
     input:
     tuple path(original_csv), path(random_parsed_json)

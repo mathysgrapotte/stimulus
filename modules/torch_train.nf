@@ -1,7 +1,7 @@
 
 process TORCH_TRAIN {
 
-    container "alessiovignoli3/stimulus:torch_train"
+    container "alessiovignoli3/stimulus:latest"
 
     input:
     tuple val(original_csv), path(ray_tune_config), path(model), path(data_csv), path(parsed_json)

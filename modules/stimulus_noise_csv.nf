@@ -1,7 +1,7 @@
 
 process STIMULUS_NOISE_CSV {
 
-    container 'alessiovignoli3/stimulus:stimulus_noise'
+    container 'alessiovignoli3/stimulus:latest'
 
     input:
     tuple val(original_csv), path(parsed_json), path(splitted_csv)
