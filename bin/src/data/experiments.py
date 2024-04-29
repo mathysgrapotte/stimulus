@@ -74,4 +74,4 @@ class TitanicExperiment(AbstractExperiment):
         self.int_class = {'encoder': encoders.IntEncoder(), 'noise_generators': {}}
         self.str_class = {'encoder': encoders.StrClassificationIntEncoder(), 'noise_generators': {}}
         self.int_reg = {'encoder': encoders.IntRankEncoder(), 'noise_generators': {}}
-        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {}}
+        self.float_rank = {'encoder': encoders.FloatRankEncoder(), 'noise_generators': {}}

@@ -31,7 +31,7 @@ class TestMyClass(unittest.TestCase):
 import numpy as np
 import numpy.testing as npt
 import unittest
-from bin.src.data.encoding.encoders import TextOneHotEncoder, IntRankEncoder, StrClassificationIntEncoder
+from bin.src.data.encoding.encoders import TextOneHotEncoder, IntRankEncoder, StrClassificationIntEncoder 
 
 
 class TestTextOneHotEncoderDna(unittest.TestCase):

@@ -4,7 +4,7 @@ import os
 import torch
 from typing import Any, Tuple, Union, Literal
 from bin.src.data.handlertorch import TorchDataset
-from bin.src.data.experiments import DnaToFloatExperiment, ProtDnaToFloatExperiment
+from bin.src.data.experiments import DnaToFloatExperiment, ProtDnaToFloatExperiment, TitanicExperiment
 
 class TestTorchDataset(unittest.TestCase):
 
@@ -16,7 +16,7 @@ class TestTorchDataset(unittest.TestCase):
             self.assertIsInstance(data[key], torch.Tensor)
             self.assertEqual(data[key].shape, torch.Size(expected_len[key]))
 
-    def _test_get_item(self, idx: Any, expected_size: dict):
+    def _test_get_item_shape(self, idx: Any, expected_size: dict):
         x, y, meta = self.torchdataset[idx]
         self.assertIsInstance(x, dict)
         self.assertIsInstance(y, dict)
@@ -44,8 +44,8 @@ class TestDnaToFloatTorchDatasetSameLength(TestTorchDataset):
         )
     
     def test_get_item(self):
-        self._test_get_item(0, expected_size = {'hello': [16, 4]})  # 'hola': tensor(12.) has no shape
-        self._test_get_item(slice(0,2), expected_size={'hello': [2, 16, 4], 'hola': [2]})
+        self._test_get_item_shape(0, expected_size = {'hello': [16, 4]})  # 'hola': tensor(12.) has no shape
+        self._test_get_item_shape(slice(0,2), expected_size={'hello': [2, 16, 4], 'hola': [2]})
 
 class TestDnaToFloatTorchDatasetDifferentLength(TestTorchDataset):
 
@@ -66,8 +66,8 @@ class TestDnaToFloatTorchDatasetDifferentLength(TestTorchDataset):
         )
 
     def test_get_item(self):
-        self._test_get_item(0, expected_size={'hello': [31, 4]})
-        self._test_get_item(slice(0,2), expected_size={'hello': [2, 31, 4], 'hola': [2]})
+        self._test_get_item_shape(0, expected_size={'hello': [31, 4]})
+        self._test_get_item_shape(slice(0,2), expected_size={'hello': [2, 31, 4], 'hola': [2]})
 
 class TestProtDnaToFloatTorchDatasetSameLength(TestTorchDataset):
 
@@ -88,5 +88,16 @@ class TestProtDnaToFloatTorchDatasetSameLength(TestTorchDataset):
         )
     
     def test_get_item(self):
-        self._test_get_item(0, expected_size = {'hello': [16, 4], 'bonjour': [15, 20]})
-        self._test_get_item(slice(0,2), expected_size={'hello': [2, 16, 4], 'bonjour': [2, 15, 20], 'hola': [2]})
+        self._test_get_item_shape(0, expected_size = {'hello': [16, 4], 'bonjour': [15, 20]})
+        self._test_get_item_shape(slice(0,2), expected_size={'hello': [2, 16, 4], 'bonjour': [2, 15, 20], 'hola': [2]})
+
+class TestTitanicTorchDataset(TestTorchDataset):
+
+    def setUp(self) -> None:
+        self.torchdataset = TorchDataset(csvpath=os.path.abspath("bin/tests/test_data/titanic/titanic_stimulus.csv"), experiment=TitanicExperiment())
+
+    def test_len(self):
+        self._test_len(712)
+
+if __name__ == "__main__":
+    unittest.main()
