@@ -124,6 +124,17 @@ class FloatEncoder(AbstractEncoder):
         """
         return data
     
+class IntEncoder(FloatEncoder):
+    """
+    Encoder for integer data.
+    """
+    def encode(self, data: int) -> int:
+        """
+        Encodes the data. 
+        This method takes as input a single data point, should be mappable to a single output. 
+        """
+        return int(data)
+    
 class StrClassificationIntEncoder(AbstractEncoder):
     """
     Considering a ensemble of strings, this encoder encodes them into integers from 0 to (n-1) where n is the number of unique strings.
@@ -206,4 +217,34 @@ class FloatRankEncoder(AbstractEncoder):
         """
 
         raise NotImplementedError("Decoding is not yet supported for FloatRank.")
+    
+class IntRankEncoder(FloatRankEncoder):
+    """
+    Considering an ensemble of integer values, this encoder encodes them into floats from 0 to 1, where 1 is the maximum value and 0 is the minimum value.
+    """
+
+    def encode(self, data: int) -> int:
+        """
+        Returns an error since encoding a single integer does not make sense.
+        """
+
+        raise NotImplementedError("Encoding a single integer does not make sense. Use encode_all instead.")
+    
+    def encode_all(self, data: list) -> np.array:
+        """
+        Encodes the data. 
+        This method takes as input a list of data points, should be mappable to a single output, using min-max scaling.
+        """
+
+        if not isinstance(data, list):
+            data = [data]
+        data = np.array(data)
+        return (data - np.min(data)) / (np.max(data) - np.min(data))
+    
+    def decode(self, data: Any) -> Any:
+        """
+        Returns an error since decoding does not make sense without encoder information, which is not yet supported.
+        """
+
+        raise NotImplementedError("Decoding is not yet supported for IntRank.")
 

@@ -63,3 +63,15 @@ class ProtDnaToFloatExperiment(DnaToFloatExperiment):
     def __init__(self) -> None:
         super().__init__()
         self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='X')}}
+
+class TitanicExperiment(AbstractExperiment):
+    """
+    Class for dealing with the Titanic dataset as a test format.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.int_class = {'encoder': encoders.IntEncoder(), 'noise_generators': {}}
+        self.str_class = {'encoder': encoders.StrClassificationIntEncoder(), 'noise_generators': {}}
+        self.int_reg = {'encoder': encoders.IntRankEncoder(), 'noise_generators': {}}
+        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {}}
