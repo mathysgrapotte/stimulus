@@ -2,6 +2,7 @@
 process TORCH_TRAIN {
 
     container "alessiovignoli3/stimulus:torch_train"
+    label 'process_high'
 
     input:
     tuple val(original_csv), path(ray_tune_config), path(model), path(data_csv), path(parsed_json)
