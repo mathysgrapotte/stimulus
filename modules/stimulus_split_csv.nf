@@ -2,6 +2,7 @@
 process STIMULUS_SPLIT_CSV {
 
     container 'alessiovignoli3/stimulus:latest'
+    label 'process_low'
 
     input:
     tuple path(csv), path(parsed_json)

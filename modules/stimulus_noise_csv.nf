@@ -2,6 +2,7 @@
 process STIMULUS_NOISE_CSV {
 
     container 'alessiovignoli3/stimulus:latest'
+    label 'process_medium'
 
     input:
     tuple val(original_csv), path(parsed_json), path(splitted_csv)

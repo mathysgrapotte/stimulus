@@ -1,0 +1,4 @@
+{"csv":"${projectDir}/bin/tests/test_data/dna_experiment/test.csv",
+"exp_conf":"${projectDir}/test/test.json",
+"model":"${projectDir}/bin/tests/test_model/dnatofloatmodel.py",
+"train_conf":"${projectDir}/bin/tests/test_model/simple.config"}
