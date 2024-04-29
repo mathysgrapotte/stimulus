@@ -1,7 +1,7 @@
 
 process TORCH_TRAIN {
 
-    container "alessiovignoli3/stimulus:torch_train"
+    container "alessiovignoli3/stimulus:latest"
     label 'process_high'
 
     input:
