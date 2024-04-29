@@ -2,6 +2,7 @@
 process STIMULUS_SPLIT_CSV {
 
     container 'alessiovignoli3/stimulus:stimulus_noise'
+    label 'process_low'
 
     input:
     tuple path(csv), path(parsed_json)
