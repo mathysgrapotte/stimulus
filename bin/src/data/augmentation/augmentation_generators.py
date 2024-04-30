@@ -57,7 +57,7 @@ class ReverseComplement(AbstractAugmentationGenerator):
         """
         with mp.Pool(mp.cpu_count()) as pool:
             function_specific_input = [(item) for item in data]
-            return pool.starmap(self.add_augmentation, function_specific_input)
+            return pool.map(self.add_augmentation, function_specific_input)
         
 
 
