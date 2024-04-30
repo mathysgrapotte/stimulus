@@ -77,7 +77,7 @@ class UniformTextMasker(AbstractNoiseGenerator):
         """
         with mp.Pool(mp.cpu_count()) as pool:
             function_specific_input = [(item, probability, seed) for item in data]
-            return pool.starmap(self.add_noise, function_specific_input)
+            return pool.starmap(self.transform, function_specific_input)
         
 
 class GaussianNoise(AbstractNoiseGenerator):
@@ -113,19 +113,19 @@ class ReverseComplement(AbstractAugmentationGenerator):
             self.complement_mapping = str.maketrans('ATCG', 'TAGC')
 
 
-    def add_augmentation(self, data: str) -> str:
+    def transform(self, data: str) -> str:
         """
         Returns the reverse complement of a list of string data using the complement_mapping.
         """
         return data.translate(self.complement_mapping)[::-1]
 
-    def add_augmentation_all(self, data: list) -> list:
+    def transform_all(self, data: list) -> list:
         """
         Adds reverse complement to the data using multiprocessing.
         """
         with mp.Pool(mp.cpu_count()) as pool:
             function_specific_input = [(item) for item in data]
-            return pool.map(self.add_augmentation, function_specific_input)
+            return pool.map(self.transform, function_specific_input)
         
 
 
