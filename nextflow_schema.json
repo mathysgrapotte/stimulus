@@ -1,4 +1,50 @@
-{"csv":"${projectDir}/bin/tests/test_data/dna_experiment/test.csv",
-"exp_conf":"${projectDir}/test/test.json",
-"model":"${projectDir}/bin/tests/test_model/dnatofloatmodel.py",
-"train_conf":"${projectDir}/bin/tests/test_model/simple.config"}
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/nextflow-io/rnaseq-nf/master/nextflow_schema.json",
+  "title": "stimulus pipeline parameters",
+  "description": "Pipeline for statistically testing training procedures of machine learning models",
+  "type": "object",
+  "definitions": {
+    "input_options": {
+      "title": "Input options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data.",
+      "properties": {
+        "csv": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Test data as CSV file",
+          "fa_icon": "fas fa-folder-open",
+          "default": "${projectDir}/bin/tests/test_data/dna_experiment/test.csv"
+        },
+        "exp_conf": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Experiment config as JSON file",
+          "fa_icon": "fas fa-folder-open",
+          "default": "${projectDir}/bin/tests/test_data/dna_experiment/test_config.json"
+        },
+        "model": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Model file in Python",
+          "fa_icon": "fas fa-folder-open",
+          "default": "${projectDir}/bin/tests/test_model/dnatofloatmodel.py"
+        },
+        "train_conf": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Training config",
+          "fa_icon": "fas fa-folder-open",
+          "default": "${projectDir}/bin/tests/test_model/simple.config"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/input_options"
+    }
+  ]
+}
