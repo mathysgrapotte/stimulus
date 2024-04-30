@@ -23,7 +23,7 @@
           "format": "directory-path",
           "description": "Experiment config as JSON file",
           "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_data/dna_experiment/test_config.json"
+          "default": "${projectDir}/examples/test.json"
         },
         "model": {
           "type": "string",
