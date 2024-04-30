@@ -1,7 +1,7 @@
 
 process INTERPRET_JSON {
 
-    container "python:3.11.9-slim-bullseye"
+    container "alessiovignoli3/stimulus:ps"
     label 'process_low'
 
     input:
