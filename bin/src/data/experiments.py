@@ -12,6 +12,7 @@ from typing import Any
 from .splitters import splitters as splitters
 from .encoding import encoders as encoders
 from .noise import noise_generators as noise_generators
+from .augmentation import augmentation_generators as augmentation_generators
 
 
 class AbstractExperiment(ABC):
@@ -31,18 +32,12 @@ class AbstractExperiment(ABC):
         This method gets the encoding function for a specific data type.
         """
         return getattr(self, data_type)['encoder'].encode_all
-    
-    def get_function_noise_all(self, data_type: str, noise_generator: str) -> Any:
-        """
-        This method adds noise to all the entries.
-        """
-        return getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
 
-    def get_function_augment_all(self, data_type: str, augmentation_generator: str) -> Any:
+    def get_function_transform_all(self, data_type: str, transformation_generator: str) -> Any:
         """
         This method creates data augmentation for all the entries.
         """
-        return getattr(self, data_type)['augmentation_generators'][augmentation_generator].add_augmentation_all
+        return getattr(self, data_type)['transformation_generators'][transformation_generator].transform_all
 
     def get_function_split(self, split_method: str) -> Any:
         """
@@ -57,7 +52,7 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'transformation_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N'), 'ReverseComplement': augmentation_generators.ReverseComplement()}}
         self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
         self.split = {'RandomSplitter': splitters.RandomSplitter()}        
 

@@ -105,55 +105,35 @@ class CsvProcessing(CsvHandler):
         split_column[test] = 2
         self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
 
-    def add_noise(self, configs: list) -> None:
-        """
-        Adds noise to the data.
-        Noise is added for each column with the specified configurations.
-        """
-        # for each column configuration
-        for dictionary in configs:
-            key = dictionary['column_name']
-            data_type = key.split(':')[2]
-            noise_generator = dictionary['name']
+    # def add_noise(self, configs: list) -> None:
+    #     """
+    #     Adds noise to the data.
+    #     Noise is added for each column with the specified configurations.
+    #     """
+    #     # for each column configuration
+    #     for dictionary in configs:
+    #         key = dictionary['column_name']
+    #         data_type = key.split(':')[2]
+    #         noise_generator = dictionary['name']
 
-            # add noise to the column using the desired noise generator and params
-            new_column = self.experiment.get_function_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
+    #         # add noise to the column using the desired noise generator and params
+    #         new_column = self.experiment.get_function_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
 
-            # change the column with the new values
-            self.data = self.data.with_columns(pl.Series(key, new_column))
-
-    def add_augmentation(self, configs: list) -> None:
-        """
-        Adds data augmentation.
-        Augmentation is added for each column with the specified configurations.
-        """
-        # for each column configuration
-        for dictionary in configs:
-            key = dictionary['column_name']
-            data_type = key.split(':')[2]
-            augmentation_generator = dictionary['name']
-
-            # create augmentation for the column using the desired augmentatoin generator and params
-            # the final csv will be bigger than the original one as it will have the original data and the augmented data
-            # it will only augment the training data
-            # take only the training data (split column is 0 for training data)
-            training_data_only = self.data.filter(pl.col('split:split:int') == 0)[key]
-            new_rows = self.experiment.get_function_augment_all(data_type, augmentation_generator)(training_data_only, **dictionary['params'])
-
-            # append the new rows to the data
-            self.data = self.data.with_rows(new_rows)
-
+    #         # change the column with the new values
+    #         self.data = self.data.with_columns(pl.Series(key, new_column))
 
     def transform(self, config: dict) -> None:
         """
         Transforms the data using the specified configuration.
         """
         # here it can be eithr adding noise or adding augmentation
-        for dictionary in config:
-            if dictionary['type'] == 'noise':
-                self.add_noise(dictionary['columns'])
-            elif dictionary['type'] == 'augmentation':
-                self.add_augmentation(dictionary['columns'])
+        for combinations in config:
+            for dictionary in combinations:
+                key = dictionary['column_name']
+                data_type = key.split(':')[2]
+                data_transformer = dictionary['name']
+                new_data = self.experiment.get_function_transform_all(data_type, data_transformer)(list(self.data[key]), **dictionary['params'])       
+                
 
     def shuffle_labels(self) -> None:
         """
