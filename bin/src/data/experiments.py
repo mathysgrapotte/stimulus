@@ -38,6 +38,12 @@ class AbstractExperiment(ABC):
         """
         return getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
 
+    def get_function_augment_all(self, data_type: str, augmentation_generator: str) -> Any:
+        """
+        This method creates data augmentation for all the entries.
+        """
+        return getattr(self, data_type)['augmentation_generators'][augmentation_generator].add_augmentation_all
+
     def get_function_split(self, split_method: str) -> Any:
         """
         This method returns the function for splitting the data.
@@ -53,7 +59,7 @@ class DnaToFloatExperiment(AbstractExperiment):
         super().__init__()
         self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
         self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
-        self.split = {'RandomSplitter': splitters.RandomSplitter()}
+        self.split = {'RandomSplitter': splitters.RandomSplitter()}        
 
 
 class ProtDnaToFloatExperiment(DnaToFloatExperiment):
