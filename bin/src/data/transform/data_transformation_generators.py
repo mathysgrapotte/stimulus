@@ -35,8 +35,7 @@ class AbstractDataTransformer(ABC):
         raise NotImplementedError
 
 
-
-class AbstractNoiseGenerator(ABC):
+class AbstractNoiseGenerator(AbstractDataTransformer):
     """
     Abstract class for noise generators. 
     All noise function should have the seed in it. Because the multiprocessing of them could unset the seed in short.
@@ -45,8 +44,18 @@ class AbstractNoiseGenerator(ABC):
     def __init__(self):
         self.add_column = True
         self.add_row = False
+ 
 
-        
+class AbstractAugmentationGenerator(AbstractDataTransformer):
+    """
+    Abstract class for augmentation generators. 
+    All augmentation function should have the seed in it. Because the multiprocessing of them could unset the seed in short.
+    """
+
+    def __init__(self):
+        self.add_column = False
+        self.add_row = True
+
 
 class UniformTextMasker(AbstractNoiseGenerator):
     """
@@ -90,4 +99,34 @@ class GaussianNoise(AbstractNoiseGenerator):
         """
         np.random.seed(seed)
         return list(np.array(data) + np.random.normal(mean, std, len(data)))
+    
+
+
+class ReverseComplement(AbstractAugmentationGenerator):
+    """
+    This noise generators replace characters with a masking character with a given probability.
+    """
+    def __init__(self, type:str = "DNA") -> None:
+        if (type != "DNA"):
+            raise ValueError("Currently only DNA sequences are supported. Update the class ReverseComplement to support other types.")
+        if type == "DNA":
+            self.complement_mapping = str.maketrans('ATCG', 'TAGC')
+
+
+    def add_augmentation(self, data: str) -> str:
+        """
+        Returns the reverse complement of a list of string data using the complement_mapping.
+        """
+        return data.translate(self.complement_mapping)[::-1]
+
+    def add_augmentation_all(self, data: list) -> list:
+        """
+        Adds reverse complement to the data using multiprocessing.
+        """
+        with mp.Pool(mp.cpu_count()) as pool:
+            function_specific_input = [(item) for item in data]
+            return pool.map(self.add_augmentation, function_specific_input)
+        
+
+
     

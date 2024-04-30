@@ -11,8 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from .splitters import splitters as splitters
 from .encoding import encoders as encoders
-from .noise import noise_generators as noise_generators
-from .augmentation import augmentation_generators as augmentation_generators
+from .transform import data_transformation_generators as data_transformation_generators
 
 
 class AbstractExperiment(ABC):
@@ -37,7 +36,7 @@ class AbstractExperiment(ABC):
         """
         This method creates data augmentation for all the entries.
         """
-        return getattr(self, data_type)['transformation_generators'][transformation_generator].transform_all
+        return getattr(self, data_type)['data_transformation_generators'][transformation_generator].transform_all
 
     def get_function_split(self, split_method: str) -> Any:
         """
@@ -52,8 +51,8 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'transformation_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N'), 'ReverseComplement': augmentation_generators.ReverseComplement()}}
-        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'data_transformation_generators': {'UniformTextMasker': data_transformation_generators.UniformTextMasker(mask='N'), 'ReverseComplement': data_transformation_generators.ReverseComplement()}}
+        self.float = {'encoder': encoders.FloatEncoder(), 'data_transformation_generators': {'GaussianNoise': data_transformation_generators.GaussianNoise()}}
         self.split = {'RandomSplitter': splitters.RandomSplitter()}        
 
 
@@ -63,4 +62,4 @@ class ProtDnaToFloatExperiment(DnaToFloatExperiment):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='X')}}
+        self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'data_transformation_generators': {'UniformTextMasker': data_transformation_generators.UniformTextMasker(mask='X')}}

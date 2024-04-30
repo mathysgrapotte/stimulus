@@ -105,23 +105,6 @@ class CsvProcessing(CsvHandler):
         split_column[test] = 2
         self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
 
-    # def add_noise(self, configs: list) -> None:
-    #     """
-    #     Adds noise to the data.
-    #     Noise is added for each column with the specified configurations.
-    #     """
-    #     # for each column configuration
-    #     for dictionary in configs:
-    #         key = dictionary['column_name']
-    #         data_type = key.split(':')[2]
-    #         noise_generator = dictionary['name']
-
-    #         # add noise to the column using the desired noise generator and params
-    #         new_column = self.experiment.get_function_noise_all(data_type, noise_generator)(list(self.data[key]), **dictionary['params'])
-
-    #         # change the column with the new values
-    #         self.data = self.data.with_columns(pl.Series(key, new_column))
-
     def transform(self, config: dict) -> None:
         """
         Transforms the data using the specified configuration.
@@ -132,8 +115,13 @@ class CsvProcessing(CsvHandler):
                 key = dictionary['column_name']
                 data_type = key.split(':')[2]
                 data_transformer = dictionary['name']
-                new_data = self.experiment.get_function_transform_all(data_type, data_transformer)(list(self.data[key]), **dictionary['params'])       
-                
+                transfomer = self.experiment.get_function_transform_all(data_type, data_transformer)
+                if transfomer.add_column:
+                    new_data = self.experiment.get_function_transform_all(data_type, data_transformer)(list(self.data[key]), **dictionary['params'])
+                    self.data = self.data.with_columns(pl.Series(key, new_data))
+                elif transfomer.add_row:
+                    # TODO implement adding rows
+                    print("Adding rows is not implemented yet.")
 
     def shuffle_labels(self) -> None:
         """
