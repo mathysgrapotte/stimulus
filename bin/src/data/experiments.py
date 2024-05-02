@@ -32,11 +32,11 @@ class AbstractExperiment(ABC):
         """
         return getattr(self, data_type)['encoder'].encode_all
 
-    def get_function_transform_all(self, data_type: str, transformation_generator: str) -> Any:
+    def get_data_transformer(self, data_type: str, transformation_generator: str) -> Any:
         """
         This method creates data augmentation for all the entries.
         """
-        return getattr(self, data_type)['data_transformation_generators'][transformation_generator].transform_all
+        return getattr(self, data_type)['data_transformation_generators'][transformation_generator]
 
     def get_function_split(self, split_method: str) -> Any:
         """

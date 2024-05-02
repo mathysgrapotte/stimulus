@@ -105,23 +105,24 @@ class CsvProcessing(CsvHandler):
         split_column[test] = 2
         self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
 
-    def transform(self, config: dict) -> None:
+    def transform(self, transformations: list) -> None:
         """
         Transforms the data using the specified configuration.
         """
-        # here it can be eithr adding noise or adding augmentation
-        for combinations in config:
-            for dictionary in combinations:
-                key = dictionary['column_name']
-                data_type = key.split(':')[2]
-                data_transformer = dictionary['name']
-                transfomer = self.experiment.get_function_transform_all(data_type, data_transformer)
-                if transfomer.add_column:
-                    new_data = self.experiment.get_function_transform_all(data_type, data_transformer)(list(self.data[key]), **dictionary['params'])
-                    self.data = self.data.with_columns(pl.Series(key, new_data))
-                elif transfomer.add_row:
-                    # TODO implement adding rows
-                    print("Adding rows is not implemented yet.")
+        for dictionary in transformations:
+            key = dictionary['column_name']
+            data_type = key.split(':')[2]
+            data_transformer = dictionary['name']
+            transfomer = self.experiment.get_data_transformer(data_type, data_transformer)
+            new_data = transfomer.transform_all(list(self.data[key]), **dictionary['params'])
+            if transfomer.modify_column:
+                self.data = self.data.with_columns(pl.Series(key, new_data))
+            elif transfomer.add_row:
+                new_rows = self.data.with_columns(pl.Series(key, new_data))
+                # append the new rows to the data
+                self.data = self.data.vstack(new_rows)
+                                 
+        
 
     def shuffle_labels(self) -> None:
         """

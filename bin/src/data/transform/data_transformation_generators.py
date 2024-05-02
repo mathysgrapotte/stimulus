@@ -15,7 +15,7 @@ class AbstractDataTransformer(ABC):
     """
 
     def __init__(self):
-        self.add_column = None
+        self.modify_column = None
         self.add_row = None
 
     @abstractmethod
@@ -42,7 +42,8 @@ class AbstractNoiseGenerator(AbstractDataTransformer):
     """
 
     def __init__(self):
-        self.add_column = True
+        super().__init__()
+        self.modify_column = True
         self.add_row = False
  
 
@@ -53,7 +54,8 @@ class AbstractAugmentationGenerator(AbstractDataTransformer):
     """
 
     def __init__(self):
-        self.add_column = False
+        super().__init__()
+        self.modify_column = False
         self.add_row = True
 
 
@@ -62,6 +64,7 @@ class UniformTextMasker(AbstractNoiseGenerator):
     This noise generators replace characters with a masking character with a given probability.
     """
     def __init__(self, mask: str) -> None:
+        super().__init__()
         self.mask = mask
 
     def transform(self, data: str, probability: float = 0.1, seed: float = None) -> str:
@@ -107,6 +110,7 @@ class ReverseComplement(AbstractAugmentationGenerator):
     This noise generators replace characters with a masking character with a given probability.
     """
     def __init__(self, type:str = "DNA") -> None:
+        super().__init__()
         if (type != "DNA"):
             raise ValueError("Currently only DNA sequences are supported. Update the class ReverseComplement to support other types.")
         if type == "DNA":
