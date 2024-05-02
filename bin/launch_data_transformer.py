@@ -19,8 +19,6 @@ def get_args():
     return args
 
 
-
-
 def main(data_csv, config_json, out_path):
     """
     This launcher will be the connection between the csv and one json configuration.
@@ -40,8 +38,8 @@ def main(data_csv, config_json, out_path):
     
     # augment the data according to what defined in the experiment class and the specifics of the user in the Json
     # in case of no augmentation generator specification so when the config has "augmentation" : None  just save a copy of the original csv file
-    if config["augmentation"]: 
-        csv_obj.add_augmentation(config["augmentation"])
+    if config["transform"]: 
+        csv_obj.transform(config["tranform"])
 
     # save the modified csv
     csv_obj.save(out_path)
