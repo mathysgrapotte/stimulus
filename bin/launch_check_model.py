@@ -106,9 +106,9 @@ class CheckModelWrapper:
     def __init__(self, model: nn.Module, config_instance: dict, data_path: str):
         self.model = model(**config_instance["model_params"])
         # get the optimizer from pytorch
-        optimizer = getattr(torch.optim, config_instance["optimizer"])
+        optimizer = getattr(torch.optim, config_instance["optimizer"]["method"])
         # get the loss function from pytorch
-        self.loss_fn = getattr(torch.nn, config_instance["loss_fn"])()
+        self.loss_fn = getattr(torch.nn, config_instance["loss_params"]["loss_fn"])()
         # instantiate the optimizer
         self.optimizer = optimizer(self.model.parameters(), **config_instance["optimizer_params"])
         # train_data is a TorchDataset object
@@ -147,7 +147,6 @@ if __name__ == "__main__":
 
     yaml = YamlRayConfigLoader("tests/test_model/titanic_model.yaml")
     config = yaml.get_config_instance()
-    print(config)
-
-
-
+    print("tested config: ", config)
+    model_wrapper = CheckModelWrapper(ModelTitanic, config, "tests/test_data/titanic/titanic_stimulus.csv")
+    model_wrapper.check_model()

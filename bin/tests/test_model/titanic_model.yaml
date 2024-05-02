@@ -8,6 +8,11 @@ model_params:
   nb_classes:
     space: [2]
     mode: choice
+
+optimizer:
+  method:
+    space: ['Adam', 'SGD']
+    mode: choice
 optimizer_params:
   lr:
     space: [0.0001, 0.1]
