@@ -113,17 +113,15 @@ class CsvProcessing(CsvHandler):
             key = dictionary['column_name']
             data_type = key.split(':')[2]
             data_transformer = dictionary['name']
+            print(data_transformer)
             transfomer = self.experiment.get_data_transformer(data_type, data_transformer)
             new_data = transfomer.transform_all(list(self.data[key]), **dictionary['params'])
             if transfomer.modify_column:
                 self.data = self.data.with_columns(pl.Series(key, new_data))
             elif transfomer.add_row:
                 new_rows = self.data.with_columns(pl.Series(key, new_data))
-                # append the new rows to the data
                 self.data = self.data.vstack(new_rows)
                                  
-        
-
     def shuffle_labels(self) -> None:
         """
         Shuffles the labels in the data.

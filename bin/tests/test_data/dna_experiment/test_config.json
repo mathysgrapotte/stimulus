@@ -4,7 +4,7 @@
         {
             "column_name": "hello:input:dna",
             "name": "UniformTextMasker",
-            "params": {"probability": 0.1 }
+            "params": {"probability": 0.1, "seed": 0}
         },
         {
             "column_name": "hola:label:float",
