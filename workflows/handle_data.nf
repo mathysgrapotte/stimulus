@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INTERPRET_JSON } from '../modules/interpret_json.nf'
+include { INTERPRET_JSON } from '../modules/local/interpret_json.nf'
 include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
 include { NOISE_CSV      } from '../subworkflows/noise_csv.nf'
 include { SHUFFLE_CSV    } from '../subworkflows/shuffle_csv.nf'
