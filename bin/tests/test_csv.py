@@ -110,16 +110,20 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     def test_len(self):
         self._test_len()
 
-    # def test_split_and_noise(self):
-    #     self._test_first_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
-    #     self._test_first_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
-    #     self._test_first_value_from_column('hola:label:float', 12)
-    #     self._add_split()
-    #     self._test_random_splitter([1, 0])
-    #     self._transform()
-    #     self._test_first_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLX')
-    #     self._test_first_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
-    #     self._test_first_value_from_column('hola:label:float', 12.68)
+    def test_split_and_noise(self):
+        self._test_first_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
+        self._test_first_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
+        self._test_first_value_from_column('hola:label:float', 12)
+        self._add_split()
+        self._test_random_splitter([1, 0])
+        self._transform()
+        self.data_length = self.data_length * 2
+        self._test_len()
+        self._test_all_values_in_column('pet:meta:str', ['cat', 'dog', 'cat', 'dog'])
+        self._test_all_values_in_column('hola:label:float', [12.68, 12.54, 12.68, 12.54])
+        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATNN', 'NNATCGATCAGTCAGT', 'NNATCGATCAGTCAGT'])
+        self._test_all_values_in_column('split:split:int', [1, 0, 1, 0])
+        self._test_all_values_in_column('bonjour:input:prot', ['GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX'])
 
 class AbstractTestCsvLoader(unittest.TestCase):
     """

@@ -1,7 +1,7 @@
 """
 unit test cases for the noise_generators file shold be written like the following
 
-Test case for the GaussianNoise class.
+Test case for the Transform class.
 
 To write test cases for a new noise generator class:
 1. Create a new test case class by subclassing unittest.TestCase.
