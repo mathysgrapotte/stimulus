@@ -24,6 +24,7 @@ class TuneWrapper():
             raise ValueError("Data path does not exist. Given path:" + data_path)
         self.config["data_path"] = os.path.abspath(data_path)
         
+        # build the tune config
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 

@@ -7,7 +7,14 @@ import src.data.handlertorch as handlertorch
 from copy import deepcopy
 from src.utils.yaml_model_schema import YamlRayConfigLoader
 from launch_utils import import_class_from_file, get_experiment
-    
+
+def arg_parser():
+    parser = argparse.ArgumentParser(description="Launch check_model")
+    parser.add_argument("--input", type=str, help="Path to input csv file", required=True)
+    parser.add_argument("--model", type=str, help="Path to model file", required=False)
+    parser.add_argument("--experiment", type=str, help="Experiment to run", required=True)
+    parser.add_argument("--config", type=str, help="Path to json config training file", required=False)
+    return parser.parse_args()
 class CheckModelWrapper:
     def __init__(self, model: nn.Module, config_instance: dict, data_path: str, experiment: object):
         self.model = model(**config_instance["model_params"])
@@ -38,17 +45,7 @@ class CheckModelWrapper:
         # print the computed loss, displaying loss_fn name as well
         print(f"Loss computed with {self.loss_fn.__class__.__name__} is {loss.item()}")
 
-
-def arg_parser():
-    parser = argparse.ArgumentParser(description="Launch check_model")
-    parser.add_argument("--input", type=str, help="Path to input csv file", required=True)
-    parser.add_argument("--model", type=str, help="Path to model file", required=False)
-    parser.add_argument("--experiment", type=str, help="Experiment to run", required=True)
-    parser.add_argument("--config", type=str, help="Path to json config training file", required=False)
-    return parser.parse_args()
-
-if __name__ == "__main__":
-
+def main():
     args = arg_parser()
     Model = import_class_from_file(args.model)
     experiment = get_experiment(args.experiment)
@@ -58,3 +55,7 @@ if __name__ == "__main__":
     print("tested config: ", config_instance)
     model_wrapper = CheckModelWrapper(Model, config_instance, args.input, experiment)
     model_wrapper.check_model()
+
+if __name__ == "__main__":
+
+    main()
