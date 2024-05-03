@@ -1,0 +1,43 @@
+model_params:
+  kernel_size:
+    space: [3]
+    mode: choice
+  pool_size:
+    space: [2]
+    mode: choice
+
+optimizer:
+  method:
+    space: ['Adam']
+    mode: choice
+
+optimizer_params:
+  lr:
+    space: [0.0001, 0.1]
+    mode: loguniform
+
+data_params:
+  batch_size:
+    space: [16, 32, 64, 128, 256]
+    mode: choice
+
+loss_params:
+  loss_fn1:
+    space: ['MSELoss']
+    mode: choice
+  loss_fn2:
+    space: ['SmoothL1Loss']
+    mode: choice
+
+tune:
+  config_name: "tune_config"
+  tune_params:
+    metric: "val_loss"
+    mode: "min"
+    num_samples: 10
+  scheduler:
+    name: "ASHAScheduler"
+    params:
+      max_t: 10
+      grace_period: 1
+  step_size: 1

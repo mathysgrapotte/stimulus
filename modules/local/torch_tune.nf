@@ -1,5 +1,5 @@
 
-process TORCH_TRAIN {
+process TORCH_TUNE {
 
     container "alessiovignoli3/stimulus:latest"
     label 'process_high'
@@ -14,6 +14,6 @@ process TORCH_TRAIN {
 
     script:
     """
-    launch_training.py -c ${ray_tune_config} -m ${model} -d ${data_csv} -j ${parsed_json}
+    launch_tuning.py -c ${ray_tune_config} -m ${model} -d ${data_csv} -j ${parsed_json}
     """
 }
