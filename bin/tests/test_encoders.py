@@ -31,7 +31,7 @@ class TestMyClass(unittest.TestCase):
 import numpy as np
 import numpy.testing as npt
 import unittest
-from bin.src.data.encoding.encoders import TextOneHotEncoder
+from bin.src.data.encoding.encoders import TextOneHotEncoder, IntRankEncoder, StrClassificationIntEncoder 
 
 
 class TestTextOneHotEncoderDna(unittest.TestCase):
@@ -98,6 +98,31 @@ class TestTextOneHotEncoderDna(unittest.TestCase):
         self.assertEqual(encoded_data[1].shape, (3, 4))
         self.assertEqual(encoded_data[2].shape, (2, 4))
 
+class TestIntRankEncoder(unittest.TestCase):
+
+    def setUp(self):
+        self.int_encoder = IntRankEncoder()
+
+    def test_encode(self):
+
+        # Test encoding a list of integers
+        encoded_data_list = self.int_encoder.encode_all([1, 2, 3])
+        self.assertIsInstance(encoded_data_list, np.ndarray)
+        self.assertEqual(encoded_data_list.shape, (3,))
+        npt.assert_array_equal(encoded_data_list, np.array([0, 0.5, 1]), "The encoded list is not correct")
+
+class TestStrClassificationIntEncoder(unittest.TestCase):
+
+    def setUp(self):
+        self.str_encoder = StrClassificationIntEncoder()
+
+    def test_encode(self):
+
+        # Test encoding a list of strings
+        encoded_data_list = self.str_encoder.encode_all(["A", "B", "C", "A"])
+        self.assertIsInstance(encoded_data_list, np.ndarray)
+        self.assertEqual(encoded_data_list.shape, (4,))
+        npt.assert_array_equal(encoded_data_list, np.array([0, 1, 2, 0]), "The encoded list is not correct")
 
 if __name__ == "__main__":
     unittest.main()

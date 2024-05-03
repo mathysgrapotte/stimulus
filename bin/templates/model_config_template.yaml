@@ -1,0 +1,41 @@
+model_params:
+  param_to_optimize_1: # name of the parameter to optimize, should match the name of the parameter in the model
+    space: ['space to optimize param 1', 'space to optimize param 2'] # space to optimize definition, as given to Ray
+    mode: RayFunction # mode to define the space, for instance choice, randint, loguniform, uniform... check Ray documentation
+
+optimizer:
+  method:
+    space: ['optimizer1', 'optimizer2'] # a choice of optimizers to use for optimization
+    mode: choice
+
+optimizer_params:
+  lr:
+    space: ['lower_bound', 'upper_bound'] # defining the space for learning rate search
+    mode: loguniform
+
+loss_params:
+  loss_fn: # loss function name, should match the name of the loss function in the model "batch" method
+    space: ['loss_fn1', 'loss_fn2'] # a choice of loss functions to use for optimization
+    mode: choice
+
+data_params:
+  batch_size:
+    space: [16, 32, 64, 128, 256] # defining the space for batch size search
+    mode: choice
+
+tune:
+  config_name: "name of Ray config"
+  tune_params:
+    metric: "name of metric to optimize" # should match available metrics as defined in the raytune_learner.py (currently only "val_loss" is available)
+    mode: "max" # max or min
+    num_samples: 10 # number of samples to try
+  scheduler:
+    name: "name of Ray scheduler"
+    params:
+      param1: value1
+      param2: value2
+      param3: value3
+  step_size: 1
+  
+
+

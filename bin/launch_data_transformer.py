@@ -19,14 +19,10 @@ def get_args():
     return args
 
 
-
-
 def main(data_csv, config_json, out_path):
     """
     This launcher will be the connection between the csv and one json configuration.
     It should also handle some sanity checks.
-
-    TODO what happens when the user write his own experiment class? how should he do it ? how does it integrates here?
     """
     
     # open and read Json
@@ -40,16 +36,13 @@ def main(data_csv, config_json, out_path):
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
     
-    # noise the data according to what defined in the experiment class and the specifics of the user in the Json
-    # in case of no noiser specification so when the config has "noise" : None  just save a copy of the original csv file, hat will later be removed by the pipeline when the split has been performed
-    if config["noise"]: 
-        csv_obj.add_noise(config["noise"])
+    # Transform the data according to what defined in the experiment class and the specifics of the user in the Json
+    # in case of no transformation specification so when the config has "augmentation" : None  just save a copy of the original csv file
+    if config["transform"]: 
+        csv_obj.transform(config["tranform"])
 
     # save the modified csv
     csv_obj.save(out_path)
-
-
-
 
 
 if __name__ == "__main__":

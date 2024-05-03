@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from .splitters import splitters as splitters
 from .encoding import encoders as encoders
-from .noise import noise_generators as noise_generators
+from .transform import data_transformation_generators as data_transformation_generators
 
 
 class AbstractExperiment(ABC):
@@ -31,12 +31,12 @@ class AbstractExperiment(ABC):
         This method gets the encoding function for a specific data type.
         """
         return getattr(self, data_type)['encoder'].encode_all
-    
-    def get_function_noise_all(self, data_type: str, noise_generator: str) -> Any:
+
+    def get_data_transformer(self, data_type: str, transformation_generator: str) -> Any:
         """
-        This method adds noise to all the entries.
+        This method transforms the data (noising, data augmentation etc).
         """
-        return getattr(self, data_type)['noise_generators'][noise_generator].add_noise_all
+        return getattr(self, data_type)['data_transformation_generators'][transformation_generator]
 
     def get_function_split(self, split_method: str) -> Any:
         """
@@ -51,9 +51,9 @@ class DnaToFloatExperiment(AbstractExperiment):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='N')}}
-        self.float = {'encoder': encoders.FloatEncoder(), 'noise_generators': {'GaussianNoise': noise_generators.GaussianNoise()}}
-        self.split = {'RandomSplitter': splitters.RandomSplitter()}
+        self.dna = {'encoder': encoders.TextOneHotEncoder(alphabet='acgt'), 'data_transformation_generators': {'UniformTextMasker': data_transformation_generators.UniformTextMasker(mask='N'), 'ReverseComplement': data_transformation_generators.ReverseComplement()}}
+        self.float = {'encoder': encoders.FloatEncoder(), 'data_transformation_generators': {'GaussianNoise': data_transformation_generators.GaussianNoise()}}
+        self.split = {'RandomSplitter': splitters.RandomSplitter()}        
 
 
 class ProtDnaToFloatExperiment(DnaToFloatExperiment):
@@ -62,4 +62,17 @@ class ProtDnaToFloatExperiment(DnaToFloatExperiment):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'noise_generators': {'UniformTextMasker': noise_generators.UniformTextMasker(mask='X')}}
+        self.prot = {'encoder': encoders.TextOneHotEncoder(alphabet='acdefghiklmnpqrstvwy'), 'data_transformation_generators': {'UniformTextMasker': data_transformation_generators.UniformTextMasker(mask='X')}}
+
+class TitanicExperiment(AbstractExperiment):
+    """
+    Class for dealing with the Titanic dataset as a test format.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.int_class = {'encoder': encoders.IntEncoder(), 'noise_generators': {}}
+        self.str_class = {'encoder': encoders.StrClassificationIntEncoder(), 'noise_generators': {}}
+        self.int_reg = {'encoder': encoders.IntRankEncoder(), 'noise_generators': {}}
+        self.float_rank = {'encoder': encoders.FloatRankEncoder(), 'noise_generators': {}}
+
