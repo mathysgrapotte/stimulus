@@ -98,7 +98,7 @@ class TuneModel(Trainable):
 
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
-                self.model.batch(x, y, self.optimizer, **self.loss_dict)
+                self.model.batch(x=x, y=y, optimizer=self.optimizer, **self.loss_dict)
         return self.objective()
 
     def objective(self) -> dict:
@@ -118,7 +118,7 @@ class TuneModel(Trainable):
         self.model.eval()
         with torch.no_grad():
             for x, y, meta in self.validation:
-                loss += self.model.step(x, y, self.loss_dict).item()
+                loss += self.model.batch(x, y, **self.loss_dict).item()
         loss /= len(self.validation)
         return loss
         

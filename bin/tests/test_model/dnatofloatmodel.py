@@ -13,7 +13,7 @@ class AbstractModel(torch.nn.Module, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def step(self) -> torch.Tensor:
+    def batch(self) -> torch.Tensor:
         """
         One step of the model with a forward pass and a loss calculation.
         """
@@ -36,11 +36,19 @@ class ModelSimple(AbstractModel):
         x = x.squeeze()
         return x
     
-    def batch(self, x, y, loss_dict) -> torch.Tensor:
+    def compute_loss(self, output, loss_fn, hola):
+        return loss_fn(output, hola.to(torch.float32))
+    
+    def batch(self, x, y, loss_fn1, loss_fn2, optimizer=None) -> torch.Tensor:
         output = self(**x)
-        loss = {}
-        for key, dic in loss_dict.items():
-            f = getattr(nn, dic['function'])()
-            loss[key] =  f(output, y[dic['target']].to(torch.float32))
-        loss = sum(loss.values())
-        return loss
+        loss1 = self.compute_loss(output, loss_fn1, **y)
+        loss2 = self.compute_loss(output, loss_fn2, **y)
+        if optimizer is None: # if no optimizer is passed, return the losses
+            return loss1
+        
+        optimizer.zero_grad()
+        loss1.backward(retain_graph=True)
+        loss2.backward(retain_graph=True)
+        optimizer.step()
+
+        return loss1

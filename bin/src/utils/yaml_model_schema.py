@@ -39,7 +39,7 @@ class YamlRayConfigLoader():
         # We return the config as a dictionary of dictionaries, where the values are the converted values from the space.
 
         new_config = deepcopy(config)
-        for key in ["model_params", "loss_params", "optimizer_params", "data_params"]:
+        for key in ["model_params", "loss_params", "optimizer_params", "data_params", "optimizer"]:
             for sub_key in config[key]:
                 new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
 
@@ -50,8 +50,9 @@ class YamlRayConfigLoader():
         # the config is a dictionary of dictionaries. The main dictionary keys are either model_params, loss_params or optimizer_params.
         # The sub-dictionary keys are the parameters of the model, loss or optimizer, those params include two values, space and mode.
 
-        config_instance = {}
-        for key in ["model_params", "loss_params", "optimizer_params"]:
+        config_instance = deepcopy(self.config)
+        for key in ["model_params", "loss_params", "optimizer_params", "data_params", "optimizer"]:
+            config_instance[key] = {}
             for sub_key in self.config[key]:
                 config_instance[key][sub_key] = self.config[key][sub_key].sample()
 
