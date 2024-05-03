@@ -14,7 +14,7 @@ process STIMULUS_NOISE_CSV {
     script:
     output = "${splitted_csv.baseName}-noised.csv"
     """
-    launch_noise_csv.py -c ${splitted_csv} -j ${parsed_json} -o ${output}
+    launch_data_transformer.py -c ${splitted_csv} -j ${parsed_json} -o ${output}
     """
 
     stub:
