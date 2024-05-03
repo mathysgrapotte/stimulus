@@ -39,7 +39,7 @@ class TestTuneModel(unittest.TestCase):
         self.assertIsInstance(obj["val_loss"], float)
 
     def test_compute_val_loss(self):
-        val_loss = self.learner.compute_val_loss()
+        val_loss = self.learner.compute_validation_loss()
         self.assertIsInstance(val_loss, float)
 
     def test_export_model(self):
