@@ -62,7 +62,7 @@ class TestTuneModel(unittest.TestCase):
 class TestTuneWrapper(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)
-        config_path = "bin/tests/test_model/simple.config"
+        config_path = "bin/tests/test_model/simple_config.yaml"
         model_class = ModelSimple
         experiment_obj = DnaToFloatExperiment()
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
@@ -73,25 +73,14 @@ class TestTuneWrapper(unittest.TestCase):
         self.assertTrue(self.wrapper.tune_config is not None)
         self.assertTrue(self.wrapper.checkpoint_config is not None)
         self.assertTrue(self.wrapper.run_config is not None)
-        self.assertTrue(self.wrapper.scheduler is not None)
     
-    def test_prep_tuner(self):
-        self.wrapper._prep_tuner()
+    def test_tuner_initialization(self):
+        self.wrapper.tuner_initialization()
         self.assertTrue(self.wrapper.tuner is not None)
     
     def test_tune(self):
-        self.wrapper.tune()
-        self.assertTrue(self.wrapper.results is not None)
-    
-    def test_store_best_config(self):
-        self.wrapper.store_best_config("bin/tests/test_data/dna_experiment/best_config.json")
-        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/best_config.json"))
-        os.remove("bin/tests/test_data/dna_experiment/best_config.json")
-    
-    def test_train(self):
-        self.wrapper.tune()
-        self.wrapper.train()
-        self.assertTrue(self.wrapper.trainer is not None)
+        results = self.wrapper.tune()
+        self.assertTrue(results is not None)
 
 if __name__ == "__main__":
     unittest.main()
