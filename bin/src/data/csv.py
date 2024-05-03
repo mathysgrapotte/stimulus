@@ -164,8 +164,8 @@ class CsvProcessing(CsvHandler):
                 transformed_data = data_to_transform.with_columns(pl.Series(key, new_data))
                 # make sure the column has the same type as the new data
                 # this is necessary because the transformer could change the type of the column (e.g. from int to float) 
-                data_type_new = str(transformed_data[key].dtype)
-                untransformed_data = untransformed_data.with_columns(pl.col(key).cast(getattr(pl, data_type_new)))
+                transformed_data_type = str(transformed_data[key].dtype)
+                untransformed_data = untransformed_data.with_columns(pl.col(key).cast(getattr(pl, transformed_data_type)))
  
                 # If the transformer is only for training data, we need to concatenate the transformed data with the untransformed data
                 if transfomer.training_data_only:
