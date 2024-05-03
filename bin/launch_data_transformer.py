@@ -38,7 +38,7 @@ def main(data_csv, config_json, out_path):
     
     # Transform the data according to what defined in the experiment class and the specifics of the user in the Json
     # in case of no transformation specification so when the config has "augmentation" : None  just save a copy of the original csv file
-    if config["transform"]: 
+    if "transform" in config: 
         csv_obj.transform(config["tranform"])
 
     # save the modified csv
