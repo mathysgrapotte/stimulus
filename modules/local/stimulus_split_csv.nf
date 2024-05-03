@@ -1,6 +1,6 @@
 process STIMULUS_SPLIT_CSV {
     
-    tag "$csv"
+    tag "$parsed_json"
     label 'process_low'
     container 'alessiovignoli3/stimulus:latest'
 
@@ -20,6 +20,5 @@ process STIMULUS_SPLIT_CSV {
     output = "${csv.baseName}-${parsed_json.baseName}.csv"
     """
     touch ${output}
-    echo "launch_split_csv.py -c ${csv} -j ${parsed_json} -o ${output}" > launch_split_csv.sh
     """
 }
