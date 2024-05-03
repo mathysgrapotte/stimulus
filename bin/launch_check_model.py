@@ -27,7 +27,7 @@ class CheckModelWrapper:
 
         x, y, meta = next(iter(self.train_data))
         # train the model for one epoch
-        loss = self.model.epoch(x, y, self.loss_fn, self.optimizer)
+        loss = self.model.batch(x, y, self.loss_fn, self.optimizer)
         # check the model weights have changed, and print if it has
         for key in initial_model_weights:
             if torch.equal(initial_model_weights[key], self.model.state_dict()[key]):
