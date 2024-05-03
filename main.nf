@@ -39,15 +39,13 @@ workflow {
         params.exp_conf
     )
     prepared_data = HANDLE_DATA.out.data
-    //HANDLE_DATA.out.debug.view()
-    //HANDLE_DATA.out.data.view()
     
     HANDLE_TRAIN(
         params.model,
         params.train_conf,
         prepared_data
     )
-    //HANDLE_TRAIN.out.debug.view()
+
     HANDLE_TRAIN.out.data.view()
     
     // HANDLE_ANALYSIS()
