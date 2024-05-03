@@ -31,23 +31,35 @@ class AbstractTestCsvProcessing(unittest.TestCase):
             col = self.csv_processing.data['split:split:int'][i]
             self.assertEqual(self.csv_processing.data['split:split:int'][i], expected_splits[i])
 
-    def _add_noise(self):
-        self.csv_processing.add_noise(self.configs['noise'])
+    def _transform(self):
+        self.csv_processing.transform(self.configs['transform'])
 
-    def _test_value_from_column(self, column_name, expected_value, position=0):
+    def _test_first_value_from_column(self, column_name, expected_value, position=0):
         """
         It tests the first value of a specific column.
         """
         observed_value = list(self.csv_processing.data[column_name])[position]
         if isinstance(observed_value, float):
-            observed_value = round(observed_value, 2)
+            observed_value = round(observed_value, 6)
         self.assertEqual(observed_value, expected_value)
+    
+    def _test_all_values_in_column(self, column_name, expected_values):
+        """
+        It tests all the values of a specific column.
+        """
+        observed_values = list(self.csv_processing.data[column_name])
+        for i in range(len(observed_values)):
+            if isinstance(observed_values[i], float):
+                observed_values[i] = round(observed_values[i], 6)
+        self.assertEqual(observed_values, expected_values)
 
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
     """
     Test CsvProcessing class for DnaToFloatExperiment
     """
     def setUp(self):
+        np.random.seed(123)
+        pl.set_random_seed(123)
         self.experiment = DnaToFloatExperiment()
         self.csv_path = os.path.abspath("bin/tests/test_data/dna_experiment/test.csv")
         self.csv_processing = CsvProcessing(self.experiment, self.csv_path)
@@ -63,15 +75,18 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_len()
 
     def test_split_and_noise(self):
-        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
-        self._test_value_from_column('hola:label:float', 12)
+        self._test_first_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
+        self._test_first_value_from_column('hola:label:float', 12)
         self._add_split()
         self._test_random_splitter([1, 0])
-        self._add_noise()
-        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
-        self._test_value_from_column('hola:label:float', 12.68)
-        self._test_value_from_column('pet:meta:str', 'cat')
-
+        self._transform()
+        self.data_length = self.data_length * 2
+        self._test_len()
+        self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
+        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
+        self._test_all_values_in_column('split:split:int', [0, 1, 0, 1])
+        
     def test_shuffle_labels(self):
         # initialize seed to 42 to make the test reproducible
         np.random.seed(42)
@@ -96,15 +111,19 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._test_len()
 
     def test_split_and_noise(self):
-        self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
-        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
-        self._test_value_from_column('hola:label:float', 12)
+        self._test_first_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLK')
+        self._test_first_value_from_column('hello:input:dna', 'ACTGACTGATCGATGC')
+        self._test_first_value_from_column('hola:label:float', 12)
         self._add_split()
         self._test_random_splitter([1, 0])
-        self._add_noise()
-        self._test_value_from_column('bonjour:input:prot', 'GPRTTIKAKQLETLX')
-        self._test_value_from_column('hello:input:dna', 'ACTGACTGATCGATNN')
-        self._test_value_from_column('hola:label:float', 12.68)
+        self._transform()
+        self.data_length = self.data_length * 2
+        self._test_len()
+        self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
+        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
+        self._test_all_values_in_column('split:split:int', [0, 1, 0,1])
+        self._test_all_values_in_column('bonjour:input:prot', ['GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK'])
 
 class AbstractTestCsvLoader(unittest.TestCase):
     """
