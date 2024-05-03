@@ -86,8 +86,8 @@ def main(config_json: str, out_dir_path: str) -> str:
     # interpret the json
     list_json = interpret_json(config)
     
-    # write all the resultin json files
-    # Create the directory if it doesn't exist
+    # write all the resulting json files
+    # create the directory if it doesn't exist
     os.makedirs(out_dir_path, exist_ok=True)
 
     # Populate the directory with files containing the single SJon combination

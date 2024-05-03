@@ -16,14 +16,11 @@ include { TORCH_TUNE } from '../modules/local/torch_tune.nf'
 workflow HANDLE_TUNE {
 
     take:
-
     input_model
     input_tune_config
     data
 
-
     main:
-
     // put the files in channels, 
     model        = Channel.fromPath( input_model  ).first()  // TODO implement a check and complain if more that one file is pased as model
     tune_config = Channel.fromPath( input_tune_config )
@@ -36,8 +33,6 @@ workflow HANDLE_TUNE {
     TORCH_TUNE( model_conf_data )
 
     emit:
-
-    debug = TORCH_TUNE.out.standardout
     data  = TORCH_TUNE.out.tune_specs
 
 }

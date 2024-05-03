@@ -19,13 +19,11 @@ include { SHUFFLE_CSV    } from '../subworkflows/shuffle_csv.nf'
 workflow HANDLE_DATA {
 
     take:
-
     input_csv
     input_json
 
 
     main:
-
     // put the files in channels
     csv  = Channel.fromPath( input_csv  )
     json = Channel.fromPath( input_json )
@@ -49,10 +47,7 @@ workflow HANDLE_DATA {
     // merge output of shuffle to the output of noise
     data = NOISE_CSV.out.noised_data.concat(SHUFFLE_CSV.out.shuffle_data)
 
-
     emit:
-
-    debug = NOISE_CSV.out.debug
     data
 
 }

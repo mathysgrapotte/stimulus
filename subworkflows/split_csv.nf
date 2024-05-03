@@ -17,7 +17,6 @@ workflow SPLIT_CSV {
     take:
     data_csv
     json
-    
 
     main:
 
@@ -25,10 +24,7 @@ workflow SPLIT_CSV {
     csv_json_pairs = data_csv.combine(json)
     STIMULUS_SPLIT_CSV( csv_json_pairs )
 
-
     emit:
-
-    debug       = STIMULUS_SPLIT_CSV.out.standardout
     split_data  = STIMULUS_SPLIT_CSV.out.csv_with_split
 
 }
