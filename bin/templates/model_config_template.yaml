@@ -18,6 +18,11 @@ loss_params:
     space: ['loss_fn1', 'loss_fn2'] # a choice of loss functions to use for optimization
     mode: choice
 
+data_params:
+  batch_size:
+    space: [16, 32, 64, 128, 256] # defining the space for batch size search
+    mode: choice
+
 tune:
   config_name: "name of Ray config"
   tune_params:
@@ -30,6 +35,7 @@ tune:
       param1: value1
       param2: value2
       param3: value3
+  step_size: 1
   
 
 

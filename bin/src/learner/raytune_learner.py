@@ -82,17 +82,12 @@ class TuneModel(Trainable):
         self.optimizer = getattr(optim, config["optimizer"]["method"])(self.model.parameters(), lr=optimizer_lr)
 
         # get step size from the config
-        self.step_size = config['step_size']
+        self.step_size = config["tune"]['step_size']
 
         # get the train and validation data from the config
         # run dataloader on them
         self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
-
-        # The tuning variable is used to determine whether the model is being tuned or trained.
-        # This is used to determin which data to use (training or validation).
-        # TODO we could implement this outside of this class
-        self.tuning = False
 
     def step(self) -> dict:
         """
@@ -142,13 +137,3 @@ class TuneModel(Trainable):
         }
         torch.save(checkpoint, checkpoint_dir)
         return checkpoint
-         
-    
-
-        
-
-
-
-        
-
-
