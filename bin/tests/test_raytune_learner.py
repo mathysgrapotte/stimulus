@@ -4,9 +4,8 @@ import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel as RayTuneLearner
 from bin.tests.test_model.dnatofloatmodel import ModelSimple
-from bin.src.learner.raytune_learner import TuneTrainWrapper 
+from bin.src.learner.raytune_learner import TuneWrapper 
 from torch.utils.data import DataLoader
-from ray import train, tune
 
 class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
@@ -61,15 +60,14 @@ class TestRayTuneLearner(unittest.TestCase):
         self.learner.load_checkpoint(checkpoint)
         os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
 
-
-class TestTrainTuneWrapper(unittest.TestCase):
+class TestTuneWrapper(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)
         config_path = "bin/tests/test_model/simple.config"
         model_class = ModelSimple
         experiment_obj = DnaToFloatExperiment()
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
-        self.wrapper = TuneTrainWrapper(config_path, model_class, data_path, experiment_obj)
+        self.wrapper = TuneWrapper(config_path, model_class, data_path, experiment_obj)
     
     def test_setup(self):
         self.assertIsInstance(self.wrapper.config, dict)
