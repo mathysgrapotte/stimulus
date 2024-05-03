@@ -149,8 +149,6 @@ class CsvProcessing(CsvHandler):
             # If the transformer modifies the column, we need to replace the column
             if transfomer.modify_column:
                 transformed_data = data_to_transform.with_columns(pl.Series(key, new_data))
-                print(transformed_data)
-                print(untransformed_data)
                 # If the transformer is only for training data, we need to concatenate the transformed data with the untransformed data
                 if transfomer.training_data_only:
                     self.data = transformed_data.vstack(untransformed_data)
