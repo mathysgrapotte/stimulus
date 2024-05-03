@@ -68,7 +68,26 @@ class CsvHandler:
         """
         Loads the csv file into a polars dataframe.
         """
-        return pl.read_csv(self.csv_path)
+        # If the meta of a column is float, convert it to float
+        # if int convert it to int
+        # if str, keep it as str
+        # else leave it as it as string
+        # TODO make it a more stable check 
+        with open(self.csv_path, 'r') as f:
+            header = f.readline().strip().split(',')
+            schema = {}
+            for key in header:
+                name, category, dtype = key.split(":")
+                if dtype == "int":
+                    schema[key] = pl.Int64
+                elif dtype == "float":
+                    schema[key] = pl.Float64
+                elif dtype == "str":
+                    schema[key] = pl.Utf8
+                else:
+                    schema[key] = pl.Utf8
+        return pl.read_csv(self.csv_path, schema=schema)
+            
 
 class CsvProcessing(CsvHandler):
     """
@@ -113,13 +132,33 @@ class CsvProcessing(CsvHandler):
             key = dictionary['column_name']
             data_type = key.split(':')[2]
             data_transformer = dictionary['name']
-            print(data_transformer)
             transfomer = self.experiment.get_data_transformer(data_type, data_transformer)
-            new_data = transfomer.transform_all(list(self.data[key]), **dictionary['params'])
+            
+            # If the transformer is only for training data, we need to separate the data
+            # and transform only the training data
+            if transfomer.training_data_only:
+                data_to_transform = self.data.filter(pl.col('split:split:int') == 0)
+                untransformed_data = self.data.filter(pl.col('split:split:int') != 0)
+            else: 
+                data_to_transform = self.data
+            
+            # Transform the data
+            new_data = transfomer.transform_all(list(data_to_transform[key]), **dictionary['params'])
+            
+            # Add the transformed data to the dataframe
+            # If the transformer modifies the column, we need to replace the column
             if transfomer.modify_column:
-                self.data = self.data.with_columns(pl.Series(key, new_data))
+                transformed_data = data_to_transform.with_columns(pl.Series(key, new_data))
+                print(transformed_data)
+                print(untransformed_data)
+                # If the transformer is only for training data, we need to concatenate the transformed data with the untransformed data
+                if transfomer.training_data_only:
+                    self.data = transformed_data.vstack(untransformed_data)
+                else:
+                    self.data = transformed_data
+            # If the transformer adds a row, we need to add the new rows to the dataframe
             elif transfomer.add_row:
-                new_rows = self.data.with_columns(pl.Series(key, new_data))
+                new_rows = data_to_transform.with_columns(pl.Series(key, new_data))
                 self.data = self.data.vstack(new_rows)
                                  
     def shuffle_labels(self) -> None:
