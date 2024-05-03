@@ -36,8 +36,8 @@ def main(data_csv, config_json, out_path):
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
     
-    # augment the data according to what defined in the experiment class and the specifics of the user in the Json
-    # in case of no augmentation generator specification so when the config has "augmentation" : None  just save a copy of the original csv file
+    # Transform the data according to what defined in the experiment class and the specifics of the user in the Json
+    # in case of no transformation specification so when the config has "augmentation" : None  just save a copy of the original csv file
     if config["transform"]: 
         csv_obj.transform(config["tranform"])
 
