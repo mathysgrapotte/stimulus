@@ -10,7 +10,7 @@
         {
             "column_name": "hello:input2:prot",
             "name": ["UniformTextMasker", "AnotherNoiser"],
-            "params": ["default"]
+            "params": ["default", "default"]
         },
         {
             "column_name": "hola:label:float",
@@ -21,7 +21,7 @@
     "split": [
         {
             "name": "RandomSplitter",
-            "params": [{"split": [[0.6, 0.8], [0.7, 0.85]]}]
+            "params": [{"split": [[0.6, 0.2, 0.2], [0.7, 0.15, 0.15]]}]
         },
         {
             "name": "SomeSplitter",
@@ -30,46 +30,37 @@
     ],
     "custom": [
         {
-            "1": {
-                "noise": [
-                    {
-                        "column_name": "input1",
-                        "name": ["UniformTextMasker"],
-                        "params": [{"probability": [0.1]}]
-                    },
-                    {
-                        "column_name": "input2",
-                        "name": "GaussianNoise",
-                        "params": [{"mean": [0.5], "std": [0.1]}]
-                    }
-                ],
-                "split": [
-                    {
-                        "name": "RandomSplitter",
-                        "params": [{"split": [0.6, 0.8]}]
-                    }
-                ]  
-            },
-            "2": {
-                "noise": [
-                    {
-                        "column_name": "input2",
-                        "name": ["UniformTextMasker"],
-                        "params": [{"probability": [0.1]}]
-                    },
-                    {
-                        "column_name": "float",
-                        "name": "GaussianNoise",
-                        "params": [{"mean": [0.5], "std": [0.1]}]
-                    }
-                ],
-                "split": [
-                    {
-                        "name": "RandomSplitter",
-                        "params": [{"split": [0.6, 0.8]}]
-                    }
-                ]
-            }
-    }
+            "noise": [
+                {
+                    "column_name": "hello:input:dna",
+                    "name": "UniformTextMasker",
+                    "params": {"probability": 0.1}
+                },
+                {
+                    "column_name": "hola:label:float",
+                    "name": "GaussianNoise",
+                    "params": {"mean": 0.4, "std": 0.15}
+                }
+            ],
+            "split": 
+                {
+                    "name": "RandomSplitter",
+                    "params": {"split": [0.6, 0.4, 0]}
+                }
+        },
+        {
+            "noise": [
+                {
+                    "column_name": "hello:input:dna",
+                    "name": "UniformTextMasker",
+                    "params": {"probability": 0.1}
+                }
+            ],
+            "split": 
+                {
+                    "name": "RandomSplitter",
+                    "params": {"split": [0.6, 0.3, 0.1]}
+                }
+        }
     ]
 }

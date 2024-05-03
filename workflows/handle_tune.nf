@@ -4,7 +4,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+<<<<<<< HEAD:workflows/handle_tune.nf
 include { TORCH_TUNE } from '../modules/torch_tune.nf'
+=======
+include { TORCH_TRAIN } from '../modules/local/torch_train.nf'
+>>>>>>> main:workflows/handle_train.nf
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

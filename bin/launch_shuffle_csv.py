@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 from src.data.csv import CsvProcessing
 import src.data.experiments as exp
 
@@ -23,27 +24,36 @@ def get_args():
 
 def main(data_csv, config_json, out_path):
     """
-    This launcher will be the connection between the csv and one json configuration.
-    It should also handle some sanity checks.
+    This scripts shuffles the data and then splits it acording to the default split method, most likely RandomSplit.
 
-    TODO what happens when the user write his own experiment class? how should he do it ? how does it integrates here?
+    TODO major changes when this is going to select a given shuffle method and integration with split.
     """
     
-    # open and read Json
+    # open and read Json, jsut to extract the experiment name, so all other fields are scratched
     config = {}
     with open(config_json, 'r') as in_json:
-        config = json.load(in_json)
+        tmp = json.load(in_json)
+        config["experiment"] = tmp["experiment"]
+        config["split"] = {"name": "RandomSplitter", "params": {}}
+
+    # write the config modified, this will be associated to the shuffled data. TODO better solution to renaming like this
+    modified_json = os.path.splitext(os.path.basename(data_csv))[0] + '-shuffled.json'
+    with open(modified_json, 'w') as out_json:
+        json.dump(config, out_json)
 
     # initialize the experiment class
     exp_obj = getattr(exp, config["experiment"])() 
 
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
-    
-    # noise the data according to what defined in the experiment class and the specifics of the user in the Json
-    # in case of no noiser specification so when the config has "noise" : None  just save a copy of the original csv file, hat will later be removed by the pipeline when the split has been performed
-    if config["noise"]: 
-        csv_obj.add_noise(config["noise"])
+
+    # shuffle the data
+    csv_obj.shuffle_labels()
+
+    # split the data
+    # split column already present in csv , override it with random split (default splitter)
+    # TODO change this behaviour to do both, maybe
+    csv_obj.add_split(config["split"], force = True)
 
     # save the modified csv
     csv_obj.save(out_path)

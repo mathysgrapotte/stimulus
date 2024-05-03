@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_NOISE_CSV } from '../modules/local/stimulus_noise_csv.nf'
+include { STIMULUS_SHUFFLE_CSV } from '../modules/local/stimulus_shuffle_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,25 +12,28 @@ include { STIMULUS_NOISE_CSV } from '../modules/local/stimulus_noise_csv.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow NOISE_CSV {
+workflow SHUFFLE_CSV {
 
     take:
-    csv_json_pairs
+    data_csv
+    json
     
 
     main:
 
-    // TODO add strategy for handling the launch of stimulus noiser as well as NF-core and other modules
-    // TODO if the option is parellalization (for the above) then add csv column splitting  noising  merging
-
-    // what follows is temporary, becuase there shuold be much more than this
-    STIMULUS_NOISE_CSV( csv_json_pairs )
+    // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
+    csv_json_pairs = data_csv.combine(json)
+    
+    // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
+    if ( params.shuffle ) {
+        STIMULUS_SHUFFLE_CSV(csv_json_pairs)
+    }
 
 
     emit:
 
-    debug       = STIMULUS_NOISE_CSV.out.standardout
-    noised_data = STIMULUS_NOISE_CSV.out.noised_data
+    debug         = STIMULUS_SHUFFLE_CSV.out.standardout
+    shuffle_data  = STIMULUS_SHUFFLE_CSV.out.csv_shuffled
 
 }
 
