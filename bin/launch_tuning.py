@@ -5,7 +5,7 @@ import json
 import os
 import importlib.util
 
-from src.learner.raytune_learner import TuneTrainWrapper as StimulusTuneTrainWrapper
+from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
 from launch_utils import import_class_from_file, get_experiment
 from src.utils.yaml_model_schema import YamlRayConfigLoader
 
@@ -40,7 +40,7 @@ def main(config_path: str, model_path: str, data_path: str, json_experiment: str
     initialized_experiment_class = get_experiment(experiment_name)
 
     # Create the learner
-    learner = StimulusTuneTrainWrapper(config_path, model_class, data_path, initialized_experiment_class)
+    learner = StimulusTuneWrapper(config_path, model_class, data_path, initialized_experiment_class)
     
     # Tune the model
     learner.tune()

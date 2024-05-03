@@ -1,17 +1,13 @@
 import yaml
 import ray.tune as tune
-
-
 from copy import deepcopy
 from collections.abc import Callable
-
-
 
 class YamlRayConfigLoader():
     def __init__(self, config_path: str):
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
-            self.config = self.get_config(self.config)
+            self.config = self.convert_config_to_ray(self.config)
 
     def raytune_space_selector(self, mode: Callable, space: list) -> Callable:
         # this function applies the mode function to the space, it needs to convert the space in a right way based on the mode, for instance, if the mode is "randint", the space should be a tuple of two integers and passed as *args
@@ -35,7 +31,7 @@ class YamlRayConfigLoader():
         # apply the mode function to the space
         return self.raytune_space_selector(mode, param["space"])
     
-    def get_config(self, config: dict) -> dict:
+    def convert_config_to_ray(self, config: dict) -> dict:
         # the config is a dictionary of dictionaries. The main dictionary keys are either model_params, loss_params or optimizer_params. 
         # The sub-dictionary keys are the parameters of the model, loss or optimizer, those params include two values, space and mode.
         # The space is the range of values to be tested, and the mode is the type of search to be done.
@@ -43,7 +39,7 @@ class YamlRayConfigLoader():
         # We return the config as a dictionary of dictionaries, where the values are the converted values from the space.
 
         new_config = deepcopy(config)
-        for key in ["model_params, loss_params, optimizer_params"]:
+        for key in ["model_params", "loss_params", "optimizer_params"]:
             for sub_key in config[key]:
                 new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
 
@@ -54,9 +50,12 @@ class YamlRayConfigLoader():
         # the config is a dictionary of dictionaries. The main dictionary keys are either model_params, loss_params or optimizer_params.
         # The sub-dictionary keys are the parameters of the model, loss or optimizer, those params include two values, space and mode.
 
-        config_instance = deepcopy(self.config)
-        for key in self.config:
+        config_instance = {}
+        for key in ["model_params", "loss_params", "optimizer_params"]:
             for sub_key in self.config[key]:
                 config_instance[key][sub_key] = self.config[key][sub_key].sample()
 
         return config_instance 
+    
+    def get_config(self) -> dict:
+        return self.config

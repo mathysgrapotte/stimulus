@@ -30,4 +30,4 @@ class ModelTitanic(nn.Module):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        return loss
+        return loss # return the main batch loss, later used for computing the validation

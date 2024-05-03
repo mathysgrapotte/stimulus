@@ -21,17 +21,11 @@ loss_params:
 tune:
   config_name: "name of Ray config"
   tune_params:
-    metric: "name of metric to optimize"
+    metric: "name of metric to optimize" # should match available metrics as defined in the raytune_learner.py (currently only "val_loss" is available)
     mode: "max" # max or min
     num_samples: 10 # number of samples to try
   scheduler:
     name: "name of Ray scheduler"
-    params:
-      param1: value1
-      param2: value2
-      param3: value3
-  checkpoint:
-    name: "name of Ray checkpoint"
     params:
       param1: value1
       param2: value2
