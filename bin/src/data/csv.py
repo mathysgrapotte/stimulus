@@ -40,14 +40,26 @@ class CsvHandler:
             categories.append(category)
         return categories
 
-    def get_keys_based_on_name_category_dtype(self, column_name: str = None, category: str = None, data_type: str = None) -> list:
+    def update_categories(self) -> None:
         """
-        Returns the keys that are of a specific type, name or category. Or a combination of those.
+        Updates the categories of the csv file.
+        Checks colnames in header and updates the categories that are present.
         """
-        if (column_name is None) and (category is None) and (data_type is None):
-            raise ValueError(f"At least one of the arguments column_name, category or data_type should be provided")
+        for colname in self.data.columns:
+            category = colname.split(":")[1].lower()
+            if category not in self.categories:
+                self.categories.append(category)
+        
+
+    def extract_header(self) -> list:
+        """
+        Extracts the header of the csv file.
+        """
         with open(self.csv_path, 'r') as f:
             header = f.readline().strip().split(',')
+        return header
+    
+    def get_keys_from_header(self, header, column_name: str = None, category: str = None, data_type: str = None) -> list:
         keys = []
         for key in header:
             current_name, current_category, current_dtype = key.split(":")
@@ -55,7 +67,19 @@ class CsvHandler:
                 keys.append(key)
         if len(keys) == 0:
             raise ValueError(f"No keys found with the specified column_name={column_name}, category={category}, data_type={data_type}")
+        return keys   
+        
+
+    def get_keys_based_on_name_category_dtype(self, column_name: str = None, category: str = None, data_type: str = None) -> list:
+        """
+        Returns the keys that are of a specific type, name or category. Or a combination of those.
+        """
+        if (column_name is None) and (category is None) and (data_type is None):
+            raise ValueError(f"At least one of the arguments column_name, category or data_type should be provided")
+        header = self.extract_header()
+        keys = self.get_keys_from_header(header, column_name, category, data_type)
         return keys
+
 
     def check_compulsory_categories_exist(self) -> None:
         """
@@ -68,25 +92,7 @@ class CsvHandler:
         """
         Loads the csv file into a polars dataframe.
         """
-        # If the meta of a column is float, convert it to float
-        # if int convert it to int
-        # if str, keep it as str
-        # else leave it as it as string
-        # TODO make it a more stable check 
-        with open(self.csv_path, 'r') as f:
-            header = f.readline().strip().split(',')
-            schema = {}
-            for key in header:
-                name, category, dtype = key.split(":")
-                if dtype == "int":
-                    schema[key] = pl.Int64
-                elif dtype == "float":
-                    schema[key] = pl.Float64
-                elif dtype == "str":
-                    schema[key] = pl.Utf8
-                else:
-                    schema[key] = pl.Utf8
-        return pl.read_csv(self.csv_path, schema=schema)
+        return pl.read_csv(self.csv_path)
             
 
 class CsvProcessing(CsvHandler):
@@ -123,6 +129,8 @@ class CsvProcessing(CsvHandler):
         split_column[validation] = 1
         split_column[test] = 2
         self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
+        self.update_categories()
+        
 
     def transform(self, transformations: list) -> None:
         """
@@ -137,8 +145,9 @@ class CsvProcessing(CsvHandler):
             # If the transformer is only for training data, we need to separate the data
             # and transform only the training data
             if transfomer.training_data_only:
-                data_to_transform = self.data.filter(pl.col('split:split:int') == 0)
-                untransformed_data = self.data.filter(pl.col('split:split:int') != 0)
+                split_colname = self.get_keys_from_header(self.data.columns, category='split')
+                data_to_transform = self.data.filter(pl.col(split_colname) == 0)
+                untransformed_data = self.data.filter(pl.col(split_colname) != 0)
             else: 
                 data_to_transform = self.data
             
@@ -146,18 +155,24 @@ class CsvProcessing(CsvHandler):
             new_data = transfomer.transform_all(list(data_to_transform[key]), **dictionary['params'])
             
             # Add the transformed data to the dataframe
+            
             # If the transformer modifies the column, we need to replace the column
-            if transfomer.modify_column:
+            if transfomer.add_row:
+                new_rows = data_to_transform.with_columns(pl.Series(key, new_data))
+                self.data = self.data.vstack(new_rows)
+            else:              
                 transformed_data = data_to_transform.with_columns(pl.Series(key, new_data))
+                # make sure the column has the same type as the new data
+                # this is necessary because the transformer could change the type of the column (e.g. from int to float) 
+                data_type_new = str(transformed_data[key].dtype)
+                untransformed_data = untransformed_data.with_columns(pl.col(key).cast(getattr(pl, data_type_new)))
+ 
                 # If the transformer is only for training data, we need to concatenate the transformed data with the untransformed data
                 if transfomer.training_data_only:
                     self.data = transformed_data.vstack(untransformed_data)
                 else:
                     self.data = transformed_data
-            # If the transformer adds a row, we need to add the new rows to the dataframe
-            elif transfomer.add_row:
-                new_rows = data_to_transform.with_columns(pl.Series(key, new_data))
-                self.data = self.data.vstack(new_rows)
+
                                  
     def shuffle_labels(self) -> None:
         """

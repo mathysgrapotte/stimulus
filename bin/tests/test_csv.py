@@ -40,7 +40,7 @@ class AbstractTestCsvProcessing(unittest.TestCase):
         """
         observed_value = list(self.csv_processing.data[column_name])[position]
         if isinstance(observed_value, float):
-            observed_value = round(observed_value, 2)
+            observed_value = round(observed_value, 6)
         self.assertEqual(observed_value, expected_value)
     
     def _test_all_values_in_column(self, column_name, expected_values):
@@ -50,7 +50,7 @@ class AbstractTestCsvProcessing(unittest.TestCase):
         observed_values = list(self.csv_processing.data[column_name])
         for i in range(len(observed_values)):
             if isinstance(observed_values[i], float):
-                observed_values[i] = round(observed_values[i], 2)
+                observed_values[i] = round(observed_values[i], 6)
         self.assertEqual(observed_values, expected_values)
 
 class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
@@ -83,7 +83,7 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.data_length = self.data_length * 2
         self._test_len()
         self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
-        self._test_all_values_in_column('hola:label:float', [12.68, 12.0, 12.68, 12.0])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
         self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
         self._test_all_values_in_column('split:split:int', [0, 1, 0, 1])
         
@@ -120,7 +120,7 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self.data_length = self.data_length * 2
         self._test_len()
         self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
-        self._test_all_values_in_column('hola:label:float', [12.68, 12.0, 12.68, 12.0])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
         self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
         self._test_all_values_in_column('split:split:int', [0, 1, 0,1])
         self._test_all_values_in_column('bonjour:input:prot', ['GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK'])

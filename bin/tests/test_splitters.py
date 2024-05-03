@@ -36,10 +36,10 @@ class TestRandomSpliter(unittest.TestCase):
          # Test splitting with custom split proportions
         custom_split = [0.6, 0.3, 0.1]
         train_custom, validation_custom, test_custom = splitter.get_split_indexes(data=sample_data, split=custom_split, seed=123)
-        # train is 0, count how many 
-        self.assertEqual(len(train_custom), 6)
-        self.assertEqual(len(validation_custom), 3)
-        self.assertEqual(len(test_custom), 1)
+        self.assertEqual(train_custom, [4, 0, 7, 5, 8, 3])
+        self.assertEqual(validation_custom, [1, 6, 9])
+        self.assertEqual(test_custom, [2])
+
 
 if __name__ == "__main__":
     unittest.main()

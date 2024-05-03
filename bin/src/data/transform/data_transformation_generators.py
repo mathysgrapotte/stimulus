@@ -15,7 +15,6 @@ class AbstractDataTransformer(ABC):
     """
 
     def __init__(self):
-        self.modify_column = None
         self.add_row = None
         self.training_data_only = False
 
@@ -44,7 +43,6 @@ class AbstractNoiseGenerator(AbstractDataTransformer):
 
     def __init__(self):
         super().__init__()
-        self.modify_column = True
         self.add_row = False
         self.training_data_only = True
  
@@ -57,7 +55,6 @@ class AbstractAugmentationGenerator(AbstractDataTransformer):
 
     def __init__(self):
         super().__init__()
-        self.modify_column = False
         self.add_row = True
         self.training_data_only = False
 

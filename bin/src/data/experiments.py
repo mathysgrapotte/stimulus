@@ -34,7 +34,7 @@ class AbstractExperiment(ABC):
 
     def get_data_transformer(self, data_type: str, transformation_generator: str) -> Any:
         """
-        This method creates data augmentation for all the entries.
+        This method transforms the data (noising, data augmentation etc).
         """
         return getattr(self, data_type)['data_transformation_generators'][transformation_generator]
 
