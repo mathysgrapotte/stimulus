@@ -7,6 +7,7 @@ from bin.tests.test_model.dnatofloatmodel import ModelSimple
 from bin.src.learner.raytune_learner import TuneWrapper 
 from torch.utils.data import DataLoader
 
+
 class TestRayTuneLearner(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)

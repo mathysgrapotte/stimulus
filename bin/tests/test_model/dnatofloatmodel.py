@@ -36,7 +36,7 @@ class ModelSimple(AbstractModel):
         x = x.squeeze()
         return x
     
-    def step(self, x, y, loss_dict) -> torch.Tensor:
+    def batch(self, x, y, loss_dict) -> torch.Tensor:
         output = self(**x)
         loss = {}
         for key, dic in loss_dict.items():
