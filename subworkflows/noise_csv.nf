@@ -19,7 +19,6 @@ workflow NOISE_CSV {
     
 
     main:
-
     // TODO add strategy for handling the launch of stimulus noiser as well as NF-core and other modules
     // TODO if the option is parellalization (for the above) then add csv column splitting  noising  merging
 
@@ -28,8 +27,6 @@ workflow NOISE_CSV {
 
 
     emit:
-
-    debug       = STIMULUS_NOISE_CSV.out.standardout
     noised_data = STIMULUS_NOISE_CSV.out.noised_data
 
 }
