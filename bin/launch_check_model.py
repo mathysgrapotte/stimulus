@@ -5,7 +5,7 @@ import os
 import src.data.handlertorch as handlertorch
 
 from copy import deepcopy
-from yaml_model_schema import YamlRayConfigLoader
+from src.utils.yaml_model_schema import YamlRayConfigLoader
 from launch_utils import import_class_from_file, get_experiment
     
 class CheckModelWrapper:

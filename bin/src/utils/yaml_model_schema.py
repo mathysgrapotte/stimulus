@@ -13,8 +13,6 @@ class YamlRayConfigLoader():
             self.config = yaml.safe_load(f)
             self.config = self.get_config(self.config)
 
-
-
     def raytune_space_selector(self, mode: Callable, space: list) -> Callable:
         # this function applies the mode function to the space, it needs to convert the space in a right way based on the mode, for instance, if the mode is "randint", the space should be a tuple of two integers and passed as *args
 
@@ -26,8 +24,6 @@ class YamlRayConfigLoader():
         
         else:
             raise NotImplementedError(f"Mode {mode.__name__} not implemented yet")
-
-
 
     def convert_raytune(self, param: dict) -> dict:
         # get the mode function from ray.tune using getattr, return an error if it is not recognized
@@ -47,7 +43,7 @@ class YamlRayConfigLoader():
         # We return the config as a dictionary of dictionaries, where the values are the converted values from the space.
 
         new_config = deepcopy(config)
-        for key in self.config:
+        for key in ["model_params, loss_params, optimizer_params"]:
             for sub_key in config[key]:
                 new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
 

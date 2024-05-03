@@ -7,7 +7,7 @@ import importlib.util
 
 from src.learner.raytune_learner import TuneTrainWrapper as StimulusTuneTrainWrapper
 from launch_utils import import_class_from_file, get_experiment
-from yaml_model_schema import YamlRayConfigLoader
+from src.utils.yaml_model_schema import YamlRayConfigLoader
 
 def get_args():
 
