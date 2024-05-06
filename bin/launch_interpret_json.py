@@ -14,15 +14,15 @@ def get_args():
     the stimulus package. 
     
     The structure of the Json is described here -> TODO paste here link to documentation.
-    This Json and it's structure summarize how to generate all the noise - split and respective parameters combinations.
+    This Json and it's structure summarize how to generate all the transform - split and respective parameters combinations.
     Each resulting Json will hold only one combination of the above three things.
 
-    This script will always generate at least on Json file that represent the combination that does not touch the data (no noise)
+    This script will always generate at least on Json file that represent the combination that does not touch the data (no transform)
     and uses the defalut split behaviour.
     """
     
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all noise - split - parameter info')
+    parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all transform - split - parameter info')
     parser.add_argument("-d", "--out_dir", type=str, required=True, metavar="DIR", help='The output dir where all he jason are written to. Output Json will be called input_json_nam-#[number].json')
 
     args = parser.parse_args()
@@ -38,15 +38,15 @@ def interpret_json(input_json: dict) -> list:
     # Initialize json schema it checks for correctness of the Json architecture and fields / values
     schema = JsonSchema(input_json)
 
-    # compute all noise combinations
+    # compute all transform combinations
     # first set right fucntion call based on schema.interpret_params_mode, done like following because if are inefficient
-    # both function output an empty list if there is no noise argument
-    function_call_dict = {"column_wise": schema.noise_column_wise_combination, "all_combinations": schema.noise_all_combination}
+    # both function output an empty list if there is no transform argument
+    function_call_dict = {"column_wise": schema.transform_column_wise_combination, "all_combinations": schema.transform_all_combination}
     
-    # if noise is not present no need to compute the list of possibilities
-    list_noise_combinations = [None]
-    if schema.noise_arg:
-        list_noise_combinations = function_call_dict[schema.interpret_params_mode]()
+    # if transform is not present no need to compute the list of possibilities
+    list_transform_combinations = [None]
+    if schema.transform_arg:
+        list_transform_combinations = function_call_dict[schema.interpret_params_mode]()
         
     # if split is present, again like above
     list_split_combinations = [None]
@@ -54,17 +54,17 @@ def interpret_json(input_json: dict) -> list:
         # compute all split combinations, this will only be all vs all because there is no concept of column_name, it will return empty list if there is no split function
         list_split_combinations = schema.split_combination()
 
-    # combine split possibilities with noise ones in a all vs all manner, each splitter wil be assigned to each noiser
+    # combine split possibilities with transform ones in a all vs all manner, each splitter wil be assigned to each transformed
     list_of_json_to_write = []
 
-    # The  pipeline has always to happen at least twice, aka on the data itself untouched (line below) and on data with labels shuffled. This line is not necessary only in the case of missing both noise and spli arguments in the inpèut Json.
-    if schema.noise_arg or schema.split_arg:
-        list_of_json_to_write.append({"experiment": schema.experiment, "noise": None, "split": None})
+    # The  pipeline has always to happen at least twice, aka on the data itself untouched (line below) and on data with labels shuffled. This line is not necessary only in the case of missing both transform and spli arguments in the inpèut Json.
+    if schema.transform_arg or schema.split_arg:
+        list_of_json_to_write.append({"experiment": schema.experiment, "transform": None, "split": None})
          
-    # The following lines generate all the ready to write json dictionaries, combining all vs all the noisers combination with the splitter combinations
-    for noiser_dict in list_noise_combinations:
+    # The following lines generate all the ready to write json dictionaries, combining all vs all the transformeds combination with the splitter combinations
+    for transformed_dict in list_transform_combinations:
         for splitter_dict in list_split_combinations:
-            list_of_json_to_write.append({"experiment": schema.experiment, "noise": noiser_dict, "split": splitter_dict})
+            list_of_json_to_write.append({"experiment": schema.experiment, "transform": transformed_dict, "split": splitter_dict})
 
     # deal wiht custom if present, in this case nothing at all will be done to the dictionaries present in the list except adding the experiment name to it. The user is responsible for the dict inside custom to be correct and ready for the csv_launcher
     for custom_dict in schema.custom_arg :
