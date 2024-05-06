@@ -26,6 +26,6 @@ process TORCH_TUNE {
 
     stub:
     """
-    touch best_config.json
+    touch best_config.json best_model.pt best_optimizer.pt best_metrics.csv
     """
 }
