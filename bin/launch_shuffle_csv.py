@@ -11,7 +11,7 @@ def get_args():
 
     "get the arguments when using from the commandline"
     
-    parser = argparse.ArgumentParser(description="")
+    parser = argparse.ArgumentParser(description="TODO fill this description")
     parser.add_argument("-c", "--csv", type=str, required=True, metavar="FILE", help='The file path for the csv containing all data')
     parser.add_argument("-j", "--json", type=str, required=True, metavar="FILE", help='The json config file that hold all parameter info')
     parser.add_argument("-o", "--output", type=str, required=True, metavar="FILE", help='The output file path to write the noised csv')

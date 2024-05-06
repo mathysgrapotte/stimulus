@@ -8,14 +8,23 @@ from copy import deepcopy
 from src.utils.yaml_model_schema import YamlRayConfigLoader
 from launch_utils import import_class_from_file, get_experiment
 
-def arg_parser():
+
+
+def get_args():
+
+    "get the arguments when using from the commandline"
+
     parser = argparse.ArgumentParser(description="Launch check_model")
-    parser.add_argument("--input", type=str, help="Path to input csv file", required=True)
-    parser.add_argument("--model", type=str, help="Path to model file", required=False)
-    parser.add_argument("--experiment", type=str, help="Experiment to run", required=True)
-    parser.add_argument("--config", type=str, help="Path to json config training file", required=False)
+    parser.add_argument("-d", "--data", type=str, required=True, metavar="FILE", help="Path to input csv file")
+    parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help="Path to model file")
+    parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment to run")
+    parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to json config training file")
+    
     return parser.parse_args()
+
+
 class CheckModelWrapper:
+
     def __init__(self, model: nn.Module, config_instance: dict, data_path: str, experiment: object):
         self.model = model(**config_instance["model_params"])
         # get the optimizer from pytorch
@@ -45,17 +54,19 @@ class CheckModelWrapper:
         # print the computed loss, displaying loss_fn name as well
         print(f"Loss computed with {self.loss_fn.__class__.__name__} is {loss.item()}")
 
-def main():
-    args = arg_parser()
-    Model = import_class_from_file(args.model)
-    experiment = get_experiment(args.experiment)
 
-    yaml_config = YamlRayConfigLoader(config_path=args.config)
+def main(data, model_file, experiment_name, config_file):
+
+    Model = import_class_from_file(model_file)
+    experiment = get_experiment(experiment_name)
+
+    yaml_config = YamlRayConfigLoader(config_path=config_file)
     config_instance = yaml_config.get_config_instance()
     print("tested config: ", config_instance)
-    model_wrapper = CheckModelWrapper(Model, config_instance, args.input, experiment)
+    model_wrapper = CheckModelWrapper(Model, config_instance, data, experiment)
     model_wrapper.check_model()
 
-if __name__ == "__main__":
 
-    main()
+if __name__ == "__main__":
+    args = get_args()
+    main(args.data, args.model, args.experiment, args.config)
