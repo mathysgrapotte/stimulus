@@ -1,7 +1,7 @@
 {
     "experiment": "DnaToFloatExperiment",
     "interpret_parmas_mode": "culumn_wise", 
-    "noise": [
+    "transform": [
         {
             "column_name": "hello:input1:dna",
             "name": ["UniformTextMasker", "AnotherNoiser", "AnotherNoiser"],
@@ -30,7 +30,7 @@
     ],
     "custom": [
         {
-            "noise": [
+            "transform": [
                 {
                     "column_name": "hello:input:dna",
                     "name": "UniformTextMasker",
@@ -49,7 +49,7 @@
                 }
         },
         {
-            "noise": [
+            "transform": [
                 {
                     "column_name": "hello:input:dna",
                     "name": "UniformTextMasker",
