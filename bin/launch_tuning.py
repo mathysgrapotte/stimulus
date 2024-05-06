@@ -19,11 +19,12 @@ def get_args():
     parser.add_argument("-o", "--output", type=str, required=False,  nargs='?', const='best_model.pt', default='best_model.pt', metavar="FILE", help='The output file path to write the trained model to')
     parser.add_argument("-bc", "--best_config", type=str, required=False, nargs='?', const='best_config.json', default='best_config.json', metavar="FILE", help='The path to write the best config to')
     parser.add_argument("-bm", "--best_metrics", type=str, required=False, nargs='?', const='best_metrics.csv', default='best_metrics.csv', metavar="FILE", help='The path to write the best metrics to')
+    parser.add_argument("-bo", "--best_optimizer", type=str, required=False, nargs='?', const='best_optimizer.pt', default='best_optimizer.pt', metavar="FILE", help='The path to write the best optimizer to')
 
     args = parser.parse_args()
     return args
 
-def main(config_path: str, model_path: str, data_path: str, json_experiment: str, output: str, best_config_path: str, best_metrics_path: str) -> None:
+def main(config_path: str, model_path: str, data_path: str, json_experiment: str, output: str, best_config_path: str, best_metrics_path: str, best_optimizer_path: str) -> None:
     """
     This launcher use ray tune to find the best hyperparameters for a given model.
     """
@@ -46,11 +47,12 @@ def main(config_path: str, model_path: str, data_path: str, json_experiment: str
 
     # parse raytune results
     results = StimulusTuneParser(results)
+    results.save_best_model(output)
     results.save_best_config(best_config_path)
     results.save_best_metrics_dataframe(best_metrics_path)
-    # TODO save best model from checkpoint
+    results.save_best_optimizer(best_optimizer_path)
 
 
 if __name__ == "__main__":
     args = get_args()
-    main(args.config, args.model, args.data, args.json_experiment, args.output, args.best_config, args.best_metrics)
+    main(args.config, args.model, args.data, args.json_experiment, args.output, args.best_config, args.best_metrics, args.best_optimizer)
