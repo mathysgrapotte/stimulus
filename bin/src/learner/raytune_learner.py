@@ -16,7 +16,6 @@ class TuneWrapper():
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
-        self.best_config = None
         self.config = YamlRayConfigLoader(config_path).get_config()
         self.config["model"] = model_class
         self.config["experiment"] = experiment_object
@@ -50,13 +49,6 @@ class TuneWrapper():
         Run the tuning process.
         """
         return self.tuner.fit() 
-
-    def store_best_config(self, path: str) -> None:
-        """
-        Store the best config in a file.
-        """
-        with open(path, "w") as f:
-            f.write(str(self.best_config))  
 
 class TuneModel(Trainable):
 
