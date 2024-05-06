@@ -10,7 +10,14 @@ process TORCH_TUNE {
 
     output:
     // TODO get the best model as well once implemented in python
-    tuple val(original_csv), path("best_config.json"), path(data_csv), path(parsed_json), emit: tune_specs
+    tuple val(original_csv), 
+          path("best_config.json"), 
+          path("best_model.pt"),
+          path("best_optimizer.pt"),
+          path("best_metrics.csv"),
+          path(data_csv), 
+          path(parsed_json), 
+          emit: tune_specs
 
     script:
     """
