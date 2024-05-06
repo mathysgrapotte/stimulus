@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_NOISE_CSV } from '../modules/local/stimulus_noise_csv.nf'
+include { STIMULUS_TRANSFORM_CSV } from '../modules/local/stimulus_transform_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,7 +12,7 @@ include { STIMULUS_NOISE_CSV } from '../modules/local/stimulus_noise_csv.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow NOISE_CSV {
+workflow TRANSFORM_CSV {
 
     take:
     csv_json_pairs
@@ -23,11 +23,11 @@ workflow NOISE_CSV {
     // TODO if the option is parellalization (for the above) then add csv column splitting  noising  merging
 
     // what follows is temporary, becuase there shuold be much more than this
-    STIMULUS_NOISE_CSV( csv_json_pairs )
+    STIMULUS_TRANSFORM_CSV( csv_json_pairs )
 
 
     emit:
-    noised_data = STIMULUS_NOISE_CSV.out.noised_data
+    transformed_data = STIMULUS_TRANSFORM_CSV.out.transformed_data
 
 }
 
