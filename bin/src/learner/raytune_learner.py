@@ -126,11 +126,9 @@ class TuneModel(Trainable):
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 
-    def load_checkpoint(self, checkpoint: dict | None) -> None:
-        # TODO not sure if this works, check this
-        if checkpoint:
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    def load_checkpoint(self, checkpoint_dir: str) -> None:
+        self.model.load_state_dict(torch.load(os.path.join(checkpoint_dir, "model.pt")))
+        self.optimizer.load_state_dict(torch.load(os.path.join(checkpoint_dir, "optimizer.pt")))
 
     def save_checkpoint(self, checkpoint_dir: str) -> dict | None:
         torch.save(self.model.state_dict(), os.path.join(checkpoint_dir, "model.pt"))
