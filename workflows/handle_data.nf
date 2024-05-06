@@ -6,7 +6,7 @@
 
 include { INTERPRET_JSON } from '../modules/local/interpret_json.nf'
 include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
-include { NOISE_CSV      } from '../subworkflows/noise_csv.nf'
+include { TRANSFORM_CSV  } from '../subworkflows/transform_csv.nf'
 include { SHUFFLE_CSV    } from '../subworkflows/shuffle_csv.nf'
 
 
@@ -38,17 +38,17 @@ workflow HANDLE_DATA {
     SPLIT_CSV(csv, parsed_json)
 
     // launch the actual noise subworkflow
-    NOISE_CSV( SPLIT_CSV.out.split_data )
+    TRANSFORM_CSV( SPLIT_CSV.out.split_data )
 
     // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.
     // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
     SHUFFLE_CSV(csv, parsed_json.first())
 
     // merge output of shuffle to the output of noise
-    data = NOISE_CSV.out.noised_data.concat(SHUFFLE_CSV.out.shuffle_data)
+    data = TRANSFORM_CSV.out.transformed_data.concat(SHUFFLE_CSV.out.shuffle_data)
 
     emit:
-    data
+    data 
 
 }
 

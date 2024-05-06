@@ -124,7 +124,7 @@ class CsvProcessing(CsvHandler):
         train, validation, test = self.experiment.get_function_split(split_method)(self.data, **config['params'])
 
         # add the split column to the data
-        split_column = np.full(len(self.data), np.nan).astype(int)
+        split_column = np.full(len(self.data), -1).astype(int)
         split_column[train] = 0
         split_column[validation] = 1
         split_column[test] = 2
@@ -180,7 +180,7 @@ class CsvProcessing(CsvHandler):
         """
         label_keys = self.get_keys_based_on_name_category_dtype(category='label')
         for key in label_keys:
-            self.data = self.data.with_columns(pl.Series(key, np.random.permutation(self.data[key])))
+            self.data = self.data.with_columns(pl.Series(key, np.random.permutation(list(self.data[key]))))
 
     def save(self, path: str) -> None:
         """
