@@ -80,7 +80,7 @@ class TuneModel(Trainable):
         optimizer_lr = config["optimizer_params"]["lr"]
 
         # get the optimizer from PyTorch
-        self.optimizer = getattr(optim, config["optimizer"]["method"])(self.model.parameters(), lr=optimizer_lr)
+        self.optimizer = getattr(optim, config["optimizer_params"]["method"])(self.model.parameters(), lr=optimizer_lr)
 
         # get step size from the config
         self.step_size = config["tune"]['step_size']

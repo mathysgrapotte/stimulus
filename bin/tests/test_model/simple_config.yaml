@@ -6,12 +6,10 @@ model_params:
     space: [2]
     mode: choice
 
-optimizer:
-  method:
-    space: ['Adam']
-    mode: choice
-
 optimizer_params:
+  method:
+      space: ['Adam']
+      mode: choice
   lr:
     space: [0.0001, 0.1]
     mode: loguniform
