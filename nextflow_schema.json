@@ -37,7 +37,7 @@
           "format": "directory-path",
           "description": "Training config",
           "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_model/simple.config"
+          "default": "${projectDir}/bin/tests/test_model/simple_config.yaml"
         }
       }
     }
