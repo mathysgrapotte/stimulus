@@ -1,12 +1,12 @@
 import os
+import ray.tune.schedulers as schedulers
+import torch
 import torch.nn as nn
 import torch.optim as optim 
-import torch
-import ray.tune.schedulers as schedulers
-
-from torch.utils.data import DataLoader
 from ray import train, tune
 from ray.tune import Trainable
+from torch.utils.data import DataLoader
+
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
 
