@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
+from ..utils.performance import Performance
 
 
 class TuneWrapper():
@@ -96,7 +97,6 @@ class TuneModel(Trainable):
         This calculation is performed based on the model's batch function.
         At the end, return the objective metric(s) for the tuning process.
         """
-
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
                 self.model.batch(x=x, y=y, optimizer=self.optimizer, **self.loss_dict)
@@ -106,22 +106,36 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
-        return {"val_loss": self.compute_validation_loss()}
+        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
+        return {**{'val_'+metric : self.compute_metric(self.validation, metric) for metric in metrics},
+                **{'train_'+metric : self.compute_metric(self.training, metric) for metric in metrics}}
 
-    def compute_validation_loss(self) -> float:
+    def compute_metric(self, data, metric: str = 'loss') -> float:
         """
-        Compute loss on the validation data.
-        For each batch in the validation data, calculate the loss.
-        This calculation is performed based on the model's step function.
-        Then retun the average loss.
+        Compute the performance metric.
+        Basically, it runs a foward pass on the model and returns the performance metric.
         """
-        loss = 0.0
         self.model.eval()
+        loss = 0.0
+        labels = {k:torch.tensor([]) for k in list(data)[0][1].keys()}
+        predictions = {k:torch.tensor([]) for k in list(data)[0][1].keys()}   # list(data)[0] is the first batch of data, then the element [1] is y.
         with torch.no_grad():
-            for x, y, meta in self.validation:
-                loss += self.model.batch(x, y, **self.loss_dict).item()
-        loss /= len(self.validation)
-        return loss
+
+            # for each batch, get the loss and the predictions
+            for x, y, meta in data:
+                current_loss, current_predictions = self.model.batch(x, y, **self.loss_dict)
+
+                # update values
+                loss += current_loss.item()
+                for k in current_predictions.keys():
+                    labels[k] = torch.cat((labels[k], y[k]))
+                    predictions[k] = torch.cat((predictions[k], current_predictions[k]))
+
+        # return metric
+        if metric == 'loss':
+            return loss / len(data)
+        else:
+            return sum(Performance(labels=labels[k], predictions=predictions[k], metric=metric).val for k in labels.keys()) / len(labels.keys())
         
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
