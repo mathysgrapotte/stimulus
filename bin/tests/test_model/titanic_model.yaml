@@ -9,15 +9,33 @@ model_params:
     space: [2]
     mode: choice
 
-optimizer:
-  method:
-    space: ['Adam', 'SGD']
-    mode: choice
 optimizer_params:
+  method:
+      space: ['Adam', 'SGD']
+      mode: choice
   lr:
     space: [0.0001, 0.1]
     mode: loguniform
+
 loss_params:
   loss_fn:
     space: ['CrossEntropyLoss']
     mode: choice
+
+data_params:
+  batch_size:
+    space: [16, 32, 64, 128, 256]
+    mode: choice
+
+tune:
+  config_name: "tune_config"
+  tune_params:
+    metric: "val_loss"
+    mode: "min"
+    num_samples: 3
+  scheduler:
+    name: "ASHAScheduler"
+    params:
+      max_t: 3
+      grace_period: 1
+  step_size: 1

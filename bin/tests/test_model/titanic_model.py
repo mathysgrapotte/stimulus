@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-
 from collections.abc import Callable
+
 class ModelTitanic(nn.Module):
     def __init__(self, nb_neurons_intermediate_layer: int = 7, nb_intermediate_layers: int = 3, nb_classes: int = 2):
         super(ModelTitanic, self).__init__()
@@ -11,7 +11,7 @@ class ModelTitanic(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, pclass: torch.tensor, sex: torch.tensor, age: torch.tesnor, sibsp: torch.tensor, parch: torch.tensor, fare: torch.tensor, embarked: torch.tensor):
+    def forward(self, pclass: torch.tensor, sex: torch.tensor, age: torch.tensor, sibsp: torch.tensor, parch: torch.tensor, fare: torch.tensor, embarked: torch.tensor):
         # print all inputs
         x = torch.stack((pclass, sex, age, sibsp, parch, fare, embarked), dim=1).float()
         x = self.relu(self.input_layer(x))
@@ -23,10 +23,13 @@ class ModelTitanic(nn.Module):
     def compute_loss(self, loss_fn, output, survived):
         return loss_fn(output, survived)
     
-    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Callable):
-
+    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Callable = None):
         output = self.forward(**x)
         loss = self.compute_loss(loss_fn, output, **y)
+
+        if optimizer is None:
+            return loss
+        
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

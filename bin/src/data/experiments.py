@@ -71,8 +71,8 @@ class TitanicExperiment(AbstractExperiment):
 
     def __init__(self) -> None:
         super().__init__()
-        self.int_class = {'encoder': encoders.IntEncoder(), 'noise_generators': {}}
-        self.str_class = {'encoder': encoders.StrClassificationIntEncoder(), 'noise_generators': {}}
-        self.int_reg = {'encoder': encoders.IntRankEncoder(), 'noise_generators': {}}
-        self.float_rank = {'encoder': encoders.FloatRankEncoder(), 'noise_generators': {}}
+        self.int_class = {'encoder': encoders.IntEncoder(), 'data_transformation_generators': {}}
+        self.str_class = {'encoder': encoders.StrClassificationIntEncoder(), 'data_transformation_generators': {}}
+        self.int_reg = {'encoder': encoders.IntRankEncoder(), 'data_transformation_generators': {}}
+        self.float_rank = {'encoder': encoders.FloatRankEncoder(), 'data_transformation_generators': {}}
 

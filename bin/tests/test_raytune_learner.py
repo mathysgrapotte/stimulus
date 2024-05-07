@@ -1,5 +1,6 @@
 import unittest
 import os
+import shutil
 import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel
@@ -48,16 +49,19 @@ class TestTuneModel(unittest.TestCase):
         os.remove("bin/tests/test_data/dna_experiment/test_model.pth")
     
     def test_save_checkpoint(self):
-        checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
-        self.assertIsInstance(checkpoint, dict)
-        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_checkpoint.pth"))
-        os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
+        checkpoint_dir = "bin/tests/test_data/dna_experiment/test_checkpoint"
+        os.mkdir(checkpoint_dir)
+        self.learner.save_checkpoint(checkpoint_dir)
+        self.assertTrue(os.path.exists(checkpoint_dir + "/model.pt"))
+        self.assertTrue(os.path.exists(checkpoint_dir + "/optimizer.pt"))
+        shutil.rmtree(checkpoint_dir)
 
     def test_load_checkpoint(self):
-        self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
-        checkpoint = self.learner.save_checkpoint("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
-        self.learner.load_checkpoint(checkpoint)
-        os.remove("bin/tests/test_data/dna_experiment/test_checkpoint.pth")
+        checkpoint_dir = "bin/tests/test_data/dna_experiment/test_checkpoint"
+        os.mkdir(checkpoint_dir)
+        self.learner.save_checkpoint(checkpoint_dir)
+        self.learner.load_checkpoint(checkpoint_dir)
+        shutil.rmtree(checkpoint_dir)
 
 class TestTuneWrapper(unittest.TestCase):
     def setUp(self):

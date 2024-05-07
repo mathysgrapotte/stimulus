@@ -45,7 +45,7 @@ class ModelSimple(AbstractModel):
         loss2 = self.compute_loss(output, loss_fn2, **y)
         if optimizer is None: # if no optimizer is passed, return the losses
             return loss1
-        
+    
         optimizer.zero_grad()
         loss1.backward(retain_graph=True)
         loss2.backward(retain_graph=True)
