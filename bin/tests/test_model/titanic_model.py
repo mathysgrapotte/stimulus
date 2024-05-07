@@ -29,4 +29,5 @@ class ModelTitanic(nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        output = {k:torch.argmax(v, dim=1) for k,v in output.items()}   # this solves the issue of different shape between output and labels. TODO needs to make it more general so that classification outputs can also be evaluated by Performance
         return loss, output

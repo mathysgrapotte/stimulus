@@ -135,7 +135,7 @@ class TuneModel(Trainable):
         if metric == 'loss':
             return loss / len(data)
         else:
-            return sum(Performance(labels=labels[k], predictions=predictions[k], metric=metric).val for k in labels.keys()) / len(labels.keys())
+            return sum(Performance(labels=labels[k], predictions=predictions[k], metric=metric).val for k in labels.keys()) / len(labels.keys())  # TODO currently we computes the average performance metric, but maybe in the future we want something different
         
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
