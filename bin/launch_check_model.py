@@ -1,29 +1,34 @@
+#!/usr/bin/env python3
+
 import argparse
 import torch.nn as nn
 import torch
 import os
 import src.data.handlertorch as handlertorch
+import json
 
 from copy import deepcopy
 from src.utils.yaml_model_schema import YamlRayConfigLoader
 from launch_utils import import_class_from_file, get_experiment
+from json_schema import JsonSchema
 
 
 
 def get_args():
 
-    "get the arguments when using from the commandline"
+    """get the arguments when using from the commandline"""
 
     parser = argparse.ArgumentParser(description="Launch check_model")
     parser.add_argument("-d", "--data", type=str, required=True, metavar="FILE", help="Path to input csv file")
     parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help="Path to model file")
-    parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment to run")
+    parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment config file. From this the experiment class name is extracted.")
     parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to json config training file")
     
-    return parser.parse_args()
+    args = parser.parse_args()
+    return args
 
 
-class CheckModelWrapper:
+class CheckModelWrapper():
 
     def __init__(self, model: nn.Module, config_instance: dict, data_path: str, experiment: object):
         self.model = model(**config_instance["model_params"])
@@ -55,10 +60,19 @@ class CheckModelWrapper:
         print(f"Loss computed with {self.loss_fn.__class__.__name__} is {loss.item()}")
 
 
-def main(data, model_file, experiment_name, config_file):
+def main(data: str, model_file: str, experiment_config: str, config_file: str):
+
+    # TODO update to yaml the experimnt config
+    # load json into dictionary
+    exp_config = {}
+    with open(experiment_config, 'r') as in_json:
+        exp_config = json.load(in_json)
+    
+    # Initialize json schema it checks for correctness of the Json architecture and fields / values. already raises errors.
+    schema = JsonSchema(exp_config)
 
     Model = import_class_from_file(model_file)
-    experiment = get_experiment(experiment_name)
+    experiment = get_experiment(schema.experiment)
 
     yaml_config = YamlRayConfigLoader(config_path=config_file)
     config_instance = yaml_config.get_config_instance()
