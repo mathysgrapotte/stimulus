@@ -32,10 +32,10 @@ tune:
   tune_params:
     metric: "val_loss"
     mode: "min"
-    num_samples: 10
+    num_samples: 3
   scheduler:
     name: "ASHAScheduler"
     params:
-      max_t: 10
+      max_t: 3
       grace_period: 1
   step_size: 1

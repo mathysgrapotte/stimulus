@@ -11,7 +11,7 @@ class ModelTitanic(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, pclass: torch.tensor, sex: torch.tensor, age: torch.tesnor, sibsp: torch.tensor, parch: torch.tensor, fare: torch.tensor, embarked: torch.tensor):
+    def forward(self, pclass: torch.tensor, sex: torch.tensor, age: torch.tensor, sibsp: torch.tensor, parch: torch.tensor, fare: torch.tensor, embarked: torch.tensor):
         # print all inputs
         x = torch.stack((pclass, sex, age, sibsp, parch, fare, embarked), dim=1).float()
         x = self.relu(self.input_layer(x))
