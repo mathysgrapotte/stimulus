@@ -21,9 +21,14 @@ workflow HANDLE_DATA {
     take:
     input_csv
     input_json
+    message_from_check
 
 
     main:
+    
+    // print the message from the check_model subworkflow 
+    message_from_check.view()
+
     // put the files in channels
     csv  = Channel.fromPath( input_csv  )
     json = Channel.fromPath( input_json )

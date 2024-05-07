@@ -33,11 +33,12 @@ class CheckModelWrapper():
     def __init__(self, model: nn.Module, config_instance: dict, data_path: str, experiment: object):
         self.model = model(**config_instance["model_params"])
         # get the optimizer from pytorch
-        optimizer = getattr(torch.optim, config_instance["optimizer"]["method"])
+        optimizer = getattr(torch.optim, config_instance["optimizer_params"]["method"])
         # get the loss function from pytorch
         self.loss_fn = getattr(torch.nn, config_instance["loss_params"]["loss_fn"])()
-        # instantiate the optimizer
-        self.optimizer = optimizer(self.model.parameters(), **config_instance["optimizer_params"])
+        # instantiate the optimizer, get all optimizer parameters except the names of the optimizers themselves
+        optimizer_params_values = {key: value for key, value in config_instance["optimizer_params"].items() if key != "method"}
+        self.optimizer = optimizer(self.model.parameters(), **optimizer_params_values)
         # train_data is a TorchDataset object
         self.train_data = torch.utils.data.DataLoader(handlertorch.TorchDataset(os.path.abspath(data_path), experiment, split=None), batch_size=2, shuffle=True)
 

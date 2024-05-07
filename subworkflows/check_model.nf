@@ -45,15 +45,9 @@ workflow CHECK_MODEL {
         
     }
 
-    // to enforce dependency oh the rest of the workflows in the pipeline
-    //emit:
-
-
-    // if this whole workflow raised no error print the adequate message
-    
-
-    // if there were any problems with the workflow
-    
+    // to enforce that the second run workflow depends on this one
+    emit:
+    completition_message
 
 }
 

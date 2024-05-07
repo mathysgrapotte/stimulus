@@ -41,12 +41,12 @@ workflow {
         params.model,
         params.train_conf
     )
+    completition_message = CHECK_MODEL.out.completition_message
 
-
-    /*
     HANDLE_DATA( 
         params.csv,
-        params.exp_conf
+        params.exp_conf,
+        completition_message
     )
     prepared_data = HANDLE_DATA.out.data
     //HANDLE_DATA.out.data.view()
@@ -57,7 +57,6 @@ workflow {
         prepared_data
     )
     HANDLE_TUNE.out.data.view()
-    */
     // HANDLE_ANALYSIS()
 
 }
