@@ -34,15 +34,15 @@ class ModelSimple(AbstractModel):
         x = self.softmax(x)
         x = self.linear(x)
         x = x.squeeze()
-        return x
+        return {'hola':x}
     
     def compute_loss(self, output, loss_fn, hola):
         return loss_fn(output, hola.to(torch.float32))
     
     def batch(self, x, y, loss_fn1, loss_fn2, optimizer=None) -> torch.Tensor:
         output = self(**x)
-        loss1 = self.compute_loss(output, loss_fn1, **y)
-        loss2 = self.compute_loss(output, loss_fn2, **y)
+        loss1 = self.compute_loss(output['hola'], loss_fn1, y['hola'])
+        loss2 = self.compute_loss(output['hola'], loss_fn2, y['hola'])
         if optimizer is None: # if no optimizer is passed, return the losses
             return loss1
     
@@ -51,4 +51,4 @@ class ModelSimple(AbstractModel):
         loss2.backward(retain_graph=True)
         optimizer.step()
 
-        return loss1
+        return loss1, output

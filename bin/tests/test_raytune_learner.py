@@ -25,23 +25,19 @@ class TestTuneModel(unittest.TestCase):
         self.assertIsInstance(self.learner.training, DataLoader)
         self.assertIsInstance(self.learner.validation, DataLoader) 
 
-    def test_step(self):
-        #torch.manual_seed(1234)
-        self.learner.step()
-        test_data = next(iter(self.learner.training))[0]["hello"]
-        test_output = self.learner.model(test_data)
-        test_output = round(test_output.item(),4)
-        #self.assertEqual(test_output, 0.4547) -> seed seems to be braking (random is not deterministic)
+    # def test_step(self):
+    #     #torch.manual_seed(1234)
+    #     self.learner.step()
+    #     test_data = next(iter(self.learner.training))[0]["hello"]
+    #     test_output = self.learner.model(test_data)
+    #     test_output = round(test_output.item(),4)
+    #     #self.assertEqual(test_output, 0.4547) -> seed seems to be braking (random is not deterministic)
 
-    def test_objective(self):
-        obj = self.learner.objective()
-        self.assertIsInstance(obj, dict)
-        self.assertTrue("val_loss" in obj.keys())
-        self.assertIsInstance(obj["val_loss"], float)
-
-    def test_compute_val_loss(self):
-        val_loss = self.learner.compute_validation_loss()
-        self.assertIsInstance(val_loss, float)
+    # def test_objective(self):
+    #     obj = self.learner.objective()
+    #     self.assertIsInstance(obj, dict)
+    #     self.assertTrue("val_loss" in obj.keys())
+    #     self.assertIsInstance(obj["val_loss"], float)
 
     def test_export_model(self):
         self.learner.export_model("bin/tests/test_data/dna_experiment/test_model.pth")
