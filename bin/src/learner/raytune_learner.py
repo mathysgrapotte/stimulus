@@ -1,3 +1,4 @@
+import logging
 import os
 import ray.tune.schedulers as schedulers
 import torch
@@ -9,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
-from ..utils.performance import Performance
+from .predict import PredictWrapper
 
 
 class TuneWrapper():
@@ -88,8 +89,9 @@ class TuneModel(Trainable):
 
         # get the train and validation data from the config
         # run dataloader on them
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
-        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
+        self.batch_size = config['data_params']['batch_size']
+        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
         """
@@ -106,37 +108,12 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
-        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
-        return {**{'val_'+metric : self.compute_metric(self.validation, metric) for metric in metrics},
-                **{'train_'+metric : self.compute_metric(self.training, metric) for metric in metrics}}
+        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall'] #, 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
+        predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  self.loss_dict, split=1, batch_size=self.batch_size)
+        predict_train = PredictWrapper(self.model, self.data_path, self.experiment, self.loss_dict,  split=0, batch_size=self.batch_size)
+        return {**{'val_'+metric : predict_val.compute_metric(metric) for metric in metrics},
+                **{'train_'+metric : predict_train.compute_metric(metric) for metric in metrics}}
 
-    def compute_metric(self, data, metric: str = 'loss') -> float:
-        """
-        Compute the performance metric.
-        Basically, it runs a foward pass on the model and returns the performance metric.
-        """
-        self.model.eval()
-        loss = 0.0
-        labels = {k:torch.tensor([]) for k in list(data)[0][1].keys()}
-        predictions = {k:torch.tensor([]) for k in list(data)[0][1].keys()}   # list(data)[0] is the first batch of data, then the element [1] is y.
-        with torch.no_grad():
-
-            # for each batch, get the loss and the predictions
-            for x, y, meta in data:
-                current_loss, current_predictions = self.model.batch(x, y, **self.loss_dict)
-
-                # update values
-                loss += current_loss.item()
-                for k in current_predictions.keys():
-                    labels[k] = torch.cat((labels[k], y[k]))
-                    predictions[k] = torch.cat((predictions[k], current_predictions[k]))
-
-        # return metric
-        if metric == 'loss':
-            return loss / len(data)
-        else:
-            return sum(Performance(labels=labels[k], predictions=predictions[k], metric=metric).val for k in labels.keys()) / len(labels.keys())  # TODO currently we computes the average performance metric, but maybe in the future we want something different
-        
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 
