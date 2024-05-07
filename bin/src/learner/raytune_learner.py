@@ -1,12 +1,12 @@
 import os
+import ray.tune.schedulers as schedulers
+import torch
 import torch.nn as nn
 import torch.optim as optim 
-import torch
-import ray.tune.schedulers as schedulers
-
-from torch.utils.data import DataLoader
 from ray import train, tune
 from ray.tune import Trainable
+from torch.utils.data import DataLoader
+
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
 
@@ -29,7 +29,7 @@ class TuneWrapper():
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
         # build the run config
-        self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=False) #TODO implement checkpoiting
+        self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
         self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config) #TODO implement run_config (in tune/run_params for the yaml file)
         
         self.tuner = self.tuner_initialization()
@@ -80,7 +80,7 @@ class TuneModel(Trainable):
         optimizer_lr = config["optimizer_params"]["lr"]
 
         # get the optimizer from PyTorch
-        self.optimizer = getattr(optim, config["optimizer"]["method"])(self.model.parameters(), lr=optimizer_lr)
+        self.optimizer = getattr(optim, config["optimizer_params"]["method"])(self.model.parameters(), lr=optimizer_lr)
 
         # get step size from the config
         self.step_size = config["tune"]['step_size']
@@ -126,15 +126,12 @@ class TuneModel(Trainable):
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 
-    def load_checkpoint(self, checkpoint: dict | None) -> None:
-        if checkpoint:
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    def load_checkpoint(self, checkpoint_dir: str) -> None:
+        self.model.load_state_dict(torch.load(os.path.join(checkpoint_dir, "model.pt")))
+        self.optimizer.load_state_dict(torch.load(os.path.join(checkpoint_dir, "optimizer.pt")))
 
     def save_checkpoint(self, checkpoint_dir: str) -> dict | None:
-        checkpoint = {
-            'model_state_dict': self.model.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict()
-        }
-        torch.save(checkpoint, checkpoint_dir)
-        return checkpoint
+        torch.save(self.model.state_dict(), os.path.join(checkpoint_dir, "model.pt"))
+        torch.save(self.optimizer.state_dict(), os.path.join(checkpoint_dir, "optimizer.pt"))
+        return checkpoint_dir
+    
