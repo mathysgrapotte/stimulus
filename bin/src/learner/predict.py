@@ -4,7 +4,7 @@ from ..data.handlertorch import TorchDataset
 from ..utils.performance import Performance
 
 class PredictWrapper():
-    def __init__(self, model, data_path: str, experiment: object, loss_dict: dict, split: int, batch_size: int):
+    def __init__(self, model: object, data_path: str, experiment: object, loss_dict: dict, split: int, batch_size: int):
         self.model = model
         self.loss_dict = loss_dict
         self.dataloader = DataLoader(TorchDataset(data_path, experiment, split=split), batch_size=batch_size, shuffle=False)
