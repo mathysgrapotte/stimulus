@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
+from .predict import PredictWrapper
 
 
 class TuneWrapper():
@@ -87,8 +88,9 @@ class TuneModel(Trainable):
 
         # get the train and validation data from the config
         # run dataloader on them
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=config['data_params']['batch_size'])
-        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=config['data_params']['batch_size'])
+        self.batch_size = config['data_params']['batch_size']
+        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
         """
@@ -96,7 +98,6 @@ class TuneModel(Trainable):
         This calculation is performed based on the model's batch function.
         At the end, return the objective metric(s) for the tuning process.
         """
-
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
                 self.model.batch(x=x, y=y, optimizer=self.optimizer, **self.loss_dict)
@@ -106,23 +107,12 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
-        return {"val_loss": self.compute_validation_loss()}
+        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
+        predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  self.loss_dict, split=1, batch_size=self.batch_size)
+        predict_train = PredictWrapper(self.model, self.data_path, self.experiment, self.loss_dict,  split=0, batch_size=self.batch_size)
+        return {**{'val_'+metric : predict_val.compute_metric(metric) for metric in metrics},
+                **{'train_'+metric : predict_train.compute_metric(metric) for metric in metrics}}
 
-    def compute_validation_loss(self) -> float:
-        """
-        Compute loss on the validation data.
-        For each batch in the validation data, calculate the loss.
-        This calculation is performed based on the model's step function.
-        Then retun the average loss.
-        """
-        loss = 0.0
-        self.model.eval()
-        with torch.no_grad():
-            for x, y, meta in self.validation:
-                loss += self.model.batch(x, y, **self.loss_dict).item()
-        loss /= len(self.validation)
-        return loss
-        
     def export_model(self, export_dir: str) -> None:
         torch.save(self.model.state_dict(), export_dir)
 

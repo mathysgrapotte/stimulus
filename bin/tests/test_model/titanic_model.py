@@ -1,8 +1,11 @@
 import torch
 import torch.nn as nn
-from collections.abc import Callable
+from typing import Callable, Tuple, Optional
 
 class ModelTitanic(nn.Module):
+    """
+    A simple model for Titanic dataset.
+    """
     def __init__(self, nb_neurons_intermediate_layer: int = 7, nb_intermediate_layers: int = 3, nb_classes: int = 2):
         super(ModelTitanic, self).__init__()
         self.input_layer = nn.Linear(7, nb_neurons_intermediate_layer)
@@ -11,26 +14,49 @@ class ModelTitanic(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, pclass: torch.tensor, sex: torch.tensor, age: torch.tensor, sibsp: torch.tensor, parch: torch.tensor, fare: torch.tensor, embarked: torch.tensor):
-        # print all inputs
+    def forward(self, pclass: torch.Tensor, sex: torch.Tensor, age: torch.Tensor, sibsp: torch.Tensor, parch: torch.Tensor, fare: torch.Tensor, embarked: torch.Tensor) -> dict:
+        """
+        Forward pass of the model.
+        It should return the output as a dictionary, with the same keys as `y`.
+
+        NOTE that the final `x` is a torch.Tensor with shape (batch_size, nb_classes).
+        Here nb_classes = 2, so the output is a tensor with two columns, meaning the probabilities for surviving | not surviving.
+        """
         x = torch.stack((pclass, sex, age, sibsp, parch, fare, embarked), dim=1).float()
         x = self.relu(self.input_layer(x))
         for layer in self.intermediate:
             x = self.relu(layer(x))
         x = self.softmax(self.output_layer(x))
-        return x
+        return {'survived':x}
     
-    def compute_loss(self, loss_fn, output, survived):
+    def compute_loss(self, output: torch.Tensor, survived: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
+        """
+        Compute the loss.
+        `output` is the output tensor of the forward pass.
+        `survived` is the target tensor -> label column name.
+        `loss_fn` is the loss function to be used.
+        """
         return loss_fn(output, survived)
     
-    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Callable = None):
-        output = self.forward(**x)
-        loss = self.compute_loss(loss_fn, output, **y)
+    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
+        """
+        Perform one batch step.
+        `x` is a dictionary with the input tensors.
+        `y` is a dictionary with the target tensors.
+        `loss_fn` is the loss function to be used.
 
-        if optimizer is None:
-            return loss
-        
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        return loss # return the main batch loss, later used for computing the validation
+        If `optimizer` is passed, it will perform the optimization step -> training step
+        Otherwise, only return the forward pass output and loss -> evaluation step
+
+        NOTE that output['survived'] is converted from shape (batch_size, 2) to (batch_size,)
+        This basically convert the probabilities of two classes (survived | not survived) to the class with the highest probability.
+        This is needed because the current implementation of performance computation needs predictions to have the same shape as labels.
+        """
+        output = self.forward(**x)
+        loss = self.compute_loss(output['survived'], y['survived'], loss_fn)
+        if optimizer is not None:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        output = {k:torch.argmax(v, dim=1) for k,v in output.items()}
+        return loss, output
