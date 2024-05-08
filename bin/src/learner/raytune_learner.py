@@ -17,7 +17,9 @@ class TuneWrapper():
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
-        self.config = YamlRayConfigLoader(config_path).get_config()
+        # compose the yaml config loader class
+        self.yaml_loader = YamlRayConfigLoader(config_path)
+        self.config = self.yaml_loader.get_config()
         self.config["model"] = model_class
         self.config["experiment"] = experiment_object
 
@@ -69,14 +71,9 @@ class TuneModel(Trainable):
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
-        # where the key is the name of the loss function and the value is the loss function itself.
-        self.loss_dict = config["loss_params"]
-        for key, loss_fn in self.loss_dict.items():
-            try:
-                self.loss_dict[key] = getattr(nn, loss_fn)()
-            except AttributeError:
-                raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
-        
+        # where the keys are the key of loss_params in the yaml config file and the values are the loss functions associated to such keys.
+        self.loss_dict = self.yaml_loader.initialize_loss_functions(config["loss_params"])
+
         # get the optimizer parameters
         optimizer_lr = config["optimizer_params"]["lr"]
 

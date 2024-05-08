@@ -40,7 +40,7 @@ class ModelSimple(torch.nn.Module):
         """
         return loss_fn(output, hola.to(torch.float32))
     
-    def batch(self, x: dict, y: dict, loss_fn1: Callable, loss_fn2: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
+    def batch(self, x: dict, y: dict, loss_fn: dict, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
         """
         Perform one batch step.
         `x` is a dictionary with the input tensors.
@@ -54,11 +54,11 @@ class ModelSimple(torch.nn.Module):
         However, note that both loss1 and loss2 are participating in the backward propagation, one after another.
         """
         output = self(**x)
-        loss1 = self.compute_loss(output['hola'], y['hola'], loss_fn1)
-        loss2 = self.compute_loss(output['hola'], y['hola'], loss_fn2)
+        loss1 = self.compute_loss(output['hola'], y['hola'], loss_fn["loss_fn1"])
+        loss2 = self.compute_loss(output['hola'], y['hola'], loss_fn["loss_fn2"])
         if optimizer is not None:
             optimizer.zero_grad()
             loss1.backward(retain_graph=True)
             loss2.backward(retain_graph=True)
             optimizer.step()
-        return loss1.item(), output
+        return loss1, output

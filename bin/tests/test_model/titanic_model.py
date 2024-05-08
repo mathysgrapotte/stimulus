@@ -38,7 +38,7 @@ class ModelTitanic(nn.Module):
         """
         return loss_fn(output, survived)
     
-    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
+    def batch(self, x: dict, y: dict, loss_fn: dict, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
         """
         Perform one batch step.
         `x` is a dictionary with the input tensors.
@@ -53,7 +53,7 @@ class ModelTitanic(nn.Module):
         This is needed because the current implementation of performance computation needs predictions to have the same shape as labels.
         """
         output = self.forward(**x)
-        loss = self.compute_loss(output['survived'], y['survived'], loss_fn)
+        loss = self.compute_loss(output['survived'], y['survived'], loss_fn["loss_fn"])
         if optimizer is not None:
             optimizer.zero_grad()
             loss.backward()
