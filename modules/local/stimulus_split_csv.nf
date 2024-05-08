@@ -1,3 +1,4 @@
+
 process STIMULUS_SPLIT_CSV {
     
     tag "$parsed_json"

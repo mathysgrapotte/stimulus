@@ -1,3 +1,4 @@
+
 process STIMULUS_SHUFFLE_CSV {
 
     tag "$random_parsed_json"
@@ -24,4 +25,3 @@ process STIMULUS_SHUFFLE_CSV {
     touch "${original_csv.baseName}-shuffled.json"
     """
 }
-//Correrlo en pardal y ver que hay en STIMULUS_SHUFFLE_CSV

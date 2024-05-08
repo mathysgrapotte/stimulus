@@ -13,7 +13,7 @@ class JsonSchema(ABC):
         self.schema                = schema
         self.interpret_params_mode = schema.get('interpret_params_mode', 'column_wise')
         self.experiment            = schema.get('experiment', None)
-        self.transform_arg             = schema.get('transform', [])
+        self.transform_arg         = schema.get('transform', [])
         self.split_arg             = schema.get('split', [])
         self.custom_arg            = schema.get('custom', [])
 
