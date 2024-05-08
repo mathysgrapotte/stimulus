@@ -22,7 +22,7 @@ def get_args():
     parser.add_argument("-d", "--data", type=str, required=True, metavar="FILE", help="Path to input csv file")
     parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help="Path to model file")
     parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment config file. From this the experiment class name is extracted.")
-    parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to json config training file")
+    parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to yaml config training file")
     
     args = parser.parse_args()
     return args
@@ -49,7 +49,7 @@ class CheckModelWrapper():
 
         x, y, meta = next(iter(self.train_data))
         # train the model for one epoch
-        loss = self.model.batch(x, y, self.loss_fn, self.optimizer)
+        loss, output = self.model.batch(x, y, self.loss_fn, self.optimizer)
         # check the model weights have changed, and print if it has
         for key in initial_model_weights:
             if torch.equal(initial_model_weights[key], self.model.state_dict()[key]):
