@@ -1,6 +1,6 @@
 import torch 
 import torch.nn as nn
-from typing import Callable
+from typing import Callable, Optional, Tuple
     
 class ModelSimple(torch.nn.Module):
     """
@@ -31,7 +31,7 @@ class ModelSimple(torch.nn.Module):
         x = x.squeeze()
         return {'hola':x}
     
-    def compute_loss(self, output: torch.Tensor, hola: torch.Tensor, loss_fn: Callable):
+    def compute_loss(self, output: torch.Tensor, hola: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
         """
         Compute the loss.
         `output` is the output tensor of the forward pass.
@@ -40,7 +40,7 @@ class ModelSimple(torch.nn.Module):
         """
         return loss_fn(output, hola.to(torch.float32))
     
-    def batch(self, x: dict, y: dict, loss_fn1: Callable, loss_fn2: Callable, optimizer: Callable = None) -> torch.Tensor:
+    def batch(self, x: dict, y: dict, loss_fn1: Callable, loss_fn2: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
         """
         Perform one batch step.
         `x` is a dictionary with the input tensors.
@@ -61,4 +61,4 @@ class ModelSimple(torch.nn.Module):
             loss1.backward(retain_graph=True)
             loss2.backward(retain_graph=True)
             optimizer.step()
-        return loss1, output
+        return loss1.item(), output

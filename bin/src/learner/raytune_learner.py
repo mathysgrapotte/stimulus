@@ -108,7 +108,7 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
-        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall'] #, 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
+        metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
         predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  self.loss_dict, split=1, batch_size=self.batch_size)
         predict_train = PredictWrapper(self.model, self.data_path, self.experiment, self.loss_dict,  split=0, batch_size=self.batch_size)
         return {**{'val_'+metric : predict_val.compute_metric(metric) for metric in metrics},
