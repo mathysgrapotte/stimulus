@@ -2,8 +2,10 @@
 
 import argparse
 import json
+
+from launch_utils import get_experiment
 from src.data.csv import CsvProcessing
-import src.data.experiments as exp
+
 
 
 def get_args():
@@ -35,7 +37,7 @@ def main(data_csv, config_json, out_path):
         config = json.load(in_json)
 
     # initialize the experiment class
-    exp_obj = getattr(exp, config["experiment"])() 
+    exp_obj = get_experiment(config["experiment"])
 
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)

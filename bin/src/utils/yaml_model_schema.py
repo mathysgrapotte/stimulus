@@ -61,19 +61,3 @@ class YamlRayConfigLoader():
     
     def get_config(self) -> dict:
         return self.config
-
-    def initialize_loss_functions(self, config: dict) -> dict:
-        # The config["loss_params"] dictionary is created from the yaml in human readable form
-        # but during ray tune such string representing the loss functions need to transform to the actual inizialization of them
-        # "MSELoss" needs to become MSELoss(), so it need to be imported from torch.nn.
-        # This function does exactly this. it return the config["loss_params"] dict changing the values from string to imports of them.
-        # going from  'loss_params': {'loss_fn1': 'MSELoss', 'loss_fn2': 'SmoothL1Loss'}   to ->    'loss_params': {'loss_fn1': MSELoss(), 'loss_fn2': SmoothL1Loss()}
-
-        loss_dict = config
-        for key, loss_fn in loss_dict.items():
-            try:
-                loss_dict[key] = getattr(nn, loss_fn)()
-            except AttributeError:
-                raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
-        
-        return loss_dict

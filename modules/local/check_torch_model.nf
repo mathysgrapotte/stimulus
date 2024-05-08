@@ -12,8 +12,9 @@ process CHECK_TORCH_MODEL {
     stdout emit: standardout
 
     script:
+    def args = task.ext.args ?: ''
     """
-    launch_check_model.py -d ${original_csv} -m ${model} -e ${experiment_config} -c ${ray_tune_config}
+    launch_check_model.py -d ${original_csv} -m ${model} -e ${experiment_config} -c ${ray_tune_config} $args
     """
 
     stub:
