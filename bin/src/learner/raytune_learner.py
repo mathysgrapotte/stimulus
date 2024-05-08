@@ -1,4 +1,3 @@
-import logging
 import os
 import ray.tune.schedulers as schedulers
 import torch
