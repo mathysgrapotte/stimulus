@@ -19,6 +19,7 @@ class Performance():
     value (float) : the value of the metric
 
     TODO we can add more metrics here
+    TODO we can adjust the threshold for positive class for some metrics
     """
     def __init__(self, labels: Any, predictions: Any, metric: str = "rocauc") -> float:
         labels = self.data2array(labels)
