@@ -12,6 +12,10 @@ class PredictWrapper():
         self.model = model
         self.loss_dict = loss_dict
         self.dataloader = DataLoader(TorchDataset(data_path, experiment, split=split), batch_size=batch_size, shuffle=False)
+        try:
+            self.model.eval()
+        except:
+            print("warning: not able to run model.eval")
 
     def predict(self) -> dict:
         """
@@ -24,12 +28,11 @@ class PredictWrapper():
 
         At the end it returns `predictions` as a dictionary of tensors with the same keys as `y`.
         """
-        self.model.eval()
         predictions = {k:[] for k in list(self.dataloader)[0][1].keys()}
 
         # get the predictions for each batch
         with torch.no_grad():
-            for x, y, meta in self.dataloader:
+            for x, _, _ in self.dataloader:
                 current_predictions = self.model(**x)
                 for k in current_predictions.keys():
                     predictions[k].append(current_predictions[k])
@@ -69,7 +72,6 @@ class PredictWrapper():
         """
         if self.loss_dict is None:
             raise ValueError("Loss function is not provided.")
-        self.model.eval()
         loss = 0.0
         with torch.no_grad():
             for x, y, meta in self.dataloader:
@@ -83,7 +85,6 @@ class PredictWrapper():
 
         # TODO currently we computes the average performance metric across target y, but maybe in the future we want something different
         """
-        self.model.eval()
         # if labels not in self
         if not hasattr(self, 'labels'):
             self.labels = self.get_labels()
