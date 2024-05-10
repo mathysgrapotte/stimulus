@@ -85,10 +85,13 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
     with open(config_path, 'r') as conf_file, open(updated_tune_conf, "w") as new_conf:
         user_tune_config = yaml.safe_load(conf_file)
         # make so the tune run just once per num_sample
-        # user_tune_config["tune"]["tune_params"]["num_samples"]          = num_samples
+        user_tune_config["tune"]["tune_params"]["num_samples"]          = num_samples
         user_tune_config["tune"]["scheduler"]["params"]["max_t"]        = 1
         user_tune_config["tune"]["scheduler"]["params"]["grace_period"] = 1
         user_tune_config["tune"]["step_size"]                           = 1
+
+        # TODO check if among the first 2 values of all splitters params there is a percentage that makes the resulting split smaller that the biggest batch value
+
         # save to file the new dictionary because StimulusTuneWrapper only takes paths
         yaml.dump(user_tune_config, new_conf)
 
@@ -102,7 +105,8 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
 
     # add the split column if not present
     if "split" not in csv_obj.check_and_get_categories():
-        config_default = {"name": "RandomSplitter", "params": {}}
+        # split values are set to be half the data given so that the downsampled file total lines can be as little as possible
+        config_default = {"name": "RandomSplitter", "params": {0.5, 0.5, 0.0}}
         csv_obj.add_split(config_default)
     
     # save the modified csv
