@@ -1,10 +1,6 @@
 import json
-import logging
 import os
 import torch
-
-logging.basicConfig(level=logging.INFO) 
-logger = logging.getLogger(__name__) 
 
 class TuneParser():
     def __init__(self, results):
