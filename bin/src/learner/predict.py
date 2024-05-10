@@ -84,6 +84,9 @@ class PredictWrapper():
         # TODO currently we computes the average performance metric across target y, but maybe in the future we want something different
         """
         self.model.eval()
-        labels = self.get_labels()
-        predictions = self.predict()
-        return sum(Performance(labels=labels[k], predictions=predictions[k], metric=metric).val for k in labels.keys()) / len(labels.keys())
+        # if labels not in self
+        if not hasattr(self, 'labels'):
+            self.labels = self.get_labels()
+        if not hasattr(self, 'predictions'):
+            self.predictions = self.predict()
+        return sum(Performance(labels=self.labels[k], predictions=self.predictions[k], metric=metric).val for k in self.labels.keys()) / len(self.labels.keys())
