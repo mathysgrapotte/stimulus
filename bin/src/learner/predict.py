@@ -8,7 +8,7 @@ class PredictWrapper():
     A wrapper to predict the output of a model on a dataset.
     It also provides the functionalities to measure the performance of the model.
     """
-    def __init__(self, model: object, data_path: str, experiment: object, loss_dict: dict, split: int, batch_size: int):
+    def __init__(self, model: object, data_path: str, experiment: object, split: int, batch_size: int, loss_dict: dict):
         self.model = model
         self.loss_dict = loss_dict
         self.dataloader = DataLoader(TorchDataset(data_path, experiment, split=split), batch_size=batch_size, shuffle=False)

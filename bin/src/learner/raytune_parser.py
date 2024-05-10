@@ -1,6 +1,10 @@
 import json
+import logging
 import os
 import torch
+
+logging.basicConfig(level=logging.INFO) 
+logger = logging.getLogger(__name__) 
 
 class TuneParser():
     def __init__(self, results):
@@ -12,21 +16,33 @@ class TuneParser():
     def get_best_config(self) -> dict:
         """
         Get the best config from the results.
-
-        TODO only parse the relevant config values.
         """
         config = self.results.get_best_result().config
-        for k,v in config.items():
-            if not isinstance(v, (int, float, str)):
-                config[k] = str(v)  # this avoids the problem with serializing class objects
         return config
     
     def save_best_config(self, output: str) -> None:
         """
         Save the best config to a file.
+
+        TODO maybe only save the relevant config values.
         """
+        config = self.get_best_config()
+        config = self.fix_config_values(config)
         with open(output, "w") as f:
-            json.dump(self.get_best_config(), f, indent=4)
+            json.dump(config, f, indent=4)
+
+    def fix_config_values(self, config):
+        """
+        Function to fix config values.
+
+        TODO here there is a quick fix to avoid the problem with serializing class objects.
+        maybe there is a better way.
+        """
+        config['model'] = config['model'].__name__       
+        config['experiment'] = config['experiment'].__class__.__name__ 
+        if 'tune' in config and 'tune_params' in config['tune']:
+            del config['tune']['tune_params']['scheduler']
+        return config
 
     def save_best_metrics_dataframe(self, output: str) -> None:
         """
