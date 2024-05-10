@@ -8,7 +8,7 @@ class PredictWrapper():
     A wrapper to predict the output of a model on a dataset.
     It also provides the functionalities to measure the performance of the model.
     """
-    def __init__(self, model: object, data_path: str, experiment: object, split: int, batch_size: int, loss_dict: dict):
+    def __init__(self, model: object, data_path: str, experiment: object, split: int, batch_size: int, loss_dict: dict=None):
         self.model = model
         self.loss_dict = loss_dict
         self.dataloader = DataLoader(TorchDataset(data_path, experiment, split=split), batch_size=batch_size, shuffle=False)
@@ -30,7 +30,7 @@ class PredictWrapper():
         # get the predictions for each batch
         with torch.no_grad():
             for x, y, meta in self.dataloader:
-                current_predictions = self.model.batch(x, y, **self.loss_dict)[1]
+                current_predictions = self.model(**x)
                 for k in current_predictions.keys():
                     predictions[k].append(current_predictions[k])
 
@@ -67,6 +67,8 @@ class PredictWrapper():
         TODO we could potentially summarize the los across batches in a different way. 
         Or sometimes we may potentially even have 1+ losses.
         """
+        if self.loss_dict is None:
+            raise ValueError("Loss function is not provided.")
         self.model.eval()
         loss = 0.0
         with torch.no_grad():

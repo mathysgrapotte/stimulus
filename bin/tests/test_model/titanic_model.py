@@ -20,7 +20,7 @@ class ModelTitanic(nn.Module):
         It should return the output as a dictionary, with the same keys as `y`.
 
         NOTE that the final `x` is a torch.Tensor with shape (batch_size, nb_classes).
-        Here nb_classes = 2, so the output is a tensor with two columns, meaning the probabilities for surviving | not surviving.
+        Here nb_classes = 2, so the output is a tensor with two columns, meaning the probabilities for not survived | survived.
         """
         x = torch.stack((pclass, sex, age, sibsp, parch, fare, embarked), dim=1).float()
         x = self.relu(self.input_layer(x))
@@ -47,10 +47,6 @@ class ModelTitanic(nn.Module):
 
         If `optimizer` is passed, it will perform the optimization step -> training step
         Otherwise, only return the forward pass output and loss -> evaluation step
-
-        NOTE that output['survived'] is converted from shape (batch_size, 2) to (batch_size,)
-        This basically convert the probabilities of two classes (survived | not survived) to the class with the highest probability.
-        This is needed because the current implementation of performance computation needs predictions to have the same shape as labels.
         """
         output = self.forward(**x)
         loss = self.compute_loss(output['survived'], y['survived'], loss_fn)
@@ -58,5 +54,4 @@ class ModelTitanic(nn.Module):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        output = {k:torch.argmax(v, dim=1) for k,v in output.items()}
         return loss, output
