@@ -115,6 +115,16 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
     # Tune the model and get the tuning results
     results = learner.tune()
 
+    # check that there were no errors during tuning. Tune still sends exitcode 0 even on internal errors.
+    for i in range(len(results)):
+        result = results[i]
+        if not result.error:
+            print(f"Trial finishes successfully with metrics" f"{result.metrics}.")
+        else:
+            print(f"Trial failed with error {result.error}.")
+            raise SystemExit
+
+
 
 if __name__ == "__main__":
     args = get_args()
