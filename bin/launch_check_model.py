@@ -85,7 +85,7 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
     with open(config_path, 'r') as conf_file, open(updated_tune_conf, "w") as new_conf:
         user_tune_config = yaml.safe_load(conf_file)
         # make so the tune run just once per num_sample
-        user_tune_config["tune"]["tune_params"]["num_samples"]          = num_samples
+        # user_tune_config["tune"]["tune_params"]["num_samples"]          = num_samples
         user_tune_config["tune"]["scheduler"]["params"]["max_t"]        = 1
         user_tune_config["tune"]["scheduler"]["params"]["grace_period"] = 1
         user_tune_config["tune"]["step_size"]                           = 1
@@ -121,8 +121,8 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
         if not result.error:
             print(f"Trial finishes successfully with metrics" f"{result.metrics}.")
         else:
-            print(f"Trial failed with error {result.error}.")
-            raise SystemExit
+            raise TypeError(f"Trial failed with error {result.error}.")
+
 
 
 
