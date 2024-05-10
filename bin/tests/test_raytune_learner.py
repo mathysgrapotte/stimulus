@@ -3,8 +3,10 @@ import os
 import shutil
 import torch
 from bin.src.data.experiments import DnaToFloatExperiment
+from bin.src.data.experiments import TitanicExperiment
 from bin.src.learner.raytune_learner import TuneModel
 from bin.tests.test_model.dnatofloatmodel import ModelSimple
+from bin.tests.test_model.titanic_model import ModelTitanic
 from bin.src.learner.raytune_learner import TuneWrapper 
 from bin.src.utils.yaml_model_schema import YamlRayConfigLoader
 from torch.utils.data import DataLoader
@@ -62,10 +64,10 @@ class TestTuneModel(unittest.TestCase):
 class TestTuneWrapper(unittest.TestCase):
     def setUp(self):
         torch.manual_seed(1234)
-        config_path = "bin/tests/test_model/simple_config.yaml"
-        model_class = ModelSimple
-        experiment_obj = DnaToFloatExperiment()
-        data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
+        config_path = "bin/tests/test_model/titanic_model.yaml"
+        model_class = ModelTitanic
+        experiment_obj = TitanicExperiment()
+        data_path = "bin/tests/test_data/titanic/titanic_stimulus.csv"
         self.wrapper = TuneWrapper(config_path, model_class, data_path, experiment_obj)
     
     def test_setup(self):
