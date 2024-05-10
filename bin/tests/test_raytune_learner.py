@@ -73,14 +73,15 @@ class TestTuneWrapper(unittest.TestCase):
         self.assertTrue(self.wrapper.tune_config is not None)
         self.assertTrue(self.wrapper.checkpoint_config is not None)
         self.assertTrue(self.wrapper.run_config is not None)
-    
-    def test_tuner_initialization(self):
-        self.wrapper.tuner_initialization()
         self.assertTrue(self.wrapper.tuner is not None)
     
     def test_tune(self):
-        results = self.wrapper.tune()
-        self.assertTrue(results is not None)
+        result_grid = self.wrapper.tune()
+        self.assertTrue(result_grid is not None)
+        # checking that every run of tune ended with no errors
+        for i in range(len(result_grid)):
+            result = result_grid[i]
+            self.assertTrue(result.error is None)
 
 if __name__ == "__main__":
     unittest.main()

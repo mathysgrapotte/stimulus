@@ -30,7 +30,8 @@ class PredictWrapper():
         # get the predictions for each batch
         with torch.no_grad():
             for x, y, meta in self.dataloader:
-                current_predictions = self.model.batch(x, y, **self.loss_dict)[1]
+                # the loss_dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
+                current_predictions = self.model.batch(x=x, y=y, loss_fn=self.loss_dict)[1]
                 for k in current_predictions.keys():
                     predictions[k].append(current_predictions[k])
 
@@ -71,7 +72,8 @@ class PredictWrapper():
         loss = 0.0
         with torch.no_grad():
             for x, y, meta in self.dataloader:
-                current_loss = self.model.batch(x, y, **self.loss_dict)[0]
+                # the loss_dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
+                current_loss = self.model.batch(x=x, y=y, loss_fn=self.loss_dict)[0]
                 loss += current_loss.item()
         return loss / len(self.dataloader)
 
