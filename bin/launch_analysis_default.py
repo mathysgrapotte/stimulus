@@ -42,13 +42,13 @@ def main(model_path: str, weight_path: str, tune_config: str, metrics_path: str,
 
     # save plot: metric vs training iteration
     metrics = ["rocauc", "prauc", "mcc", "f1score", "precision", "recall"]
-    analysis_tune = AnalysisPerformanceTune(metrics_path)
-    for metric in metrics+["loss"]:
-        analysis_tune.plot_metric_vs_iteration(metric, os.path.join(outdir, metric+".png"))
+    AnalysisPerformanceTune(metrics_path).plot_metric_vs_iteration(
+        metrics=metrics+["loss"], 
+        output=os.path.join(outdir, "metric_vs_iteration.png"))
 
     # check model performance
     for data_path in data_list:
-        outfile = os.path.join(outdir, data_path.split("/")[-1].split(".")[0] + "_" + metric + ".csv")
+        outfile = os.path.join(outdir, data_path.split("/")[-1].split(".")[0] + "_metric.csv")
         AnalysisPerformanceModel(model, data_path, initialized_experiment_class, batch_size=10).get_performance_table(metrics=metrics, output=outfile)
 
     # TODO compile all the information in one report (pdf maybe)
