@@ -31,13 +31,22 @@ def main(model_path: str, weight_list: list, mconfig_list: list, metrics_list: l
     metrics = ["rocauc", "prauc", "mcc", "f1score", "precision", "recall"]
 
     # plot the performance during tuning/training
-    run_analysis_performance_tune(metrics_list, metrics+["loss"], outdir)
+    run_analysis_performance_tune(
+        metrics_list, 
+        metrics+["loss"], 
+        os.path.join(outdir, "performance_tune_train")
+    )
 
     # check the performance of each model on each dataset test
-    run_analysis_performance_model(metrics, model_path, weight_list, mconfig_list, econfig_list, data_list, outdir)
-
-    # TODO compile all the information in one report (pdf maybe)
-
+    run_analysis_performance_model(
+        metrics, 
+        model_path, 
+        weight_list, 
+        mconfig_list, 
+        econfig_list, 
+        data_list, 
+        os.path.join(outdir, "performance_robustness")
+    )
 
 def run_analysis_performance_tune(metrics_list: list, metrics: list, outdir: str):
     """
@@ -45,6 +54,9 @@ def run_analysis_performance_tune(metrics_list: list, metrics: list, outdir: str
     check the performance there and plot it.
     This is to track the model performance per training iteration.
     """
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+
     for metrics_path in metrics_list:
         AnalysisPerformanceTune(metrics_path).plot_metric_vs_iteration(
             metrics=metrics, 
@@ -55,6 +67,9 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     """
     check the performance of each model on each dataset test
     """
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+
     # load all the models
     model_names = []
     model_list  = []
@@ -77,8 +92,20 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     # get the performance table of each model with each dataset
     df = analysis.get_performance_table(model_names, model_list, data_list)
     df.to_csv(os.path.join(outdir, "performance_table.csv"), index=False)
+    
+    # get the average performance of each model across datasets
+    tmp = analysis.get_average_performance_table(df)
+    tmp.to_csv(os.path.join(outdir, "average_performance_table.csv"), index=False)
 
-    # plot delta performance
+    # plot performance vs data
+    analysis.plot_performance_heatmap(df, output=os.path.join(outdir, "performance_heatmap.png"))
+
+    # plot delta performance vd data
+    outdir2 = os.path.join(outdir, "delta_performance_vs_data")
+    if not os.path.exists(outdir2):
+        os.makedirs(outdir2)
+    for metric in metrics:
+        analysis.plot_delta_performance(metric, df, output=os.path.join(outdir2, "delta_performance_" + metric + ".png"))
 
     # get robustness score
 

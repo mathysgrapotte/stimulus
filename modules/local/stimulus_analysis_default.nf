@@ -15,6 +15,9 @@ process STIMULUS_ANALYSIS_DEFAULT {
           path(metrics)
     path(model)
 
+    output:
+    tuple path("performance_tune_train/"), path("performance_robustness/"), emit: analysis
+
     script:
     """
     launch_analysis_default.py \
@@ -29,5 +32,6 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     stub:
     """
+    mkdir performance_tune_train performance_robustness
     """
 }
