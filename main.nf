@@ -22,8 +22,9 @@ if (params.help) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { HANDLE_DATA  } from './workflows/handle_data.nf'
-include { HANDLE_TUNE } from './workflows/handle_tune.nf'
+include { HANDLE_DATA     } from './workflows/handle_data.nf'
+include { HANDLE_TUNE     } from './workflows/handle_tune.nf'
+include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,8 +48,12 @@ workflow {
         params.train_conf,
         prepared_data
     )
-    HANDLE_TUNE.out.data.view()
-    // HANDLE_ANALYSIS()
+    // HANDLE_TUNE.out.model.view()
+
+    HANDLE_ANALYSIS(
+        HANDLE_TUNE.out.model,
+        params.model
+    )
 
 }
 
