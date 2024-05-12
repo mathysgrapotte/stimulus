@@ -289,52 +289,6 @@ class AnalysisRobustness(Analysis):
             plt.savefig(output)
         plt.show()
     
-    # def plot_performance(self, metric: str, df: pd.DataFrame, figsize: tuple = (10,10), output: str = None):
-    #     """
-    #     Plot the performance of each model on each dataset, according to one specific metric.
-
-    #     `df` containing the performance table of each model on each dataset.
-    #     """
-    #     # create figure
-    #     rows, cols = get_grid_shape(len(df['model'].unique()))
-    #     fig, axs = plt.subplots(rows, cols, figsize=figsize)
-
-    #     # plot each model
-    #     for i,ax in enumerate(axs.flat):
-    #         if i >= len(df['model'].unique()):
-    #             ax.axis('off')
-    #             continue
-    #         self.plot_performance_for_one_model(ax, metric, df, df['model'].unique()[i])
-
-    #     # set common y limits
-    #     ymin = min([ax.get_ylim()[0] for ax in axs.flat])
-    #     ymax = max([ax.get_ylim()[1] for ax in axs.flat])
-    #     for ax in axs.flat:
-    #         spacer = abs(ymin - ymax)
-    #         spacer = spacer * 0.01
-    #         ax.set_ylim(ymin - spacer, ymax + spacer)
-
-    #     # save plot
-    #     plt.tight_layout()
-    #     if output:
-    #         plt.savefig(output)
-    #     plt.show()
-
-    # def plot_performance_for_one_model(self, ax: Any, metric: str, df: pd.DataFrame, model_name: str):
-    #     """
-    #     Plot the performance of one model.
-    #     """
-    #     df = df[df['model'] == model_name][['data', metric]]
-
-    #     # plot a barplot
-    #     df = df.set_index('data')
-    #     df.plot(kind='bar', ax=ax)
-
-    #     ax.set_xlabel('')
-    #     ax.get_legend().remove()
-    #     ax.set_title(model_name)
-
-    #     return ax
     
     def plot_delta_performance(self, metric: str, df: pd.DataFrame, figsize: tuple = (10,10), output: str = None):
         """
