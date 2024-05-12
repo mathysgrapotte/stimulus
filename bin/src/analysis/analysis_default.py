@@ -72,28 +72,46 @@ class AnalysisPerformanceTune:
         cols = int(math.ceil(n / rows))  # Calculate columns based on rows
         return rows, cols
 
-class AnalysisPerformanceModel:
-    """
-    Provide the performance of a model.
-    """
-    def __init__(self, model: object, data_path: str, experiment: object, batch_size=None):
-        self.model = model
-        self.data_path = data_path
-        self.experiment = experiment
-        self.predictor = PredictWrapper(self.model, self.data_path, self.experiment, split=2, batch_size=batch_size)
         
-    def get_performance_table(self, metrics: list, output: str = None) -> Tuple[pd.DataFrame,None]:
+class AnalysisRobustness:
+    def __init__(self, metrics: list, experiment: object, batch_size: int):
+        self.metrics = metrics
+        self.experiment = experiment
+        self.batch_size = batch_size
+    
+    def get_performance_table(self, names: list, model_list: dict, data_list: list) -> pd.DataFrame:
         """
-        Compute the performance metrics and create a table for it.
-        """
-        perf = {}
-        for metric in metrics:
-            perf[metric] = self.predictor.compute_metric(metric)
-        perf = pd.DataFrame(perf, index=[0])
-        if output:
-            perf.to_csv(output, index=False)
-        return pd.DataFrame(perf)
+        Compute the performance metrics of each model on each dataset.
 
-# class AnalysisRobustness:
-#     def __init__(self, data):
-#         pass
+        `names` is a list of names that identifies each model. 
+        The corresponding dataset used to train the model will also be identified equally.
+
+        `model_list` should have the same order as `data_list`. 
+        So model_list[i] is obtained by training on data_list[i].
+        """
+        # check same length
+        if (len(names) != len(model_list)) and (len(names) != len(data_list)):
+            raise ValueError("The length of the names, model_list and data_list should be the same.")
+        
+        # initialize
+        df = pd.DataFrame()
+        model_names = []
+
+        # for each model, get the performance table, and concat
+        for i,model in enumerate(model_list):
+            df = pd.concat([df, self.get_performance_table_for_one_model(names, model, data_list)])
+            model_names += [names[i]] * len(data_list)
+        df['model'] = model_names
+
+        return df
+    
+    def get_performance_table_for_one_model(self, names: list, model: object, data_list: list) -> pd.DataFrame:
+        """
+        Compute the performance table of one model on each dataset.
+        """
+        df = pd.DataFrame()
+        for data_path in data_list:  # for each data, get the performance metrics, and concat
+            metric_values = PredictWrapper(model, data_path, self.experiment, split=2, batch_size=self.batch_size).compute_metrics(self.metrics)
+            df = pd.concat([df, pd.DataFrame(metric_values, index=[0])])
+        df['data'] = names
+        return df
