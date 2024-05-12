@@ -76,8 +76,6 @@ class Performance():
         return f1_score(labels, predictions)
 
     def precision(self, labels: np.array, predictions: np.array) -> float:
-        print(predictions)
-        print(labels)
         predictions = np.array([1 if p > 0.5 else 0 for p in predictions])
         return precision_score(labels, predictions)
 

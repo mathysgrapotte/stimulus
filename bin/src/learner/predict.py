@@ -52,6 +52,12 @@ class PredictWrapper():
             for k in y.keys():
                 labels[k].append(y[k])
         return {k: torch.cat(v) for k, v in labels.items()}
+    
+    def compute_metrics(self, metric: list) -> dict:
+        """
+        Wrapper to compute the performance metrics.
+        """
+        return {m: self.compute_metric(m) for m in metric}
 
     def compute_metric(self, metric: str = 'loss') -> float:
         """
