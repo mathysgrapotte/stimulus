@@ -276,8 +276,8 @@ class AnalysisRobustness(Analysis):
                 continue
 
             # reshape the data frame into the matrix for one metric
-            mat = df[['data', 'model', self.metrics[i]]]
-            mat = mat.pivot(index='data', columns='model', values=self.metrics[i])
+            mat = df[['model', 'data', self.metrics[i]]]
+            mat = mat.pivot(index='model', columns='data', values=self.metrics[i])
 
             # plot heatmap
             im, cbar = self.heatmap(mat, mat.index, mat.columns, ax=ax, cmap="YlGn", cbarlabel=self.metrics[i])

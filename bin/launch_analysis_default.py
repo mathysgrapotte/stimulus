@@ -37,7 +37,9 @@ def main(model_path: str, weight_list: list, mconfig_list: list, metrics_list: l
         os.path.join(outdir, "performance_tune_train")
     )
 
-    # check the performance of each model on each dataset test
+    # run robustness analysis
+    # this block will first predict the output of each model on each dataset test
+    # and then report some metrics to evaluate each model robustness
     run_analysis_performance_model(
         metrics, 
         model_path, 
@@ -65,19 +67,23 @@ def run_analysis_performance_tune(metrics_list: list, metrics: list, outdir: str
 
 def run_analysis_performance_model(metrics: list, model_path: list, weight_list: list, mconfig_list: list, econfig_list: list, data_list: list, outdir: str):
     """
-    check the performance of each model on each dataset test
+    Block to report about the model robustness.
+
+    This block will compute the predictions of each model for each dataset.
+    This information will be parsed.
+    And then plots will be generated to report the model robustness.
     """
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    # load all the models
+    # load all the models weights into a list
     model_names = []
     model_list  = []
     model_class = import_class_from_file(model_path)
     for weight_path, mconfig_path in zip(weight_list, mconfig_list):
-        model = load_model(model_class, weight_path, mconfig_path)
+        model = load_model( model_class, weight_path, mconfig_path )
         model_names.append( mconfig_path.split("/")[-1].replace("-config.json", "") )
-        model_list.append(model)
+        model_list.append( model )
 
     # read experiment config and retrieve experiment name and then initialize the experiment class
     experiment_name = None
@@ -87,9 +93,12 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     initialized_experiment_class = get_experiment(experiment_name)
 
     # initialize analysis
+    # TODO for the moment I am hard coding the batch size for the forward pass to predict
+    # but we can make it dynamic in the future
+    # or depending on the dataset size, etc.
     analysis = AnalysisRobustness(metrics, initialized_experiment_class, batch_size=10)
 
-    # get the performance table of each model with each dataset
+    # compute the performance of each model on each dataset
     df = analysis.get_performance_table(model_names, model_list, data_list)
     df.to_csv(os.path.join(outdir, "performance_table.csv"), index=False)
     
@@ -97,17 +106,17 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     tmp = analysis.get_average_performance_table(df)
     tmp.to_csv(os.path.join(outdir, "average_performance_table.csv"), index=False)
 
-    # plot performance vs data
+    # plot heatmap: model as rows and data as columns
     analysis.plot_performance_heatmap(df, output=os.path.join(outdir, "performance_heatmap.png"))
 
-    # plot delta performance vd data
+    # plot barplot: model delta performance between each dataset and the reference dataset
     outdir2 = os.path.join(outdir, "delta_performance_vs_data")
     if not os.path.exists(outdir2):
         os.makedirs(outdir2)
     for metric in metrics:
         analysis.plot_delta_performance(metric, df, output=os.path.join(outdir2, "delta_performance_" + metric + ".png"))
 
-    # get robustness score
+    # TODO add more analysis needed
 
 def load_model(model_class: object, weight_path: str, mconfig_path: str) -> object:
     """
