@@ -22,8 +22,9 @@ if (params.help) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { HANDLE_DATA     } from './workflows/handle_data.nf'
-include { HANDLE_TUNE     } from './workflows/handle_tune.nf'
+include { CHECK_MODEL } from './subworkflows/check_model.nf'
+include { HANDLE_DATA } from './workflows/handle_data.nf'
+include { HANDLE_TUNE } from './workflows/handle_tune.nf'
 include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
 
 /*
@@ -35,12 +36,20 @@ include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
 
 workflow {
 
+    CHECK_MODEL (
+        params.csv,
+        params.exp_conf,
+        params.model,
+        params.train_conf
+    )
+    completion_message = CHECK_MODEL.out.completion_message
+
     HANDLE_DATA( 
         params.csv,
-        params.exp_conf
+        params.exp_conf,
+        completion_message
     )
     prepared_data = HANDLE_DATA.out.data
-    //HANDLE_DATA.out.debug.view()
     //HANDLE_DATA.out.data.view()
 
     HANDLE_TUNE(
