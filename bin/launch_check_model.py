@@ -106,7 +106,7 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
     # add the split column if not present
     if "split" not in csv_obj.check_and_get_categories():
         # split values are set to be half the data given so that the downsampled file total lines can be as little as possible
-        config_default = {"name": "RandomSplitter", "params": [0.5, 0.5, 0.0]}
+        config_default = {"name": "RandomSplitter", "params": {"split": [0.5, 0.5, 0.0]} }
         csv_obj.add_split(config_default)
     
     # save the modified csv

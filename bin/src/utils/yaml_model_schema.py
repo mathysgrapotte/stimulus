@@ -1,6 +1,5 @@
 import yaml
 import ray.tune as tune
-import torch.nn as nn
 from copy import deepcopy
 from collections.abc import Callable
 
