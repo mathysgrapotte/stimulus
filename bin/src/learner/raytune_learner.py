@@ -102,7 +102,7 @@ class TuneModel(Trainable):
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
                 # the loss dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
-                self.model.batch(x=x, y=y, loss_fn=self.loss_dict, optimizer=self.optimizer)
+                self.model.batch(x=x, y=y, optimizer=self.optimizer, **self.loss_dict)
         return self.objective()
 
     def objective(self) -> dict:
