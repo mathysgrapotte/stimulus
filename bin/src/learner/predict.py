@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from ..data.handlertorch import TorchDataset
 from ..utils.performance import Performance
+from ..utils.generic_torch_utils import ensure_at_least_1d
 
 class PredictWrapper():
     """
@@ -26,16 +27,16 @@ class PredictWrapper():
         """
         self.model.eval()
         predictions = {k:[] for k in list(self.dataloader)[0][1].keys()}
-
         # get the predictions for each batch
         with torch.no_grad():
             for x, y, meta in self.dataloader:
                 # the loss_dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
-                current_predictions = self.model.batch(x=x, y=y, loss_fn=self.loss_dict)[1]
+                current_predictions = self.model.batch(x=x, y=y, **self.loss_dict)[1]
+                # there could be more than one y value so that's why the need for the iteration.
                 for k in current_predictions.keys():
-                    predictions[k].append(current_predictions[k])
-
-        # return the predictions as a dictionary of tensors for the entire dataset
+                    # it might happen that the batch consists of one element only so the torch.cat will fail. To prevent this the function to ensure at least one dimensionality is called.
+                    predictions[k].append(ensure_at_least_1d(current_predictions[k]))
+        # return the predictions as a dictionary of tensors for the entire dataset.
         return {k: torch.cat(v) for k, v in predictions.items()}
 
     def get_labels(self) -> dict:
@@ -48,7 +49,8 @@ class PredictWrapper():
         labels = {k:[] for k in list(self.dataloader)[0][1].keys()}
         for _, y, _ in self.dataloader:
             for k in y.keys():
-                labels[k].append(y[k])
+                # it might happen that the batch consists of one element only so the torch.cat will fail. To prevent this the function to ensure at least one dimensionality is called.
+                labels[k].append(ensure_at_least_1d(y[k]))
         return {k: torch.cat(v) for k, v in labels.items()}
 
     def compute_metric(self, metric: str = 'loss') -> float:
@@ -73,7 +75,7 @@ class PredictWrapper():
         with torch.no_grad():
             for x, y, meta in self.dataloader:
                 # the loss_dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
-                current_loss = self.model.batch(x=x, y=y, loss_fn=self.loss_dict)[0]
+                current_loss = self.model.batch(x=x, y=y, **self.loss_dict)[0]
                 loss += current_loss.item()
         return loss / len(self.dataloader)
 
