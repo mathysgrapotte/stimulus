@@ -19,6 +19,9 @@ workflow HANDLE_ANALYSIS {
     input_model
 
     main:
+
+    // input model channel
+    model = Channel.fromPath(input_model)
    
     // 1. Run the default analysis for all models and data together
     input_tune_out
@@ -26,7 +29,7 @@ workflow HANDLE_ANALYSIS {
         .set{ ch2default }
     STIMULUS_ANALYSIS_DEFAULT(
         ch2default,
-        input_model
+        model
     )
 
     // 2. Run the motif discovery block

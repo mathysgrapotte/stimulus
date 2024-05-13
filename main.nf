@@ -25,7 +25,7 @@ if (params.help) {
 include { CHECK_MODEL } from './subworkflows/check_model.nf'
 include { HANDLE_DATA } from './workflows/handle_data.nf'
 include { HANDLE_TUNE } from './workflows/handle_tune.nf'
-// include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
+include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,10 +60,10 @@ workflow {
     // HANDLE_TUNE.out.model.view()
 
     // this part works, but the docker container is not updated with matplotlib yet
-    // HANDLE_ANALYSIS(
-    //     HANDLE_TUNE.out.model,
-    //     params.model
-    // ) 
+    HANDLE_ANALYSIS(
+        HANDLE_TUNE.out.model,
+        params.model
+    ) 
 
 }
 

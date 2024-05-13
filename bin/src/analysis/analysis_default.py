@@ -207,6 +207,9 @@ class AnalysisPerformanceTune(Analysis):
         return ax
 
 class AnalysisRobustness(Analysis):
+    """
+    Report the robustness of the models.
+    """
     def __init__(self, metrics: list, experiment: object, batch_size: int):
         super().__init__()
         self.metrics = metrics
