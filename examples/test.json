@@ -6,11 +6,6 @@
             "column_name": "hello:input:dna",
             "name": ["UniformTextMasker"],
             "params": [{"probability": [0.1, 0.2]}]
-        },
-        {
-            "column_name": "hola:label:float",
-            "name": ["GaussianNoise"],
-            "params": [{"mean": [0.6, 0.7], "std": [0.2, 0.3]}]
         }
     ],
     "split": [
