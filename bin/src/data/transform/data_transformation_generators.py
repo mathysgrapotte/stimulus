@@ -16,7 +16,6 @@ class AbstractDataTransformer(ABC):
 
     def __init__(self):
         self.add_row = None
-        self.training_data_only = False
 
     @abstractmethod
     def transform(self, data: Any, seed: float = None) -> Any:
@@ -43,9 +42,7 @@ class AbstractNoiseGenerator(AbstractDataTransformer):
 
     def __init__(self):
         super().__init__()
-        self.add_row = False
-        self.training_data_only = True
- 
+        self.add_row = False 
 
 class AbstractAugmentationGenerator(AbstractDataTransformer):
     """
@@ -56,8 +53,6 @@ class AbstractAugmentationGenerator(AbstractDataTransformer):
     def __init__(self):
         super().__init__()
         self.add_row = True
-        self.training_data_only = False
-
 
 class UniformTextMasker(AbstractNoiseGenerator):
     """
