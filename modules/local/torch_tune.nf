@@ -21,7 +21,7 @@ process TORCH_TUNE {
 
     script:
     """
-    launch_tuning.py -c ${ray_tune_config} -m ${model} -d ${data_csv} -j ${parsed_json}
+    launch_tuning.py -c ${ray_tune_config} -m ${model} -d ${data_csv} -e ${parsed_json}
     """
 
     stub:

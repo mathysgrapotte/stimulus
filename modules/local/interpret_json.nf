@@ -7,6 +7,7 @@ process INTERPRET_JSON {
     
     input:
     path user_json
+    val message_from_check_model // only here to ensure that this module waits for check_model module to actually run
 
     output:
     path("json_dir/*.json"), emit: interpreted_json

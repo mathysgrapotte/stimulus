@@ -33,8 +33,8 @@ workflow HANDLE_DATA {
     csv  = Channel.fromPath( input_csv  )
     json = Channel.fromPath( input_json )
 
-    // read the json and create many json as there are combinations of noisers and splitters
-    INTERPRET_JSON(json)
+    // read the json and create many json as there are combinations of noisers and splitters. the message_from_check is passed only to enforce that this modules does not run untill check_module is finished.
+    INTERPRET_JSON(json, message_from_check)
 
     // for each user json many json wiil be created in the same process, but then we need to parallelize and work on them one by one.
     parsed_json = INTERPRET_JSON.out.interpreted_json.flatten()
