@@ -33,7 +33,8 @@ workflow HANDLE_TUNE {
     TORCH_TUNE( model_conf_data )
 
     emit:
-    model  = TORCH_TUNE.out.tune_specs
+    tune_out  = TORCH_TUNE.out.tune_specs
+    model     = model
 }
 
 

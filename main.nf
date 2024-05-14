@@ -61,8 +61,8 @@ workflow {
 
     // this part works, but the docker container is not updated with matplotlib yet
     HANDLE_ANALYSIS(
-        HANDLE_TUNE.out.model,
-        params.model
+        HANDLE_TUNE.out.tune_out,
+        HANDLE_TUNE.out.model
     ) 
 
 }
