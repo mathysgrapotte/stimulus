@@ -16,7 +16,8 @@ class ModelSimple(torch.nn.Module):
         self.conv1 = nn.Conv1d(in_channels=4, out_channels=1, kernel_size=kernel_size)
         self.pool = nn.MaxPool1d(pool_size, pool_size)
         self.softmax = nn.Softmax(dim=1)
-        self.linear = nn.Linear(7,1)
+        # had to change to 6 because dna sequence is shoprter
+        self.linear = nn.Linear(6, 1)
     
     def forward(self, hello: torch.Tensor) -> dict:
         """
@@ -61,4 +62,4 @@ class ModelSimple(torch.nn.Module):
             loss1.backward(retain_graph=True)
             loss2.backward(retain_graph=True)
             optimizer.step()
-        return loss1.item(), output
+        return loss1, output

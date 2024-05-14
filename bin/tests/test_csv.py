@@ -216,8 +216,8 @@ class TestDnaToFloatCsvLoader(AbstractTestCsvLoader):
         self.experiment = DnaToFloatExperiment()
         self.csv_loader = CsvLoader(self.experiment, self.csv_path)
         self.data_shape = [2,3]
-        self.data_shape_split = [3,4]
-        self.shape_splits = {0: 1, 1: 1, 2: 1}
+        self.data_shape_split = [48,4]
+        self.shape_splits = {0: 16, 1: 16, 2: 16}
 
     def test_len(self):
         self._test_len()

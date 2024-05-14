@@ -16,7 +16,7 @@ optimizer_params:
 
 data_params:
   batch_size:
-    space: [16, 32, 64, 128, 256]
+    space: [8, 16]
     mode: choice
 
 loss_params:

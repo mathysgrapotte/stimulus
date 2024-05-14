@@ -69,7 +69,7 @@ class TuneModel(Trainable):
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
-        # where the key is the name of the loss function and the value is the loss function itself.
+        # where the keys are the key of loss_params in the yaml config file and the values are the loss functions associated to such keys.
         self.loss_dict = config["loss_params"]
         for key, loss_fn in self.loss_dict.items():
             try:
@@ -77,6 +77,7 @@ class TuneModel(Trainable):
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
         
+
         # get the optimizer parameters
         optimizer_lr = config["optimizer_params"]["lr"]
 
@@ -100,6 +101,7 @@ class TuneModel(Trainable):
         """
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
+                # the loss dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
                 self.model.batch(x=x, y=y, optimizer=self.optimizer, **self.loss_dict)
         return self.objective()
 
