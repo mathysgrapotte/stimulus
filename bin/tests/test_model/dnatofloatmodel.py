@@ -30,7 +30,7 @@ class ModelSimple(torch.nn.Module):
         x = self.softmax(x)
         x = self.linear(x)
         x = x.squeeze()
-        return {'hola':x}
+        return x
     
     def compute_loss(self, output: torch.Tensor, hola: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
         """
@@ -55,8 +55,8 @@ class ModelSimple(torch.nn.Module):
         However, note that both loss1 and loss2 are participating in the backward propagation, one after another.
         """
         output = self(**x)
-        loss1 = self.compute_loss(output['hola'], y['hola'], loss_fn1)
-        loss2 = self.compute_loss(output['hola'], y['hola'], loss_fn2)
+        loss1 = self.compute_loss(output, **y, loss_fn=loss_fn1)
+        loss2 = self.compute_loss(output, **y, loss_fn=loss_fn2)
         if optimizer is not None:
             optimizer.zero_grad()
             loss1.backward(retain_graph=True)

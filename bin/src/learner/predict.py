@@ -32,13 +32,23 @@ class PredictWrapper():
         predictions = {k:[] for k in list(self.dataloader)[0][1].keys()}
         # get the predictions for each batch
         with torch.no_grad():
-            for x, _, _ in self.dataloader:
+            for x, y, _ in self.dataloader:
                 current_predictions = self.model(**x)
+                current_predictions = self.handle_predictions(current_predictions, y)
                 for k in current_predictions.keys():
                     # it might happen that the batch consists of one element only so the torch.cat will fail. To prevent this the function to ensure at least one dimensionality is called.
                     predictions[k].append(ensure_at_least_1d(current_predictions[k]))
         # return the predictions as a dictionary of tensors for the entire dataset.
         return {k: torch.cat(v) for k, v in predictions.items()}
+
+    def handle_predictions(self, predictions, y) -> dict:
+        """
+        Handle the model outputs from forward pass.
+        """
+        if len(y) == 1:
+            return {list(y.keys())[0]: predictions}
+        else:
+            return {k:v for k, v in zip(y.keys(), predictions)}
 
     def get_labels(self) -> dict:
         """

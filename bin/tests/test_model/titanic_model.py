@@ -27,7 +27,7 @@ class ModelTitanic(nn.Module):
         for layer in self.intermediate:
             x = self.relu(layer(x))
         x = self.softmax(self.output_layer(x))
-        return {'survived':x}
+        return x
     
     def compute_loss(self, output: torch.Tensor, survived: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
         """
@@ -49,7 +49,7 @@ class ModelTitanic(nn.Module):
         Otherwise, only return the forward pass output and loss -> evaluation step
         """
         output = self.forward(**x)
-        loss = self.compute_loss(output['survived'], y['survived'], loss_fn)
+        loss = self.compute_loss(output, **y, loss_fn=loss_fn)
         if optimizer is not None:
             optimizer.zero_grad()
             loss.backward()
