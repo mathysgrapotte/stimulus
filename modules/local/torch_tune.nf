@@ -26,7 +26,7 @@ process TORCH_TUNE {
         -c ${ray_tune_config} \
         -m ${model} \
         -d ${data_csv} \
-        -j ${parsed_json} \
+        -e ${parsed_json} \
         -o ${prefix}-model.pt \
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
