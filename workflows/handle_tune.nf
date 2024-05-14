@@ -22,7 +22,7 @@ workflow HANDLE_TUNE {
 
     main:
     // put the files in channels, 
-    model        = Channel.fromPath( input_model  ).first()  // TODO implement a check and complain if more that one file is pased as model
+    model       = Channel.fromPath( input_model  ).first()  // TODO implement a check and complain if more that one file is pased as model
     tune_config = Channel.fromPath( input_tune_config )
 
     // assign a model and a TUNE_config to each data
@@ -33,8 +33,8 @@ workflow HANDLE_TUNE {
     TORCH_TUNE( model_conf_data )
 
     emit:
-    data  = TORCH_TUNE.out.tune_specs
-
+    tune_out  = TORCH_TUNE.out.tune_specs
+    model     = model
 }
 
 
