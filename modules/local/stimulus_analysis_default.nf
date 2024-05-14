@@ -3,7 +3,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     tag "$model-$data"
     label 'process_medium'
-    // container "alessiovignoli3/stimulus:latest"  // TODO add matplotlib
+    container "alessiovignoli3/stimulus:stimulus_v0.1"
 
     input:
     tuple val(original_csv), \
