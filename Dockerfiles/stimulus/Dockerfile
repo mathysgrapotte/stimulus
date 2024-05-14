@@ -12,4 +12,5 @@ RUN pip install \
 	scikit-learn==1.3.0 \
 	pytorch-lightning==2.0.1 \
 	ray[train,tune]==2.8.0 \
-    ps==0.1.0
+    ps==0.1.0 \
+	matplotlib==3.8.2
