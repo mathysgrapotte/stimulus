@@ -3,7 +3,7 @@ process CHECK_TORCH_MODEL {
 
     tag "$experiment_config-$original_csv"
     label 'process_medium'
-    container "alessiovignoli3/stimulus:stimulus_v0.1"
+    container "alessiovignoli3/stimulus:stimulus_v0.2"
     
     input:
     tuple path(original_csv), path(model),  path(experiment_config), path(ray_tune_config)

@@ -3,7 +3,7 @@ process TORCH_TUNE {
 
     tag "$model-$data_csv"
     label 'process_high'
-    container "alessiovignoli3/stimulus:stimulus_v0.1"
+    container "alessiovignoli3/stimulus:stimulus_v0.2"
 
     input:
     tuple val(original_csv), path(ray_tune_config), path(model), path(data_csv), path(parsed_json)
