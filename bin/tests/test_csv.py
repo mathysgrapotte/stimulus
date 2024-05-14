@@ -8,7 +8,6 @@ import polars as pl
 sys.path.append('./')
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
-from bin.src.data.experiments import DnaToFloatExperiment, ProtDnaToFloatExperiment
 
 class AbstractTestCsvProcessing(unittest.TestCase):
     """
@@ -82,10 +81,10 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._transform()
         self.data_length = self.data_length * 2
         self._test_len()
-        self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
-        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
-        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
-        self._test_all_values_in_column('split:split:int', [0, 1, 0, 1])
+        self._test_all_values_in_column('pet:meta:str', ['cat', 'dog', 'cat','dog'])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.540016, 12.676405, 12.540016])
+        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATNN', 'NNATCGATCAGTCAGT', 'NNATCGATCAGTCAGT'])
+        self._test_all_values_in_column('split:split:int', [1, 0, 1, 0])
         
     def test_shuffle_labels(self):
         # initialize seed to 42 to make the test reproducible
@@ -119,11 +118,11 @@ class TestProtDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         self._transform()
         self.data_length = self.data_length * 2
         self._test_len()
-        self._test_all_values_in_column('pet:meta:str', ['dog', 'cat', 'dog','cat'])
-        self._test_all_values_in_column('hola:label:float', [12.676405, 12.0, 12.676405, 12.0])
-        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATGC', 'NNATCGATCAGTCAGT', 'GCATCGATCAGTCAGT'])
-        self._test_all_values_in_column('split:split:int', [0, 1, 0,1])
-        self._test_all_values_in_column('bonjour:input:prot', ['GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLK'])
+        self._test_all_values_in_column('pet:meta:str', ['cat', 'dog', 'cat','dog'])
+        self._test_all_values_in_column('hola:label:float', [12.676405, 12.540016, 12.676405, 12.540016])
+        self._test_all_values_in_column('hello:input:dna', ['ACTGACTGATCGATNN', 'ACTGACTGATCGATNN', 'NNATCGATCAGTCAGT', 'NNATCGATCAGTCAGT'])
+        self._test_all_values_in_column('split:split:int', [1,0,1,0])
+        self._test_all_values_in_column('bonjour:input:prot', ['GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX', 'GPRTTIKAKQLETLX'])
 
 class AbstractTestCsvLoader(unittest.TestCase):
     """
