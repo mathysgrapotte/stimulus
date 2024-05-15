@@ -3,7 +3,7 @@ process STIMULUS_TRANSFORM_CSV {
 
     tag "$parsed_json"
     label 'process_medium'
-    container 'alessiovignoli3/stimulus:stimulus_v0.1'
+    container 'alessiovignoli3/stimulus:stimulus_v0.2'
 
     input:
     tuple val(original_csv), path(parsed_json), path(splitted_csv)

@@ -3,7 +3,7 @@ process INTERPRET_JSON {
 
     tag "$user_json"
     label 'process_low'
-    container "alessiovignoli3/stimulus:ps"
+    container "alessiovignoli3/stimulus:ps_v0.1"
     
     input:
     path user_json
