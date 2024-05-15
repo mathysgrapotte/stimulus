@@ -129,8 +129,7 @@ class CsvProcessing(CsvHandler):
         split_column[validation] = 1
         split_column[test] = 2
         self.data = self.data.with_columns(pl.Series('split:split:int', split_column))
-        self.update_categories()
-        
+        self.update_categories()   
 
     def transform(self, transformations: list) -> None:
         """
@@ -140,40 +139,19 @@ class CsvProcessing(CsvHandler):
             key = dictionary['column_name']
             data_type = key.split(':')[2]
             data_transformer = dictionary['name']
-            transfomer = self.experiment.get_data_transformer(data_type, data_transformer)
+            transformer = self.experiment.get_data_transformer(data_type, data_transformer)
             
-            # If the transformer is only for training data, we need to separate the data
-            # and transform only the training data
-            if transfomer.training_data_only:
-                split_colname = self.get_keys_from_header(self.data.columns, category='split')
-                data_to_transform = self.data.filter(pl.col(split_colname) == 0)
-                untransformed_data = self.data.filter(pl.col(split_colname) != 0)
-            else: 
-                data_to_transform = self.data
+            # transform the data
+            new_data = transformer.transform_all(list(self.data[key]), **dictionary['params'])
             
-            # Transform the data
-            new_data = transfomer.transform_all(list(data_to_transform[key]), **dictionary['params'])
-            
-            # Add the transformed data to the dataframe
-            
-            # If the transformer modifies the column, we need to replace the column
-            if transfomer.add_row:
-                new_rows = data_to_transform.with_columns(pl.Series(key, new_data))
+            # if the transformation creates new rows (eg. data augmentation), then add the new rows to the original data
+            # otherwise just get the transformation of the data
+            if transformer.add_row:
+                new_rows = self.data.with_columns(pl.Series(key, new_data))
                 self.data = self.data.vstack(new_rows)
-            else:              
-                transformed_data = data_to_transform.with_columns(pl.Series(key, new_data))
-                # make sure the column has the same type as the new data
-                # this is necessary because the transformer could change the type of the column (e.g. from int to float) 
-                transformed_data_type = str(transformed_data[key].dtype)
-                untransformed_data = untransformed_data.with_columns(pl.col(key).cast(getattr(pl, transformed_data_type)))
- 
-                # If the transformer is only for training data, we need to concatenate the transformed data with the untransformed data
-                if transfomer.training_data_only:
-                    self.data = transformed_data.vstack(untransformed_data)
-                else:
-                    self.data = transformed_data
+            else:
+                self.data = self.data.with_columns(pl.Series(key, new_data))
 
-                                 
     def shuffle_labels(self) -> None:
         """
         Shuffles the labels in the data.

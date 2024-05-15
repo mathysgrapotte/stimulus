@@ -10,22 +10,32 @@ process TORCH_TUNE {
 
     output:
     // TODO get the best model as well once implemented in python
-    tuple val(original_csv), 
-          path("best_config.json"), 
-          path("best_model.pt"),
-          path("best_optimizer.pt"),
-          path("best_metrics.csv"),
-          path(data_csv), 
-          path(parsed_json), 
+    tuple val(original_csv),
+          path(data_csv),
+          path(parsed_json),
+          path("*-config.json"),
+          path("*-model.pt"),
+          path("*-optimizer.pt"),
+          path("*-metrics.csv"),
           emit: tune_specs
 
     script:
+    def prefix = task.ext.prefix
     """
-    launch_tuning.py -c ${ray_tune_config} -m ${model} -d ${data_csv} -e ${parsed_json}
+    launch_tuning.py \
+        -c ${ray_tune_config} \
+        -m ${model} \
+        -d ${data_csv} \
+        -e ${parsed_json} \
+        -o ${prefix}-model.pt \
+        -bo ${prefix}-optimizer.pt \
+        -bm ${prefix}-metrics.csv \
+        -bc ${prefix}-config.json
     """
 
     stub:
+    def prefix = task.ext.prefix
     """
-    touch best_config.json best_model.pt best_optimizer.pt best_metrics.csv
+    touch ${prefix}-model.pt ${prefix}-optimizer.pt ${prefix}-metrics.csv ${prefix}-config.json
     """
 }
