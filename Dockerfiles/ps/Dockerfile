@@ -1,5 +1,5 @@
-# mambaorg/micromamba:1.5.8-bookworm-slim
-FROM mambaorg/micromamba@sha256:abcb3ae7e3521d08e1fdeaff63131765b34e4f29b6a8a2c28660036b53841569
+# mambaorg/micromamba:1.5.8-bookworm-slim amd64
+FROM mambaorg/micromamba@sha256:20a4558dd85eb3e766bfe3eb232461629b186475707123cf721d23b46e075050
 LABEL maintainer="Alessio Vignoli" \
         name="alessiovignoli3/stimulus:ps" \
         description="Docker image containing python packages required for stimulus interpet config module"
