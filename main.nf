@@ -51,7 +51,7 @@ workflow {
     )
     prepared_data = HANDLE_DATA.out.data
     //HANDLE_DATA.out.data.view()
-
+    /*
     HANDLE_TUNE(
         params.model,
         params.train_conf,
@@ -64,7 +64,7 @@ workflow {
         HANDLE_TUNE.out.tune_out,
         HANDLE_TUNE.out.model
     ) 
-
+    */
 }
 
 
