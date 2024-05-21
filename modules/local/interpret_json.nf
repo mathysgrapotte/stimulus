@@ -22,10 +22,10 @@ process INTERPRET_JSON {
     stub:
     """
     touch test-#1-allinfo.json
-    touch test-#1-split.json
-    touch test-#1-transform.json
+    touch test-split-null.json
+    touch test-#1-transform-null.json
     touch test-#2-allinfo.json
-    touch test-#2-split.json
-    touch test-#2-transform.json
+    touch test-split-null.json
+    touch test-#2-transform-null.json
     """
 }

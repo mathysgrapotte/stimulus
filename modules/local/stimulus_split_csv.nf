@@ -6,10 +6,10 @@ process STIMULUS_SPLIT_CSV {
     container 'alessiovignoli3/stimulus:stimulus_v0.2'
 
     input:
-    tuple path(csv), path(parsed_json)
+    tuple val(map_key), path(parsed_json), path(csv)
 
     output:
-    tuple val("${csv}"), path(parsed_json), path(output), emit: csv_with_split
+    tuple val(map_key), val("${csv}"), path(parsed_json), path(output), emit: csv_with_split
 
     script:
     output = "${csv.baseName}-${parsed_json.baseName}.csv"

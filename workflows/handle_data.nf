@@ -51,30 +51,10 @@ workflow HANDLE_DATA {
         it -> ["${it.baseName}".split('-')[0..-3].join("-"), "${it.baseName}".split('-')[-1], it]
     }
 
-    //allinfo_json.view()
-    split_json.view()
-    transform_json.view()
-    data = 'bubba'
-    /*
-
-    // for each user json many json wiil be created in the same process, but then we need to parallelize and work on them one by one.
-    all_exp_json = INTERPRET_JSON.out.interpreted_json.flatten().toSortedList()
-    all_exp_json.view()
-    // now we need to go from a list to a list of tuples with dir_name, list of files under that dir   as arguments
-    grouped_on_split_json = all_exp_json.map {
-        it -> ["${it.parent}".split('/')[-1], it]
-    }
-    //grouped_on_split_json.view()
-    // launch splitting subworkflow only once per split configuration/combination. It takes the first file of each tuple.
-    parsed_json = grouped_on_split_json.map {
-        
-        it -> it[1][0]
-    }
-    //parsed_json.view()
     
-    SPLIT_CSV(csv, parsed_json)
+    SPLIT_CSV(csv, split_json)
     data = SPLIT_CSV.out.split_data
-    
+    /*
 
     // launch the actual noise subworkflow
     TRANSFORM_CSV( SPLIT_CSV.out.split_data )
