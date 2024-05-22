@@ -9,7 +9,8 @@ process STIMULUS_TRANSFORM_CSV {
     tuple val(split_transform_key), val(combination_key), path(transform_json), path(splitted_csv), path(split_json), path(original_csv)
 
     output:
-    tuple val(split_transform_key), val(combination_key), path(transform_json), path(output), path(split_json), path(original_csv), emit: transformed_data
+    // combination_key is put fist so that later a combine by:0 can be used to unify with the json that has allinformation (split + transform) associated with this data
+    tuple  val(combination_key), val(split_transform_key), path(transform_json), path(output), path(split_json), path(original_csv), emit: transformed_data
 
     script:
     output = "${original_csv.simpleName}-trans.csv"

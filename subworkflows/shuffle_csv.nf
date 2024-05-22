@@ -16,16 +16,14 @@ workflow SHUFFLE_CSV {
 
     take:
     data_csv
-    json
+    json_tuple
     
+
     main:
     // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
-    csv_json_pairs = data_csv.combine(json)
-    
-    // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
-    if ( params.shuffle ) {
-        STIMULUS_SHUFFLE_CSV(csv_json_pairs)
-    }
+    csv_json_pairs = json_tuple.combine(data_csv)
+    STIMULUS_SHUFFLE_CSV(csv_json_pairs)
+
 
     emit:
     shuffle_data  = STIMULUS_SHUFFLE_CSV.out.csv_shuffled

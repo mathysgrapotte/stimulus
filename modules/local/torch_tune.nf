@@ -9,7 +9,6 @@ process TORCH_TUNE {
     tuple val(original_csv), path(ray_tune_config), path(model), path(data_csv), path(parsed_json)
 
     output:
-    // TODO get the best model as well once implemented in python
     tuple val(original_csv),
           path(data_csv),
           path(parsed_json),

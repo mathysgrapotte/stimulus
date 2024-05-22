@@ -59,16 +59,22 @@ workflow HANDLE_DATA {
 
     // launch the actual noise subworkflow
     TRANSFORM_CSV( transform_split_tuple )
-    data = TRANSFORM_CSV.out.transformed_data
 
-    /*
+    // unify transform output with interpret allinfo json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
+    tmp = allinfo_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
+        it -> [it[0], it[1], it[4]]
+    }
+
     // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.
     // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
-    SHUFFLE_CSV( csv, parsed_json.first() )
-
-    // merge output of shuffle to the output of noise
-    data = TRANSFORM_CSV.out.transformed_data.concat( SHUFFLE_CSV.out.shuffle_data )
-    */
+    // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
+    data = tmp
+    if ( params.shuffle ) {
+        SHUFFLE_CSV( csv, allinfo_json.first() )
+        // merge output of shuffle to the output of noise
+        data = tmp.concat( SHUFFLE_CSV.out.shuffle_data )
+    }
+    
 
     emit:
     data 

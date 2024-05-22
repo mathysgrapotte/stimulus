@@ -31,7 +31,7 @@ def main(data_csv, config_json, out_path):
     TODO major changes when this is going to select a given shuffle method and integration with split.
     """
     
-    # open and read Json, jsut to extract the experiment name, so all other fields are scratched
+    # open and read Json, just to extract the experiment name, so all other fields are scratched
     config = {}
     with open(config_json, 'r') as in_json:
         tmp = json.load(in_json)
@@ -39,7 +39,7 @@ def main(data_csv, config_json, out_path):
         config["split"] = {"name": "RandomSplitter", "params": {}}
 
     # write the config modified, this will be associated to the shuffled data. TODO better solution to renaming like this
-    modified_json = os.path.splitext(os.path.basename(data_csv))[0] + '-shuffled.json'
+    modified_json = os.path.splitext(os.path.basename(data_csv))[0] + '-shuffled-allinfo.json'
     with open(modified_json, 'w') as out_json:
         json.dump(config, out_json)
 
