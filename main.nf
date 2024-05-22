@@ -50,7 +50,7 @@ workflow {
         completion_message
     )
     prepared_data = HANDLE_DATA.out.data
-    //HANDLE_DATA.out.data.view()
+    HANDLE_DATA.out.data.view()
     /*
     HANDLE_TUNE(
         params.model,

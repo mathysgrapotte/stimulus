@@ -1,24 +1,24 @@
 
 process STIMULUS_SPLIT_CSV {
     
-    tag "$parsed_json"
+    tag "$split_transform_key"
     label 'process_low'
     container 'alessiovignoli3/stimulus:stimulus_v0.2'
 
     input:
-    tuple val(map_key), path(parsed_json), path(csv)
+    tuple val(split_transform_key), path(split_json), path(original_csv)
 
     output:
-    tuple val(map_key), val("${csv}"), path(parsed_json), path(output), emit: csv_with_split
+    tuple val(split_transform_key), path(output), path(split_json), path(original_csv), emit: csv_with_split
 
     script:
-    output = "${csv.baseName}-${parsed_json.baseName}.csv"
+    output = "${original_csv.simpleName}-split.csv"
     """
-    launch_split_csv.py -c ${csv} -j ${parsed_json} -o ${output}
+    launch_split_csv.py -c ${original_csv} -j ${split_json} -o ${output}
     """
 
     stub:
-    output = "${csv.baseName}-${parsed_json.baseName}.csv"
+    output = "${original_csv.simpleName}-split.csv"
     """
     touch ${output}
     """

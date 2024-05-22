@@ -34,7 +34,7 @@ workflow HANDLE_DATA {
     json = Channel.fromPath( input_json )
 
     // read the json and create many json as there are combinations of noisers and splitters. the message_from_check is passed only to enforce that this modules does not run untill check_module is finished.
-    INTERPRET_JSON(json, message_from_check)
+    INTERPRET_JSON( json, message_from_check )
 
     // the above process outputs three channels one with all the information (split+ transform), one with only split info, and one with only transform. Each of this channels have to be transformed into a tuple with a common unique id for a given combination.
     allinfo_json = INTERPRET_JSON.out.allinfo_json.flatten().map{
@@ -48,23 +48,26 @@ workflow HANDLE_DATA {
 
     // and transform has both keys to match to everything toghether
     transform_json = INTERPRET_JSON.out.transform_json.flatten().map{
-        it -> ["${it.baseName}".split('-')[0..-3].join("-"), "${it.baseName}".split('-')[-1], it]
+        it -> ["${it.baseName}".split('-')[-1], "${it.baseName}".split('-')[0..-3].join("-"), it]
     }
 
-    
-    SPLIT_CSV(csv, split_json)
-    data = SPLIT_CSV.out.split_data
-    /*
+    // run split with json that only contains experiment name and split information. It runs only the necessary times, all unique ways to split + default split (random split) or column split (already present in data).
+    SPLIT_CSV( csv, split_json )
+
+    // assign to each splitted data the associated ransform information based on the split_transform_key generated in the interpret step. 
+    transform_split_tuple = transform_json.combine( SPLIT_CSV.out.split_data, by: 0 )
 
     // launch the actual noise subworkflow
-    TRANSFORM_CSV( SPLIT_CSV.out.split_data )
+    TRANSFORM_CSV( transform_split_tuple )
+    data = TRANSFORM_CSV.out.transformed_data
 
+    /*
     // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.
     // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
-    SHUFFLE_CSV(csv, parsed_json.first())
+    SHUFFLE_CSV( csv, parsed_json.first() )
 
     // merge output of shuffle to the output of noise
-    data = TRANSFORM_CSV.out.transformed_data.concat(SHUFFLE_CSV.out.shuffle_data)
+    data = TRANSFORM_CSV.out.transformed_data.concat( SHUFFLE_CSV.out.shuffle_data )
     */
 
     emit:
