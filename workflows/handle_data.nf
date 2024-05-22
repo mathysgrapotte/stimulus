@@ -62,7 +62,7 @@ workflow HANDLE_DATA {
 
     // unify transform output with interpret allinfo json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
     tmp = allinfo_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
-        it -> [it[0], it[1], it[4]]
+        it -> ["${it[6].simpleName}-${it[0]}", it[1], it[4]]
     }
 
     // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.

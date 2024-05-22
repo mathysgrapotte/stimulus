@@ -50,15 +50,15 @@ workflow {
         completion_message
     )
     prepared_data = HANDLE_DATA.out.data
-    HANDLE_DATA.out.data.view()
-    /*
+    //HANDLE_DATA.out.data.view()
+    
     HANDLE_TUNE(
         params.model,
         params.train_conf,
         prepared_data
     )
     // HANDLE_TUNE.out.model.view()
-
+    /*
     // this part works, but the docker container is not updated with matplotlib yet
     HANDLE_ANALYSIS(
         HANDLE_TUNE.out.tune_out,

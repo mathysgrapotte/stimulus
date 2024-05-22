@@ -3,7 +3,7 @@
 import argparse
 import json
 import os
-import urllib.parse
+import re
 
 from json_schema import JsonSchema
 from typing import Union
@@ -34,6 +34,7 @@ def get_args():
 
 
 def unique_dicts_in_list(dict_list: list) -> list:
+
     unique_list = []
     for d in dict_list:
         is_unique = True
@@ -47,9 +48,20 @@ def unique_dicts_in_list(dict_list: list) -> list:
 
 
 def dict_to_filename_safe_string(d: Union[dict, None]) -> str:
+
     # making the dictionary into some sort of hash key avoiding problematic digits for filename and nextflow use.
-    json_str = json.dumps(d, separators=('_', '_')).replace("-", "_")
-    return urllib.parse.quote(json_str)
+    pattern = r"[^\d\w\.]"   # this preserves numbers 0-9 letters a-z and dots
+    if d is None:
+        return "no_split"
+    else:
+        map_key = ""
+        for first_level_val in d.values():
+            if isinstance(first_level_val, dict):
+                for second_level_val in first_level_val.values():
+                    map_key += re.sub(pattern, "_", f"{second_level_val}")
+            else:
+                map_key += re.sub(pattern, "_", f"{first_level_val}")
+        return map_key.replace("__", "_")[:-1]
 
 
 
