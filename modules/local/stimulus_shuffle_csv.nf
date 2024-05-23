@@ -22,6 +22,6 @@ process STIMULUS_SHUFFLE_CSV {
     output = "${original_csv.simpleName}-shuffled.csv"
     """
     touch ${output}
-    touch "${original_csv.simpleName}-shuffled-allinfo.json"
+    touch "${original_csv.simpleName}-shuffled-experiment.json"
     """
 }

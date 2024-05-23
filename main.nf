@@ -49,8 +49,8 @@ workflow {
         params.exp_conf,
         completion_message
     )
-    prepared_data = HANDLE_DATA.out.data
-    //HANDLE_DATA.out.data.view()
+    /* prepared_data = HANDLE_DATA.out.data
+    HANDLE_DATA.out.data.view()
     
     HANDLE_TUNE(
         params.model,
@@ -58,7 +58,7 @@ workflow {
         prepared_data
     )
     // HANDLE_TUNE.out.model.view()
-    /*
+    
     // this part works, but the docker container is not updated with matplotlib yet
     HANDLE_ANALYSIS(
         HANDLE_TUNE.out.tune_out,

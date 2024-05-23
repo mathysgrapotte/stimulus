@@ -6,7 +6,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
     container "alessiovignoli3/stimulus:stimulus_v0.2"
 
     input:
-    tuple val(original_csv), \
+    tuple val(combination_key), \
           path(data), \
           path(experiment_config), \
           path(model_config), \

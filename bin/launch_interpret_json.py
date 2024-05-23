@@ -99,7 +99,6 @@ def interpret_json(input_json: dict) -> list:
 
     # check that also list_of_json_to_write has only unique combinations
     unique_list_of_json_to_write = schema.unique_dicts_in_list(list_of_json_to_write)
-    print(unique_list_of_json_to_write)
 
     return unique_list_of_json_to_write, unique_split_combinations
 

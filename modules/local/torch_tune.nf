@@ -6,12 +6,12 @@ process TORCH_TUNE {
     container "alessiovignoli3/stimulus:stimulus_v0.2"
 
     input:
-    tuple val(combination_key), path(ray_tune_config), path(model), path(data_csv), path(allinfo_json)
+    tuple val(combination_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
 
     output:
     tuple val(combination_key),
           path(data_csv),
-          path(allinfo_json),
+          path(experiment_config),
           path("*-config.json"),
           path("*-model.pt"),
           path("*-optimizer.pt"),
@@ -25,7 +25,7 @@ process TORCH_TUNE {
         -c ${ray_tune_config} \
         -m ${model} \
         -d ${data_csv} \
-        -e ${allinfo_json} \
+        -e ${experiment_config} \
         -o ${prefix}-model.pt \
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \

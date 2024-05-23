@@ -37,7 +37,7 @@ workflow HANDLE_DATA {
     INTERPRET_JSON( json, message_from_check )
 
     // the above process outputs three channels one with all the information (split+ transform), one with only split info, and one with only transform. Each of this channels have to be transformed into a tuple with a common unique id for a given combination.
-    allinfo_json = INTERPRET_JSON.out.allinfo_json.flatten().map{
+    experiment_json = INTERPRET_JSON.out.experiment_json.flatten().map{
         it -> ["${it.baseName}".split('-')[0..-2].join("-"), it]
     }
 
@@ -60,17 +60,17 @@ workflow HANDLE_DATA {
     // launch the actual noise subworkflow
     TRANSFORM_CSV( transform_split_tuple )
 
-    // unify transform output with interpret allinfo json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
-    tmp = allinfo_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
-        it -> ["${it[6].name} - ${it[0]}", it[1], it[4]]
-    }
-
+    // unify transform output with interpret experiment json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
+    tmp = experiment_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
+        it -> ["${it[6].name} - ${it[0]}", it[2], it[1], it[4]]
+    }.view()
+    /*
     // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.
     // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
     // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
     data = tmp
     if ( params.shuffle ) {
-        SHUFFLE_CSV( csv, allinfo_json.first() )
+        SHUFFLE_CSV( csv, experiment_json.first() )
         // merge output of shuffle to the output of noise
         data = tmp.concat( SHUFFLE_CSV.out.shuffle_data )
     }
@@ -78,7 +78,7 @@ workflow HANDLE_DATA {
 
     emit:
     data 
-
+    */
 }
 
 
