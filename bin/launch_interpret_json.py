@@ -33,20 +33,6 @@ def get_args():
 
 
 
-def unique_dicts_in_list(dict_list: list) -> list:
-
-    unique_list = []
-    for d in dict_list:
-        is_unique = True
-        for unique in unique_list:
-            if d == unique:
-                is_unique = False
-                break
-        if is_unique:
-            unique_list.append(d)
-    return unique_list
-
-
 def dict_to_filename_safe_string(d: Union[dict, None]) -> str:
 
     # making the dictionary into some sort of hash key avoiding problematic digits for filename and nextflow use.
@@ -79,7 +65,7 @@ def interpret_json(input_json: dict) -> list:
     list_transform_combinations = [None]
     if schema.transform_arg:
         list_transform_combinations = function_call_dict[schema.interpret_params_mode]()
-        
+
     # if split is present, again like above
     list_split_combinations = [None]
     if schema.split_arg:
@@ -109,9 +95,13 @@ def interpret_json(input_json: dict) -> list:
     list_split_combinations.append(None)
 
     # make sure that the list of split combinatios contains only unique cases after the addition of the custon info
-    unique_split_combinations = unique_dicts_in_list(list_split_combinations)
+    unique_split_combinations = schema.unique_dicts_in_list(list_split_combinations)
 
-    return list_of_json_to_write, unique_split_combinations
+    # check that also list_of_json_to_write has only unique combinations
+    unique_list_of_json_to_write = schema.unique_dicts_in_list(list_of_json_to_write)
+    print(unique_list_of_json_to_write)
+
+    return unique_list_of_json_to_write, unique_split_combinations
 
    
 
@@ -142,14 +132,14 @@ def main(config_json: str, out_dir_path: str) -> str:
     for i, interpreted_json in enumerate(list_json):
 
         # create the file names: one for the specifc experiment info (all info), and one with exp_name and transform info
-        allinfo_file_path = os.path.join(out_dir_path, f"{suffix}-{i+1}-allinfo.json")
+        experiment_file_path = os.path.join(out_dir_path, f"{suffix}-{i+1}-experiment.json")
         # make also the transform unique json have the split argument content as filename keyward. needed by nextflow to match the 2 later on.
         hash_key = dict_to_filename_safe_string(interpreted_json["split"])
         transform_file_path = os.path.join(out_dir_path, f"{suffix}-{i+1}-transform-{hash_key}.json")
 
-        with open(allinfo_file_path, 'w') as allinfo_file, open(transform_file_path, 'w') as transform_file :
+        with open(experiment_file_path, 'w') as experiment_file, open(transform_file_path, 'w') as transform_file :
             # TODO make all info file into a yaml reusable by the piepline but with only one combination
-            json.dump(interpreted_json, allinfo_file)
+            json.dump(interpreted_json, experiment_file)
             json.dump({"experiment": interpreted_json["experiment"], "transform": interpreted_json["transform"]}, transform_file)
 
 
