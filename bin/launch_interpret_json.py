@@ -142,10 +142,10 @@ def main(config_json: str, out_dir_path: str) -> str:
     for i, interpreted_json in enumerate(list_json):
 
         # create the file names: one for the specifc experiment info (all info), and one with exp_name and transform info
-        allinfo_file_path = os.path.join(out_dir_path, f"{suffix}-#{i+1}-allinfo.json")
+        allinfo_file_path = os.path.join(out_dir_path, f"{suffix}-{i+1}-allinfo.json")
         # make also the transform unique json have the split argument content as filename keyward. needed by nextflow to match the 2 later on.
         hash_key = dict_to_filename_safe_string(interpreted_json["split"])
-        transform_file_path = os.path.join(out_dir_path, f"{suffix}-#{i+1}-transform-{hash_key}.json")
+        transform_file_path = os.path.join(out_dir_path, f"{suffix}-{i+1}-transform-{hash_key}.json")
 
         with open(allinfo_file_path, 'w') as allinfo_file, open(transform_file_path, 'w') as transform_file :
             # TODO make all info file into a yaml reusable by the piepline but with only one combination

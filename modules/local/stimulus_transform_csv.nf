@@ -1,7 +1,7 @@
 
 process STIMULUS_TRANSFORM_CSV {
 
-    tag "${combination_key}-${original_csv}"
+    tag "${original_csv} - ${combination_key}"
     label 'process_medium'
     container 'alessiovignoli3/stimulus:stimulus_v0.2'
 

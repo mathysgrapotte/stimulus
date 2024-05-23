@@ -10,7 +10,7 @@ process STIMULUS_SHUFFLE_CSV {
 
     output:
     // this type of output is so it is more easily unifiable with the output of the noise module.
-    tuple val("${original_csv.simpleName}-shuffle"), path("*.json"), path(output), emit: csv_shuffled
+    tuple val("${original_csv} - shuffle"), path("*.json"), path(output), emit: csv_shuffled
 
     script:
     output = "${original_csv.simpleName}-shuffle.csv"

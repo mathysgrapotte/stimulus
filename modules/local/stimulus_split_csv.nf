@@ -1,7 +1,7 @@
 
 process STIMULUS_SPLIT_CSV {
     
-    tag "${original_csv}-${split_transform_key}"
+    tag "${original_csv} - ${split_transform_key}"
     label 'process_low'
     container 'alessiovignoli3/stimulus:stimulus_v0.2'
 

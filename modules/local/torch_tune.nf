@@ -1,7 +1,7 @@
 
 process TORCH_TUNE {
 
-    tag "${model}-${combination_key}"
+    tag "${model} - ${combination_key}"
     label 'process_high'
     container "alessiovignoli3/stimulus:stimulus_v0.2"
 
