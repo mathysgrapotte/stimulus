@@ -63,14 +63,17 @@ workflow HANDLE_DATA {
     // unify transform output with interpret experiment json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
     tmp = experiment_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
         it -> ["${it[6].name} - ${it[0]}", it[2], it[1], it[4]]
-    }.view()
-    /*
-    // Launch the shuffle, (always happening on default) and disjointed from split and noise. Data are randomly splitted into this module already.
-    // it takes a random json from those interpreted so that is dependant on that process and to have the experiment name key, used later in the train step.
+    }
+    
+    // Launch the shuffle, (always happening on default) and disjointed from noise. Data are taken from the no-split option of split module. Which means that is either randomly splitted with default values or using the column present in the data.
     // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
     data = tmp
     if ( params.shuffle ) {
-        SHUFFLE_CSV( csv, experiment_json.first() )
+        // take the data from the no-split process
+        shuffle_correct_input = SPLIT_CSV.out.split_data.filter{
+            it[0] == 'no_split'
+        }
+        SHUFFLE_CSV( shuffle_correct_input )
         // merge output of shuffle to the output of noise
         data = tmp.concat( SHUFFLE_CSV.out.shuffle_data )
     }
@@ -78,7 +81,7 @@ workflow HANDLE_DATA {
 
     emit:
     data 
-    */
+    
 }
 
 

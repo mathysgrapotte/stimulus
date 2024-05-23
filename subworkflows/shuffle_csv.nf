@@ -15,13 +15,11 @@ include { STIMULUS_SHUFFLE_CSV } from '../modules/local/stimulus_shuffle_csv.nf'
 workflow SHUFFLE_CSV {
 
     take:
-    data_csv
-    json_tuple
+    csv_json_pairs
     
 
     main:
-    // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
-    csv_json_pairs = json_tuple.combine(data_csv)
+    
     STIMULUS_SHUFFLE_CSV(csv_json_pairs)
 
 

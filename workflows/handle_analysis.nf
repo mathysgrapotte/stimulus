@@ -20,15 +20,14 @@ workflow HANDLE_ANALYSIS {
 
     main:
    
-    // 1. Run the default analysis for all models and data together
-    input_tune_out
-        .groupTuple()
-        .set{ ch2default }
+    // 1. Run the default analysis for all models and data together. group them by the same test set -> aka same split process
+    ch2default = input_tune_out.groupTuple(by: 1).view()
+    /*
     STIMULUS_ANALYSIS_DEFAULT(
         ch2default,
         input_model
     )
 
     // 2. Run the motif discovery block
-
+    */
 }

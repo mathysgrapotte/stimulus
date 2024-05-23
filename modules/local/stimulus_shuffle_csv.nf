@@ -1,21 +1,21 @@
 
 process STIMULUS_SHUFFLE_CSV {
 
-    tag "${original_csv}"
+    tag "${original_csv} - shuffles"
     label 'process_medium'
     container 'alessiovignoli3/stimulus:stimulus_v0.2'
 
     input:
-    tuple val(random_combination_key), path(random_parsed_json), path(original_csv)
+    tuple val(split_transform_key), path(splitted_csv), path(split_json), path(original_csv)
 
     output:
     // this type of output is so it is more easily unifiable with the output of the noise module.
-    tuple val("${original_csv} - shuffle"), path("*.json"), path(output), emit: csv_shuffled
+    tuple val("${original_csv} - shuffle"), val(split_transform_key), path("*.json"), path(output), emit: csv_shuffled
 
     script:
     output = "${original_csv.simpleName}-shuffle.csv"
     """
-    launch_shuffle_csv.py -c ${original_csv} -j ${random_parsed_json} -o ${output}
+    launch_shuffle_csv.py -c ${splitted_csv} -j ${split_json} -o ${output}
     """
 
     stub:

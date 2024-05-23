@@ -6,10 +6,11 @@ process TORCH_TUNE {
     container "alessiovignoli3/stimulus:stimulus_v0.2"
 
     input:
-    tuple val(combination_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
+    tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
 
     output:
     tuple val(combination_key),
+          val(split_transform_key),
           path(data_csv),
           path(experiment_config),
           path("*-config.json"),

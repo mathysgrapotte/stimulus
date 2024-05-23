@@ -28,7 +28,7 @@ workflow HANDLE_TUNE {
     // assign a model and a TUNE_config to each data
     model_conf_pair = model.combine(tune_config)
     model_conf_data = model_conf_pair.combine(data).map{ 
-        it -> [it[2], it[1], it[0], it[4], it[3]]
+        it -> [it[2], it[3], it[1], it[0], it[5], it[4]]
     }  // just reordering according to the inputs of the launch_tuning.py
     
 
