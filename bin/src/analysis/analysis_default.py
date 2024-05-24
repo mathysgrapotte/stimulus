@@ -273,6 +273,10 @@ class AnalysisRobustness(Analysis):
         rows, cols = self.get_grid_shape(len(self.metrics))
         fig, axs = plt.subplots(rows, cols, figsize=figsize)
 
+        # if there is only one plot plot.sublots will output a simple list, while if there are more than one it will return a list of lists. there is the need to unify the two cases. following line does this
+        if not isinstance(axs, np.ndarray):
+            axs = np.array([axs])
+
         for i,ax in enumerate(axs.flat):
             if i >= len(self.metrics):
                 ax.axis('off')
@@ -302,6 +306,10 @@ class AnalysisRobustness(Analysis):
         # create figure
         rows, cols = self.get_grid_shape(len(df['model'].unique()))
         fig, axs = plt.subplots(rows, cols, figsize=figsize)
+
+        # if there is only one plot plot.sublots will output <class 'matplotlib.axes._axes.Axes'>, while if there are more than one it will return a np.ndarray. there is the need to unify the two cases. following line does this
+        if not isinstance(axs, np.ndarray):
+            axs = np.array([axs])
 
         # plot each model
         for i,ax in enumerate(axs.flat):
