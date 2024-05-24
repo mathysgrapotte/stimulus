@@ -9,8 +9,8 @@ process TORCH_TUNE {
     tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
 
     output:
-    tuple val(combination_key),
-          val(split_transform_key),
+    tuple val(split_transform_key),
+          val(combination_key),
           path(data_csv),
           path(experiment_config),
           path("*-config.json"),
