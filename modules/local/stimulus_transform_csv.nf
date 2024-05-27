@@ -19,7 +19,7 @@ process STIMULUS_TRANSFORM_CSV {
     """
 
     stub:
-    output = "${original_csv.simpleName}-trans.csv"
+    output = "${original_csv.simpleName}-${combination_key}-trans.csv"
     """
     touch ${output}
     """
