@@ -1,18 +1,18 @@
 
 process TORCH_TUNE {
 
-    tag "$model-$data_csv"
+    tag "${model} - ${combination_key}"
     label 'process_high'
     container "alessiovignoli3/stimulus:stimulus_v0.2"
 
     input:
-    tuple val(original_csv), path(ray_tune_config), path(model), path(data_csv), path(parsed_json)
+    tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
 
     output:
-    // TODO get the best model as well once implemented in python
-    tuple val(original_csv),
+    tuple val(split_transform_key),
+          val(combination_key),
           path(data_csv),
-          path(parsed_json),
+          path(experiment_config),
           path("*-config.json"),
           path("*-model.pt"),
           path("*-optimizer.pt"),
@@ -26,7 +26,7 @@ process TORCH_TUNE {
         -c ${ray_tune_config} \
         -m ${model} \
         -d ${data_csv} \
-        -e ${parsed_json} \
+        -e ${experiment_config} \
         -o ${prefix}-model.pt \
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \

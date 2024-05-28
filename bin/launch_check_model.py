@@ -25,43 +25,7 @@ def get_args():
     args = parser.parse_args()
     return args
 
-"""
-class CheckModelWrapper():
 
-    def __init__(self, model: nn.Module, config_file: str, data_path: str, experiment: object):
-        # open the yaml tune config file and get an instance of it . aka choose values when needed.
-        yaml_config = YamlRayConfigLoader(config_file)
-        config_instance = yaml_config.get_config_instance()
-        print("tested config: ", config_instance)
-        self.model = model(**config_instance["model_params"])
-        # get the optimizer from pytorch
-        optimizer = getattr(torch.optim, config_instance["optimizer_params"]["method"])
-        # get the loss dict from the config and replace the each value with the actual imported/initialized loss dfunction 
-        self.loss_dict = yaml_config.initialize_loss_functions(config_instance["loss_params"])
-        # instantiate the optimizer, get all optimizer parameters except the names of the optimizers themselves
-        optimizer_params_values = {key: value for key, value in config_instance["optimizer_params"].items() if key != "method"}
-        self.optimizer = optimizer(self.model.parameters(), **optimizer_params_values)
-        # train_data is a TorchDataset object
-        self.train_data = torch.utils.data.DataLoader(handlertorch.TorchDataset(os.path.abspath(data_path), experiment, split=None), batch_size=config_instance["data_params"]["batch_size"], shuffle=True)
-
-    def check_model(self):
-        # get the initial model weights into a variable 
-        initial_model_weights = deepcopy(self.model.state_dict())
-        # load one sample of the data
-
-        x, y, meta = next(iter(self.train_data))
-        # train the model for one epoch
-        loss, output = self.model.batch(x, y, self.loss_dict, self.optimizer)
-        # check the model weights have changed, and print if it has
-        for key in initial_model_weights:
-            if torch.equal(initial_model_weights[key], self.model.state_dict()[key]):
-                print(f"Model weights have not changed for key {key}")
-            else:
-                print(f"Model weights have changed for key {key}")
-
-        # print the computed loss, displaying loss_dict as well
-        print(f"Loss computed with {self.loss_dict} is {loss.item()}")
-"""
 
 def main(data_path: str, model_path: str, experiment_config: str, config_path: str, num_samples: int):
 

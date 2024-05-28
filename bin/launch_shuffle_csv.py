@@ -31,15 +31,16 @@ def main(data_csv, config_json, out_path):
     TODO major changes when this is going to select a given shuffle method and integration with split.
     """
     
-    # open and read Json, jsut to extract the experiment name, so all other fields are scratched
-    config = {}
+    # open and read Json, just to extract the experiment name, so all other fields are scratched
+    config = None
     with open(config_json, 'r') as in_json:
         tmp = json.load(in_json)
-        config["experiment"] = tmp["experiment"]
-        config["split"] = {"name": "RandomSplitter", "params": {}}
+        config = tmp
+        # add fake transform informations
+        config["transform"] = "shuffle (special case)"
 
     # write the config modified, this will be associated to the shuffled data. TODO better solution to renaming like this
-    modified_json = os.path.splitext(os.path.basename(data_csv))[0] + '-shuffled.json'
+    modified_json = os.path.splitext(os.path.basename(data_csv))[0].split('-split')[0] + '-shuffled-experiment.json'
     with open(modified_json, 'w') as out_json:
         json.dump(config, out_json)
 
@@ -52,15 +53,8 @@ def main(data_csv, config_json, out_path):
     # shuffle the data
     csv_obj.shuffle_labels()
 
-    # split the data
-    # split column already present in csv , override it with random split (default splitter)
-    # TODO change this behaviour to do both, maybe
-    csv_obj.add_split(config["split"], force = True)
-
     # save the modified csv
     csv_obj.save(out_path)
-
-
 
 
 

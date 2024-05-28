@@ -44,6 +44,11 @@ class JsonSchema(ABC):
 
         column_name_list = []
         for i, dictionary in enumerate(self.transform_arg):
+
+            # None can be inside this list of arguments if that is the case just ignore it. It will be handeled later on.
+            if dictionary is None:
+                continue
+
             column_name = dictionary["column_name"]
             
             # If already present as a name throw an error
@@ -71,6 +76,10 @@ class JsonSchema(ABC):
         # Iterate through the given dictionary becuse more than one column_name values could be specified for ex.
         for i, col_name_dictionary in enumerate(self.transform_arg):
             
+            # None can be inside this list of arguments if that is the case just ignore it. It will be handeled later on.
+            if col_name_dictionary is None:
+                continue
+
             # take into account that there could be the keyword default
             if col_name_dictionary["params"] == "default":
                 continue
@@ -182,6 +191,24 @@ class JsonSchema(ABC):
                     tmp_param_dict[param_name] = param_value[param_index]
                 return {"name": key, "params": tmp_param_dict}  
                 
+    
+    def unique_dicts_in_list(self, dict_list: list) -> list:
+        """
+        function is pretty straight forwrd: it checks if all elements in a list are unique and returns only the unque ones.
+        This is not a private function because is called from outside this file as well.
+        In the context of this script is mainly used to get the unique dictionaries from a list of dictionaries. 
+        It is more general than this but that was the original pourpose.
+        """
+        unique_list = []
+        for d in dict_list:
+            is_unique = True
+            for unique in unique_list:
+                if d == unique:
+                    is_unique = False
+                    break
+            if is_unique:
+                unique_list.append(d)
+        return unique_list
 
 
     def transform_column_wise_combination(self) -> list:
@@ -214,6 +241,22 @@ class JsonSchema(ABC):
             transformed2 (p1 = 3.5) - othertransformed (p1 = 6, p2 = 9)
         """
 
+        # check if there is None  among trasform arguments. if there is return the keyword referring to no transformation.
+        all_transform_combination = []
+        buffer_list = []
+        for transform_argument in self.transform_arg:
+            if transform_argument is None:
+                # add keyword for no transformation
+                all_transform_combination.append(None)
+            else:
+                buffer_list.append(transform_argument)
+
+        # update the trasform arguments, basically removing None values that would throw errors later on in the code
+        self.transform_arg = buffer_list
+
+        # check that no more than one None was added to the all_transform_combination
+        all_transform_combination = self.unique_dicts_in_list(all_transform_combination)
+
         # reshape transform entry in a nested dictionary, with structure {col_name: { transformed_name : {p1 : [1]} }} 
         transform_as_dict = self._reshape_transform_dict()
             
@@ -221,7 +264,6 @@ class JsonSchema(ABC):
         transformed_combination_list = self._generate_cartesian_product_combinations(transform_as_dict)
 
         # for each transformed combination create the column wise selection of parameters associated
-        all_transform_combination = []
         for transform_combo_tuple in transformed_combination_list:
             # select the parameter iterating through the total number of parameters associated to the specific transformed combination under selection. This value is the second value of the tuple in which the actual dictionary of transformed combination is.
             for params_index in range(transform_combo_tuple[1]):
@@ -258,7 +300,22 @@ class JsonSchema(ABC):
         It returns a list of dictionaries, where each dictionary represents a combination of parameters for a split.
         """
 
+        # check if there is None  among trasform arguments. if there is return the keyword referring to no transformation.
         list_split_comibinations = []
+        buffer_list = []
+        for split_argument in self.split_arg:
+            if split_argument is None:
+                # add keyword  for no split
+                list_split_comibinations.append(None)
+            else:
+                buffer_list.append(split_argument)
+
+        # update the split arguments, basically removing None values that would throw errors later on in the code
+        self.split_arg = buffer_list  
+        
+        # check that no more than one None was added to the all_transform_combination
+        list_split_comibinations = self.unique_dicts_in_list(list_split_comibinations)
+
         # iterate through the split entry and return a list of split possibilities, where each splitter_name has one/set of one parametyers
         for i, split_dict in enumerate(self.split_arg):
             # jsut create a new dictionary for each set of params associated to each split_name, basically if a splitter has more than one element in his params: then they should be decoupled so to have each splitter with only one value for params:
