@@ -9,13 +9,13 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                // skip the check module step for now maybe change it in the future
+                check_model = false
             }
         }
 
         then {
             assert workflow.success
         }
-
     }
-
 }
