@@ -60,7 +60,8 @@ workflow HANDLE_DATA {
     // launch the actual noise subworkflow
     TRANSFORM_CSV( transform_split_tuple )
 
-    // unify transform output with interpret experiment json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields.
+    // unify transform output with interpret experiment json. so that each final data has his own fingerprint json that generated it + keyword. drop all other non relevant fields. it0 is the unique key matching transform Json and the experiment Json (fingerprint), it6 is the original filename of the input data given by the user.
+    // it2 is the key used to match the splitted data with the correct transform Json (used later on by the analysis step to identify the models that have the same test set), it1 is the unique experimental config (the one containing all info for the given combination of split and transform and params values) it4  is the data csv transformed
     tmp = experiment_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
         it -> ["${it[6].name} - ${it[0]}", it[2], it[1], it[4]]
     }
