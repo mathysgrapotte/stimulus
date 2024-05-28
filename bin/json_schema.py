@@ -194,8 +194,10 @@ class JsonSchema(ABC):
     
     def unique_dicts_in_list(self, dict_list: list) -> list:
         """
-        function is pretty straight forwrd: it checks if all elements in a list are unique and returns only unique once.
+        function is pretty straight forwrd: it checks if all elements in a list are unique and returns only the unque ones.
         This is not a private function because is called from outside this file as well.
+        In the context of this script is mainly used to get the unique dictionaries from a list of dictionaries. 
+        It is more general than this but that was the original pourpose.
         """
         unique_list = []
         for d in dict_list:
