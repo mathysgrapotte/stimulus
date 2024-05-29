@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 
 from launch_utils import import_class_from_file, get_experiment
 from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
@@ -21,11 +22,12 @@ def get_args():
     parser.add_argument("-bc", "--best_config", type=str, required=False, nargs='?', const='best_config.json', default='best_config.json', metavar="FILE", help='The path to write the best config to')
     parser.add_argument("-bm", "--best_metrics", type=str, required=False, nargs='?', const='best_metrics.csv', default='best_metrics.csv', metavar="FILE", help='The path to write the best metrics to')
     parser.add_argument("-bo", "--best_optimizer", type=str, required=False, nargs='?', const='best_optimizer.pt', default='best_optimizer.pt', metavar="FILE", help='The path to write the best optimizer to')
+    parser.add_argument("--ray_results_dirpath", type=str, required=False, nargs='?', const=None, default=None, metavar="DIR_PATH", help="the location where ray_results output dir should be written. if set to None (default) ray will be place it in ~/ray_results ")
 
     args = parser.parse_args()
     return args
 
-def main(config_path: str, model_path: str, data_path: str, experiment_config: str, output: str, best_config_path: str, best_metrics_path: str, best_optimizer_path: str) -> None:
+def main(config_path: str, model_path: str, data_path: str, experiment_config: str, output: str, best_config_path: str, best_metrics_path: str, best_optimizer_path: str, ray_results_dirpath: str = None) -> None:
     """
     This launcher use ray tune to find the best hyperparameters for a given model.
     """
@@ -43,7 +45,11 @@ def main(config_path: str, model_path: str, data_path: str, experiment_config: s
     model_class = import_class_from_file(model_path)
 
     # Create the learner
-    learner = StimulusTuneWrapper(config_path, model_class, data_path, initialized_experiment_class)
+    learner = StimulusTuneWrapper(config_path,
+                                  model_class,
+                                  data_path,
+                                  initialized_experiment_class,
+                                  ray_results_dir=os.path.abspath(ray_results_dirpath))  # TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath
     
     # Tune the model and get the tuning results
     results = learner.tune()
@@ -58,4 +64,4 @@ def main(config_path: str, model_path: str, data_path: str, experiment_config: s
 
 if __name__ == "__main__":
     args = get_args()
-    main(args.config, args.model, args.data, args.experiment_config, args.output, args.best_config, args.best_metrics, args.best_optimizer)
+    main(args.config, args.model, args.data, args.experiment_config, args.output, args.best_config, args.best_metrics, args.best_optimizer, args.ray_results_dirpath)

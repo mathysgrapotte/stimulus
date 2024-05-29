@@ -21,7 +21,12 @@ process TORCH_TUNE {
 
     script:
     def prefix = task.ext.prefix
+    def suffix = task.ext.suffix
+    def args = task.ext.args ?: ''
     """
+    # this lione is here just because tune is bugged, if you try to change the location of the ray_results dir without setting tis variable a copy will still be written at the default location home_dir/ray_results 
+    export TUNE_RESULT_DIR=\$(pwd)/${suffix}
+    
     launch_tuning.py \
         -c ${ray_tune_config} \
         -m ${model} \
@@ -30,7 +35,8 @@ process TORCH_TUNE {
         -o ${prefix}-model.pt \
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
-        -bc ${prefix}-config.json
+        -bc ${prefix}-config.json \
+        $args
     """
 
     stub:

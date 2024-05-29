@@ -15,7 +15,14 @@ nextflow_pipeline {
         }
 
         then {
-            assert workflow.success
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(UTILS.removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnaseq_software_mqc_versions.yml")).match("software_versions") },
+                { assert snapshot(
+                        path( "${params.outdir}/${workflow.runName}_" + "${workflow.start}/".replaceAll('[-:]', '_').split('\\.')[0] + "/test_with_split-shuffle/experiment_config.json" )
+                    ).match("output_files")
+                }
+            )
         }
     }
 }
