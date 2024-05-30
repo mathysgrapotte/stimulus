@@ -15,6 +15,6 @@ RUN pip install \
     polars-lts-cpu==0.20.30 \
     scikit-learn==1.5.0 \
     torch==2.3.0 \
-    ray==2.23.0 \
+    ray[train,tune,default]==2.23.0 \
     matplotlib==3.9.0 \
     pandas==2.2.0
