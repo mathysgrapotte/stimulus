@@ -11,9 +11,8 @@ from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
 from .predict import PredictWrapper
 
-
 class TuneWrapper():
-    def __init__(self, config_path: str, model_class: nn.Module, data_path: str, experiment_object: object) -> None:
+    def __init__(self, config_path: str, model_class: nn.Module, data_path: str, experiment_object: object, ray_results_dir: str = None) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
@@ -31,7 +30,9 @@ class TuneWrapper():
 
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
-        self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config) #TODO implement run_config (in tune/run_params for the yaml file)
+        self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
+                                          storage_path=ray_results_dir
+                                        )                                       #TODO implement run_config (in tune/run_params for the yaml file)
         
         self.tuner = self.tuner_initialization()
 
