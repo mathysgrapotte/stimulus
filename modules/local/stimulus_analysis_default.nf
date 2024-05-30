@@ -3,7 +3,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     tag "${model} - ${split_transform_key}"
     label 'process_medium'
-    container "alessiovignoli3/stimulus:stimulus_v0.2"
+    container "alessiovignoli3/stimulus:stimulus_v0.3"
 
     input:
     tuple val(split_transform_key), \
