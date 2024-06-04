@@ -1,7 +1,7 @@
 
 process CHECK_TORCH_MODEL {
 
-    tag "$experiment_config-$original_csv"
+    tag "$experiment_config - $original_csv"
     label 'process_medium'
     container "alessiovignoli3/stimulus:stimulus_v0.3"
     
