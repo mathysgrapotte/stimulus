@@ -24,9 +24,9 @@ The data is provided as a csv where the header columns are in the following form
 
 *class* is a supported class of data for which encoding methods have been created, please raise an issue on github or contribute a PR if a class of your interest is not implemented
 
-column header example : mouse_dna:input:dna
+column header example : 
 
-csv example : 
+#### csv examples 
 
 | input1:input:input_type | input2:input:input_type | meta1:meta:meta_type | label1:label:label_type | label2:label:label_type |
 |-------------------------|-------------------------|----------------------|-------------------------|-------------------------|
@@ -34,6 +34,12 @@ csv example :
 | sample2 input1          | sample2 input2          | sample2 meta1        | sample2 label1          | sample2 label2          |
 | sample3 input1          | sample3 input2          | sample3 meta1        | sample3 label1          | sample3 label2          |
 
+
+| mouse_dna:input:dna     | mouse_rnaseq:label:float|
+|-------------------------|-------------------------|
+| ACTAGGCATGCTAGTCG       | 0.53                    |
+| ACTGGGGCTAGTCGAA        | 0.23                    |
+| GATGTTCTGATGCT          | 0.98                    |
 
 ### Model 
 
