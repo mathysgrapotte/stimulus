@@ -10,6 +10,8 @@ STIMULUS takes as input a user defined PyTorch model, a dataset, a configuration
 
 Those experiments are then compiled into an intuitive report, making it easier for scientists to pick the best design choice to be sent to large scale training.
 
+![alt text](https://github.com/mathysgrapotte/stimulus/blob/readme/visual_assets/stimulus_overview.png)
+
 # Quick start
 
 ## Code requirements
