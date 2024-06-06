@@ -44,9 +44,9 @@ The data is provided as a csv where the header columns are in the following form
 
 ### Model 
 
-In STIMULUS, user input a .py file containing a model written using pytorch (see examples in bin/tests/models)
+In STIMULUS, users input a .py file containing a model written in pytorch (see examples in bin/tests/models)
 
-Said model of interest should obey to minor standards as follow :
+Said models should obey to minor standards:
 
 1. The model class you want to train should start with "Model"
 ```python
@@ -56,12 +56,17 @@ import torch.nn as nn
 
 class SubClass(nn.Module):
     """
-    a subclass
+    a subclass, this will be invisible to Stimulus
     """
 
 class ModelClass(nn.Module):
     """
     the PyTorch model to be trained by Stimulus, can use SubClass if needed
+    """
+
+class ModelAnotherClass(nn.Module):
+    """
+    uh oh, this will return an error as there are two classes starting with Model
     """
 
 ```
@@ -77,12 +82,108 @@ class ModelClass(nn.Module):
     """
     the PyTorch model to be trained by Stimulus
     """
+    def __init__():
+        # your model definition here
+        pass
 
     def forward(self, mouse_dna):        
-        output = do_convolution(mouse_dna)
+        output = model_layers(mouse_dna)
 
 ```
 
-## Model parameter search design
+3. The model should include a **batch** named function that takes as input a dictionary of input "x", a dictionary of labels "y", a Callable loss function and a callable optimizer. 
 
-## Experiment design
+In order to allow **batch** to take as input a Callable loss, we define an extra compute_loss function that parses the correct output to the correct loss class. 
+
+```python
+
+import torch
+import torch.nn as nn
+from typing import Callable, Optional, Tuple
+
+class ModelClass(nn.Module):
+    """
+    the PyTorch model to be trained by Stimulus
+    """
+
+    def __init__():
+        # your model definition here
+        pass
+
+    def forward(self, mouse_dna):        
+        output = model_layers(mouse_dna)
+
+    def compute_loss_mouse_rnaseq(self, output: torch.Tensor, mouse_rnaseq: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
+        """
+        Compute the loss.
+        `output` is the output tensor of the forward pass.
+        `mouse_rnaseq` is the target tensor -> label column name.
+        `loss_fn` is the loss function to be used.
+
+        IMPORTANT : the input variable "mouse_rnaseq" has the same name as the label defined in the csv above. 
+        """
+        return loss_fn(output, mouse_rnaseq)
+    
+    def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
+        """
+        Perform one batch step.
+        `x` is a dictionary with the input tensors.
+        `y` is a dictionary with the target tensors.
+        `loss_fn` is the loss function to be used.
+
+        If `optimizer` is passed, it will perform the optimization step -> training step
+        Otherwise, only return the forward pass output and loss -> evaluation step
+        """
+        output = self.forward(**x)
+        loss = self.compute_loss_mouse_rnaseq(output, **y, loss_fn=loss_fn)
+        if optimizer is not None:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        return loss, output
+
+```
+
+If you don't want to optimize the loss function, the code above can be written in a simplified manner
+
+```python
+
+import torch
+import torch.nn as nn
+from typing import Callable, Optional, Tuple
+
+class ModelClass(nn.Module):
+    """
+    the PyTorch model to be trained by Stimulus
+    """
+
+    def __init__():
+        # your model definition here
+        pass
+
+    def forward(self, mouse_dna):        
+        output = model_layers(mouse_dna)
+    
+    def batch(self, x: dict, y: dict, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
+        """
+        Perform one batch step.
+        `x` is a dictionary with the input tensors.
+        `y` is a dictionary with the target tensors.
+        `loss_fn` is the loss function to be used.
+
+        If `optimizer` is passed, it will perform the optimization step -> training step
+        Otherwise, only return the forward pass output and loss -> evaluation step
+        """
+        output = self.forward(**x)
+        loss = nn.MSELoss(output, y['mouse_rnaseq'])
+        if optimizer is not None:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        return loss, output
+
+```
+
+### Model parameter search design
+
+### Experiment design
