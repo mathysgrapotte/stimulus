@@ -48,7 +48,7 @@ In STIMULUS, users input a .py file containing a model written in pytorch (see e
 
 Said models should obey to minor standards:
 
-1. The model class you want to train should start with "Model"
+1. The model class you want to train should start with "Model", there should be exactly one class starting with "Model".
 ```python
 
 import torch
