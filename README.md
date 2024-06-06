@@ -1,3 +1,5 @@
+# STIMULUS
+
 Stochastic Testing and Input Manipulation for Unbiased Learning Systems (STIMULUS) is an end-to-end nextflow based pipeline for statistically testing training procedures of machine learning models. 
 
 Deep learning model development in natural science is an empirical and costly process. Users must define a pre-processing pipeline, an architecture, find the best parameters for said architecture and iterate over this process.
@@ -8,13 +10,36 @@ STIMULUS takes as input a user defined PyTorch model, a dataset, a configuration
 
 Those experiments are then compiled into an intuitive report, making it easier for scientists to pick the best design choice to be sent to large scale training.
 
+# Quick start
+
 ## Code requirements
 
 ### Data
 
+The data is provided as a csv where the header columns are in the following format : name:type:class
+
+*name* is user given (note that it has an impact on experiment definition).
+
+*type* is either "input", "meta", or "label". "input" types are fed into the mode, "meta" types are registered but not transformed nor fed into the models and "label" is used as a training label. 
+
+*class* is a supported class of data for which encoding methods have been created, please raise an issue on github or contribute a PR if a class of your interest is not implemented
+
+column header example : mouse_dna:input:dna
+
+csv example : 
+
+| input1:input:input_type | input2:input:input_type | meta1:meta:meta_type | label1:label:label_type | label2:label:label_type |
+|-------------------------|-------------------------|----------------------|-------------------------|-------------------------|
+| sample1 input1          | sample1 input2          | sample1 meta1        | sample1 label1          | sample1 label2          |
+| sample2 input1          | sample2 input2          | sample2 meta1        | sample2 label1          | sample2 label2          |
+| sample3 input1          | sample3 input2          | sample3 meta1        | sample3 label1          | sample3 label2          |
 
 
 ### Model 
+
+In STIMULUS, user input a .py file containing a model written using pytorch (see examples in bin/tests/models)
+
+Said model of interest should obey to minor standards as follow :
 
 1. The model class you want to train should start with "Model"
 ```python
@@ -35,3 +60,7 @@ class ModelClass(nn.Module):
 ```
 
 2. The model "forward" function should
+
+## Model parameter search design
+
+## Experiment design
