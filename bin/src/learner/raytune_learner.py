@@ -3,7 +3,7 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
-from ray import train, tune
+from ray import train, tune, init
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
 
@@ -12,7 +12,7 @@ from ..utils.yaml_model_schema import YamlRayConfigLoader
 from .predict import PredictWrapper
 
 class TuneWrapper():
-    def __init__(self, config_path: str, model_class: nn.Module, data_path: str, experiment_object: object, ray_results_dir: str = None) -> None:
+    def __init__(self, config_path: str, model_class: nn.Module, data_path: str, experiment_object: object, max_cpus: int = None, max_gpus: int = None, ray_results_dir: str = None) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
@@ -34,12 +34,18 @@ class TuneWrapper():
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
         
+        self.max_cpus = max_cpus
+        self.max_gpus = max_gpus
         self.tuner = self.tuner_initialization()
 
     def tuner_initialization(self) -> tune.Tuner:
         """
         Prepare the tuner with the configs.
         """
+
+        # initialize the ray cluster with the limiter on CPUs or on GPUs if needed, otherwise everything that is available. None is what ray uses to get all resources available for either CPU or GPU
+        init(num_cpus=self.max_cpus, num_gpus=self.max_gpus)
+
         return tune.Tuner(TuneModel,
                             tune_config= self.tune_config,
                             param_space=self.config,

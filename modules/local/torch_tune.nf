@@ -24,6 +24,8 @@ process TORCH_TUNE {
     def suffix = task.ext.suffix
     def args = task.ext.args ?: ''
     """
+    # TODO  gpus  should point to a variable that controls the number of gpu
+
     launch_tuning.py \
         -c ${ray_tune_config} \
         -m ${model} \
@@ -33,6 +35,8 @@ process TORCH_TUNE {
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
         -bc ${prefix}-config.json \
+        --cpus ${task.cpus} \
+        --gpus 0 \
         $args
     """
 
