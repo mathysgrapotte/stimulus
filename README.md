@@ -26,13 +26,16 @@ The data is provided as a csv where the header columns are in the following form
 
 column header example : 
 
-#### csv examples 
+#### csv general example
 
 | input1:input:input_type | input2:input:input_type | meta1:meta:meta_type | label1:label:label_type | label2:label:label_type |
 |-------------------------|-------------------------|----------------------|-------------------------|-------------------------|
 | sample1 input1          | sample1 input2          | sample1 meta1        | sample1 label1          | sample1 label2          |
 | sample2 input1          | sample2 input2          | sample2 meta1        | sample2 label1          | sample2 label2          |
 | sample3 input1          | sample3 input2          | sample3 meta1        | sample3 label1          | sample3 label2          |
+
+
+#### csv specific example
 
 
 | mouse_dna:input:dna     | mouse_rnaseq:label:float|
