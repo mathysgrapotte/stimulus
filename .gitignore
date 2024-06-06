@@ -13,4 +13,7 @@ bin/**/__pycache__/
 .coverage
 .vscode/
 bin/.vscode/
+.models/
+.data/
+.launch_configs/
 
