@@ -24,8 +24,6 @@ The data is provided as a csv where the header columns are in the following form
 
 *class* is a supported class of data for which encoding methods have been created, please raise an issue on github or contribute a PR if a class of your interest is not implemented
 
-column header example : 
-
 #### csv general example
 
 | input1:input:input_type | input2:input:input_type | meta1:meta:meta_type | label1:label:label_type | label2:label:label_type |
@@ -68,7 +66,22 @@ class ModelClass(nn.Module):
 
 ```
 
-2. The model "forward" function should
+2. The model "forward" function should have input variables with the **same names** as the defined input names in the csv input file
+
+```python
+
+import torch
+import torch.nn as nn
+
+class ModelClass(nn.Module):
+    """
+    the PyTorch model to be trained by Stimulus
+    """
+
+    def forward(self, mouse_dna):        
+        output = do_convolution(mouse_dna)
+
+```
 
 ## Model parameter search design
 
