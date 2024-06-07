@@ -15,7 +15,7 @@ process CHECK_TORCH_MODEL {
     def suffix = task.ext.suffix
     def args = task.ext.args ?: ''
     """
-    # TODO  gpus  should point to a variable that controls the number of gpu 
+    #TODO make task.accelerator.request into the variable for gpus number 
 
     launch_check_model.py \
         -d ${original_csv} \

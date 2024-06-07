@@ -24,7 +24,7 @@ process TORCH_TUNE {
     def suffix = task.ext.suffix
     def args = task.ext.args ?: ''
     """
-    # TODO  gpus  should point to a variable that controls the number of gpu
+    #TODO make task.accelerator.request into the variable for gpus number 
 
     launch_tuning.py \
         -c ${ray_tune_config} \

@@ -8,10 +8,12 @@ nextflow_workflow {
     test("Test reproducibility of data handling") {
 
         when {
+
+            // repeating in input[0-1] the same content of params.csv and parma.exp_conf present in the test.config because nf-test does not interpret the ${projectDir} correctly otherwise
             workflow {
                 """
-                input[0] = Channel.fromPath(params.csv)
-                input[1] = Channel.fromPath(params.exp_conf)
+                input[0] = "${projectDir}/bin/tests/test_data/dna_experiment/test_with_split.csv"
+                input[1] = "${projectDir}/examples/test.json"
                 input[2] = Channel.of("TESTING")
                 """
             }
