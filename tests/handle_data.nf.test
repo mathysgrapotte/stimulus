@@ -9,6 +9,11 @@ nextflow_workflow {
 
         when {
 
+            // make so that nf-test will see a singularity cache dir where is usally set to, again interpretation of projectdir has to be done here and not rely on an external config.
+            params {
+                singularity_cache_dir = "${projectDir}/singularity_cache"
+            }
+
             // repeating in input[0-1] the same content of params.csv and parma.exp_conf present in the test.config because nf-test does not interpret the ${projectDir} correctly otherwise
             workflow {
                 """
@@ -23,9 +28,7 @@ nextflow_workflow {
 
             assert workflow.success
 
-            with(workflow.out.data) {
-                assert size() == 2
-            }
+            assert snapshot(workflow.out.data).match()
         }
     }
 }
