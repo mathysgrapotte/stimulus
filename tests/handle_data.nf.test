@@ -1,0 +1,29 @@
+
+nextflow_workflow {
+
+    name "Test Workflow HANDLE_DATA"
+    script "../workflows/handle_data.nf"
+    workflow "HANDLE_DATA"
+
+    test("Test reproducibility of data handling") {
+
+        when {
+            workflow {
+                """
+                input[0] = Channel.fromPath(params.csv)
+                input[1] = Channel.fromPath(params.exp_conf)
+                input[2] = Channel.of("TESTING")
+                """
+            }
+        }
+
+        then {
+
+            assert workflow.success
+
+            with(workflow.out.data) {
+                assert size() == 2
+            }
+        }
+    }
+}
