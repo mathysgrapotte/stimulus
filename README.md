@@ -189,3 +189,10 @@ class ModelClass(nn.Module):
 ### Model parameter search design
 
 ### Experiment design
+
+The file in which all information about how to handle the data before tuning is called an `experiment_config`. This file in `.json` format for now but it will be soon moved to `.yaml`. So this section could vary in the future. 
+
+The `experiment_config` is a mandatory input for the pipeline and can be passed with the flag `--exp_conf` followed by the `PATH` of the file you want to use. Two examples of `experiment_config` can be found in the `examples` directory. 
+
+### Experiment config content description.
+
