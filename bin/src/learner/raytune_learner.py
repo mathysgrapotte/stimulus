@@ -42,7 +42,7 @@ class TuneWrapper():
         """
         Prepare the tuner with the configs.
         """
-        return tune.Tuner(tune.with_resources(TuneModel, {"cpu": self.cpu_per_trial}, {"gpu": self.gpu_per_trial}),
+        return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
                             tune_config=self.tune_config,
                             param_space=self.config,
                             run_config=self.run_config,
