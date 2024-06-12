@@ -152,10 +152,14 @@ class CsvProcessing(CsvHandler):
             else:
                 self.data = self.data.with_columns(pl.Series(key, new_data))
 
-    def shuffle_labels(self) -> None:
+    def shuffle_labels(self, seed: float = None ) -> None:
         """
         Shuffles the labels in the data.
         """
+
+        # set the np seed 
+        np.random.seed(seed)
+
         label_keys = self.get_keys_based_on_name_category_dtype(category='label')
         for key in label_keys:
             self.data = self.data.with_columns(pl.Series(key, np.random.permutation(list(self.data[key]))))

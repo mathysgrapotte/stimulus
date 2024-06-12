@@ -6,7 +6,7 @@
                     "test_with_split.csv - shuffle",
                     "no_split",
                     "test_with_split-shuffled-experiment.json:md5,04768aaf767c8cd2c043f510432b78e0",
-                    "test_with_split-shuffle.csv:md5,920c64271a3bd74fa1ab9015fcc8f905"
+                    "test_with_split-shuffle.csv:md5,b69d4616b7cecaa62d5e3e41c010d7c4"
                 ],
                 [
                     "test_with_split.csv - test-1",
@@ -50,6 +50,6 @@
             "nf-test": "0.8.4",
             "nextflow": "23.10.1"
         },
-        "timestamp": "2024-06-07T17:10:32.646115"
+        "timestamp": "2024-06-12T17:34:58.30196"
     }
 }
