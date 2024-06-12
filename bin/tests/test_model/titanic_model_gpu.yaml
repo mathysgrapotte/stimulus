@@ -1,30 +1,30 @@
 model_params:
-  kernel_size:
-    space: [3]
-    mode: choice
-  pool_size:
+  nb_neurons_intermediate_layer:
+    space: [7,15]
+    mode: randint
+  nb_intermediate_layers:
+    space: [1,5]
+    mode: randint
+  nb_classes:
     space: [2]
     mode: choice
 
 optimizer_params:
   method:
-      space: ['Adam']
+      space: ['Adam', 'SGD']
       mode: choice
   lr:
     space: [0.0001, 0.1]
     mode: loguniform
 
-data_params:
-  batch_size:
-    space: [8, 16]
+loss_params:
+  loss_fn:
+    space: ['CrossEntropyLoss']
     mode: choice
 
-loss_params:
-  loss_fn1:
-    space: ['MSELoss']
-    mode: choice
-  loss_fn2:
-    space: ['SmoothL1Loss']
+data_params:
+  batch_size:
+    space: [16, 32, 64, 128, 256]
     mode: choice
 
 tune:
@@ -39,5 +39,5 @@ tune:
       max_t: 3
       grace_period: 1
   step_size: 1
-  gpu_per_trial: 0
-  cpu_per_trial: 1
+  gpu_per_trial: 1
+  cpu_per_trial: 0

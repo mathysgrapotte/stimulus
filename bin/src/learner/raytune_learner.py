@@ -29,6 +29,9 @@ class TuneWrapper():
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
+        self.gpu_per_trial = self.config["tune"]["gpu_per_trial"]
+        self.cpu_per_trial = self.config["tune"]["cpu_per_trial"]
+
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
         self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config) #TODO implement run_config (in tune/run_params for the yaml file)
@@ -39,7 +42,9 @@ class TuneWrapper():
         """
         Prepare the tuner with the configs.
         """
-        return tune.Tuner(TuneModel,
+        return tune.Tuner(tune.with_resources(TuneModel
+                                              , cpu=self.cpu_per_trial
+                                              , gpu=self.gpu_per_trial),
                             tune_config= self.tune_config,
                             param_space=self.config,
                             run_config=self.run_config,
