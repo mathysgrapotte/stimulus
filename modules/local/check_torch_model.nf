@@ -15,15 +15,13 @@ process CHECK_TORCH_MODEL {
     def suffix = task.ext.suffix
     def args = task.ext.args ?: ''
     """
-    #TODO make task.accelerator.request into the variable for gpus number 
-
     launch_check_model.py \
         -d ${original_csv} \
         -m ${model} \
         -e ${experiment_config} \
         -c ${ray_tune_config} \
         --cpus ${task.cpus} \
-        --gpus 0 \
+        --gpus ${task.accelerator.request} \
         $args
     """
 
