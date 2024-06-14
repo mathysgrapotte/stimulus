@@ -66,10 +66,6 @@ def main(data_path: str,
         user_tune_config["tune"]["scheduler"]["params"]["max_t"]        = 1
         user_tune_config["tune"]["scheduler"]["params"]["grace_period"] = 1
         user_tune_config["tune"]["step_size"]                           = 1
-        # if resources are specified for cpu and gpu they are overwritten with what nextflow has otherwise this field is created
-        user_tune_config["tune"]["gpu_per_trial"]                       = 0
-        user_tune_config["tune"]["cpu_per_trial"]                       = 1
-
 
         # TODO check if among the first 2 values of all splitters params there is a percentage that makes the resulting split smaller that the biggest batch value
 

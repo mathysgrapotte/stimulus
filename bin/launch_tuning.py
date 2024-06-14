@@ -64,8 +64,6 @@ def main(config_path: str,
     updated_tune_conf = "check_model_modified_tune_config.yaml"
     with open(config_path, 'r') as conf_file, open(updated_tune_conf, "w") as new_conf:
         user_tune_config = yaml.safe_load(conf_file)
-        user_tune_config["tune"]["gpu_per_trial"]                       = 0
-        user_tune_config["tune"]["cpu_per_trial"]                       = 1
         
         # save to file the new dictionary because StimulusTuneWrapper only takes paths
         yaml.dump(user_tune_config, new_conf)

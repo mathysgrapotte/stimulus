@@ -3,7 +3,7 @@ import os
 import src.data.experiments as exp
 import math
 
-from typing import  Union
+from typing import  Union, Tuple
 
 def import_class_from_file(file_path: str) -> type:
 
@@ -32,7 +32,7 @@ def get_experiment(experiment_name: str) -> object:
     return experiment_object
 
 
-def memory_split_for_ray_init(memory_str:  Union[str, None]) -> float:
+def memory_split_for_ray_init(memory_str:  Union[str, None]) -> Tuple[float, float]:
     """
     compute the memory requirements for ray init. 
     Usefull in case ray detects them wrongly.

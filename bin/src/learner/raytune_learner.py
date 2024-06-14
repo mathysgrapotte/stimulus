@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
 from .predict import PredictWrapper
+from typing import Tuple
+
 
 class TuneWrapper():
     def __init__(self,
@@ -37,13 +39,11 @@ class TuneWrapper():
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
-        # set ray cluster total resources (max) and per trial resuorces (single set/combination of hyperparameter) (parrallel actors maximum resources)
+        # set ray cluster total resources (max)
         self.max_gpus             = max_gpus
         self.max_cpus             = max_cpus
         self.max_object_store_mem = max_object_store_mem     # this is a special subset of the total usable memory that ray need for his internal work, by default is set to 30% of total memory usable
         self.max_mem              = max_mem
-        #self.gpu_per_trial = self.config["tune"]["gpu_per_trial"]
-        #self.cpu_per_trial = self.config["tune"]["cpu_per_trial"]
 
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
@@ -53,6 +53,7 @@ class TuneWrapper():
         
         self.tuner = self.tuner_initialization()
 
+
     def tuner_initialization(self) -> tune.Tuner:
         """
         Prepare the tuner with the configs.
@@ -61,28 +62,64 @@ class TuneWrapper():
         # initialize the ray cluster with the limiter on CPUs, GPUs or memory if needed, otherwise everything that is available. None is what ray uses to get all resources available for either CPU, GPU or memory.
         # memory is split in two for ray. read more at ray.init documentation.
         init(num_cpus=self.max_cpus, num_gpus=self.max_gpus, object_store_memory=self.max_object_store_mem, _memory=self.max_mem)
-        print("#####  CLUSTER resources ->  ", cluster_resources())
 
-        """
+        # check if resources per trial are not exceeding maximum resources. traial = single set/combination of hyperparameter (parrallel actors maximum resources in ray tune gergon).
+        self.gpu_per_trial = self._chek_per_trial_resources("gpu_per_trial", cluster_resources(), "GPU")
+        self.cpu_per_trial = self._chek_per_trial_resources("cpu_per_trial", cluster_resources(), "CPU")
+
+        print("CLUSTER resources   ->  ", cluster_resources())
+        print("PER_TRIAL resources ->  GPU:", self.gpu_per_trial, "CPU:", self.cpu_per_trial )
+
         return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
                             tune_config=self.tune_config,
                             param_space=self.config,
                             run_config=self.run_config,
                         )
-        """
-        return tune.Tuner(TuneModel,
-                            tune_config= self.tune_config,
-                            param_space=self.config,
-                            run_config=self.run_config,
-                        )
-
+        
 
     def tune(self) -> None:
         """
         Run the tuning process.
         """
 
-        return self.tuner.fit() 
+        return self.tuner.fit()
+    
+
+
+    def _chek_per_trial_resources(self, resurce_key: str,  cluster_max_resources: dict, resource_type: str) -> Tuple[int, int] :
+        """
+        Helper function that check that user requested per trial resources are not exceeding the available resources for the ray cluster.
+        If the per trial resources are not asked they are set to a default resoanable ammount.
+        
+        resurce_key:            str object          the key used to look into the self.config["tune"]
+        cluster_max_resources:  dict object         the output of the ray.cluster_resources() function. It hold what ray has found to be the available resources for CPU, GPU and Memory
+        resource_type:          str object          the key used to llok into the cluster_resources dict 
+        """
+
+        per_trial_resource = None
+        # if everything is alright, leave the value as it is.
+        if resurce_key in self.config["tune"].keys() and self.config["tune"][resurce_key] <= cluster_max_resources[resource_type]:
+            per_trial_resource = self.config["tune"][resurce_key]
+
+        # if per_trial_resource are more than what is avaialble to ray set them to what is available and warn the user
+        elif resurce_key in self.config["tune"].keys() and self.config["tune"][resurce_key] > cluster_max_resources[resource_type]:
+            # TODO write a better warning
+            print("\n\n####   WARNING  - ", resource_type, "per trial are more than what is available.", resource_type, " per trial :", self.config["tune"][resurce_key], "available :", cluster_max_resources[resource_type], "overwrting value to max avaialable" )
+            per_trial_resource = cluster_max_resources[resource_type]
+        
+        # if per_trial_resource has not been asked and there is none available set them to zero
+        elif resurce_key not in self.config["tune"].keys() and cluster_max_resources[resource_type] == 0.0:
+            per_trial_resource = 0
+        
+        # if per_trial_resource has not been asked and the resource is available set the value to either 1 or number_available resource / num_samples
+        elif resurce_key not in self.config["tune"].keys() and cluster_max_resources[resource_type] != 0.0:
+            # TODO maybe set the default to 0.5 instead of 1 ? fractional use in case of GPU?
+            per_trial_resource = max(1, (cluster_max_resources[resource_type] // self.config["tune"]["tune_params"]["num_samples"] ))
+
+        return per_trial_resource
+    
+
+
 
 class TuneModel(Trainable):
 
