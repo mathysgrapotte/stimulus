@@ -3,7 +3,7 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
-from ray import train, tune, init
+from ray import train, tune, cluster_resources, init
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
 
@@ -12,7 +12,16 @@ from ..utils.yaml_model_schema import YamlRayConfigLoader
 from .predict import PredictWrapper
 
 class TuneWrapper():
-    def __init__(self, config_path: str, model_class: nn.Module, data_path: str, experiment_object: object, max_cpus: int = None, max_gpus: int = None, ray_results_dir: str = None) -> None:
+    def __init__(self,
+                 config_path: str,
+                 model_class: nn.Module,
+                 data_path: str,
+                 experiment_object: object,
+                 max_gpus: int = None,
+                 max_cpus: int = None,
+                 max_object_store_mem: float = None,
+                 max_mem: float = None,
+                 ray_results_dir: str = None) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
@@ -28,14 +37,20 @@ class TuneWrapper():
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
+        # set ray cluster total resources (max) and per trial resuorces (single set/combination of hyperparameter) (parrallel actors maximum resources)
+        self.max_gpus             = max_gpus
+        self.max_cpus             = max_cpus
+        self.max_object_store_mem = max_object_store_mem     # this is a special subset of the total usable memory that ray need for his internal work, by default is set to 30% of total memory usable
+        self.max_mem              = max_mem
+        #self.gpu_per_trial = self.config["tune"]["gpu_per_trial"]
+        #self.cpu_per_trial = self.config["tune"]["cpu_per_trial"]
+
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
         self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
         
-        self.max_cpus = max_cpus
-        self.max_gpus = max_gpus
         self.tuner = self.tuner_initialization()
 
     def tuner_initialization(self) -> tune.Tuner:
@@ -43,19 +58,30 @@ class TuneWrapper():
         Prepare the tuner with the configs.
         """
 
-        # initialize the ray cluster with the limiter on CPUs or on GPUs if needed, otherwise everything that is available. None is what ray uses to get all resources available for either CPU or GPU
-        init(num_cpus=self.max_cpus, num_gpus=self.max_gpus)
+        # initialize the ray cluster with the limiter on CPUs, GPUs or memory if needed, otherwise everything that is available. None is what ray uses to get all resources available for either CPU, GPU or memory.
+        # memory is split in two for ray. read more at ray.init documentation.
+        init(num_cpus=self.max_cpus, num_gpus=self.max_gpus, object_store_memory=self.max_object_store_mem, _memory=self.max_mem)
+        print("#####  CLUSTER resources ->  ", cluster_resources())
 
+        """
+        return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
+                            tune_config=self.tune_config,
+                            param_space=self.config,
+                            run_config=self.run_config,
+                        )
+        """
         return tune.Tuner(TuneModel,
                             tune_config= self.tune_config,
                             param_space=self.config,
                             run_config=self.run_config,
                         )
 
+
     def tune(self) -> None:
         """
         Run the tuning process.
         """
+
         return self.tuner.fit() 
 
 class TuneModel(Trainable):

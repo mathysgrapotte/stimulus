@@ -20,8 +20,9 @@ process CHECK_TORCH_MODEL {
         -m ${model} \
         -e ${experiment_config} \
         -c ${ray_tune_config} \
-        --cpus ${task.cpus} \
         --gpus ${task.accelerator.request} \
+        --cpus ${task.cpus} \
+        --memory "${task.memory}" \
         $args
     """
 

@@ -1,6 +1,9 @@
 import importlib.util
 import os
 import src.data.experiments as exp
+import math
+
+from typing import  Union
 
 def import_class_from_file(file_path: str) -> type:
 
@@ -27,3 +30,44 @@ def import_class_from_file(file_path: str) -> type:
 def get_experiment(experiment_name: str) -> object:
     experiment_object = getattr(exp, experiment_name)()
     return experiment_object
+
+
+def memory_split_for_ray_init(memory_str:  Union[str, None]) -> float:
+    """
+    compute the memory requirements for ray init. 
+    Usefull in case ray detects them wrongly.
+    Memory is split in two for ray: for store_object memory and the other actual memory for tuning.
+    The following function takes the total possible usable/allocated memory as a string parameter and returns in bytes the values for store_memory (30% as default in ray) and memory (70%).
+    """
+
+    if memory_str is None:
+        return None, None
+
+    units = {"B": 1, "K": 2**10, "M": 2**20, "G": 2**30, "T": 2**40, "P": 2**50}
+    
+    # Extract the numerical part and the unit
+    value_str = ""
+    unit = ""
+    
+    for char in memory_str:
+        if char.isdigit() or char == ".":
+            value_str += char
+        elif char.isalpha():
+            unit += char.upper()
+    
+    value = float(value_str)
+    
+    # Normalize the unit (to handle cases like Gi, GB, Mi, etc.)
+    if unit.endswith(("I", "i", "B", "b")):
+        unit = unit[:-1]
+    
+    if unit not in units:
+        raise ValueError(f"Unknown unit: {unit}")
+    
+    bytes_value = value * units[unit]
+    
+    # Calculate 30% and 70%
+    thirty_percent = math.floor(bytes_value * 0.30)
+    seventy_percent = math.floor(bytes_value * 0.70)
+    
+    return float(thirty_percent), float(seventy_percent)

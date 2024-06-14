@@ -39,3 +39,5 @@ tune:
       max_t: 3
       grace_period: 1
   step_size: 1
+  gpu_per_trial: 0
+  cpu_per_trial: 1

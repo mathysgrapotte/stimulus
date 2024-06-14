@@ -33,8 +33,9 @@ process TORCH_TUNE {
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
         -bc ${prefix}-config.json \
-        --cpus ${task.cpus} \
         --gpus ${task.accelerator.request} \
+        --cpus ${task.cpus} \
+        --memory "${task.memory}" \
         $args
     """
 
