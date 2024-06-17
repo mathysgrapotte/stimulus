@@ -71,6 +71,9 @@ def main(config_path: str,
     # compute the memory requirements for ray init. Usefull in case ray detects them wrongly. Memory is split in two for ray: for store_object memory and the other actual memory for tuning. The following function takes the total possible usable/allocated memory as a string parameter and return in bytes the values for store_memory (30% as default in ray) and memory (70%).
     object_store_mem, mem = memory_split_for_ray_init(memory)
 
+    # set ray_result dir ubication. TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath.
+    ray_results_dirpath = None if ray_results_dirpath is None else os.path.abspath(ray_results_dirpath)
+
     # Create the learner
     learner = StimulusTuneWrapper(updated_tune_conf,
                                   model_class,
@@ -80,7 +83,7 @@ def main(config_path: str,
                                   max_cpus=cpus,
                                   max_object_store_mem=object_store_mem,
                                   max_mem=mem,
-                                  ray_results_dir=os.path.abspath(ray_results_dirpath))  # TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath
+                                  ray_results_dir=ray_results_dirpath) 
     
     # Tune the model and get the tuning results
     results = learner.tune()

@@ -3,7 +3,7 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
-from ray import train, tune, cluster_resources, init
+from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
 
@@ -59,15 +59,24 @@ class TuneWrapper():
         Prepare the tuner with the configs.
         """
 
+        # in ray 3.0.0 the following issue is fixed. Sometimes it sees that ray is already initialized, so in that case shut it off and start anew. TODO update to ray 3.0.0
+        if is_initialized():
+            shutdown()
+
         # initialize the ray cluster with the limiter on CPUs, GPUs or memory if needed, otherwise everything that is available. None is what ray uses to get all resources available for either CPU, GPU or memory.
         # memory is split in two for ray. read more at ray.init documentation.
-        init(num_cpus=self.max_cpus, num_gpus=self.max_gpus, object_store_memory=self.max_object_store_mem, _memory=self.max_mem)
+        init(num_cpus=self.max_cpus,
+             num_gpus=self.max_gpus,
+             object_store_memory=self.max_object_store_mem,
+             _memory=self.max_mem,
+            )
+
+        print("CLUSTER resources   ->  ", cluster_resources())
 
         # check if resources per trial are not exceeding maximum resources. traial = single set/combination of hyperparameter (parrallel actors maximum resources in ray tune gergon).
         self.gpu_per_trial = self._chek_per_trial_resources("gpu_per_trial", cluster_resources(), "GPU")
         self.cpu_per_trial = self._chek_per_trial_resources("cpu_per_trial", cluster_resources(), "CPU")
-
-        print("CLUSTER resources   ->  ", cluster_resources())
+        
         print("PER_TRIAL resources ->  GPU:", self.gpu_per_trial, "CPU:", self.cpu_per_trial )
 
         return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
@@ -95,6 +104,15 @@ class TuneWrapper():
         cluster_max_resources:  dict object         the output of the ray.cluster_resources() function. It hold what ray has found to be the available resources for CPU, GPU and Memory
         resource_type:          str object          the key used to llok into the cluster_resources dict 
         """
+
+        
+        if resource_type == "GPU" and resource_type not in cluster_resources().keys():
+            # ray does not have a GPU field also if GPUs were set to zero. So trial GPU resources have to be set to zero.
+            if self.max_gpus == 0:
+                return 0.0
+            # in case GPUs that are not detected raise error. This happens sometimes when max_gpus stay as None and ray.init does not find GPU by itself. not setting max_gpus (None) means to use all available ones. TODO make ray see GPU on None value.
+            else:
+                raise SystemError("#### ray did not detect any GPU, if you do not want to use GPU set max_gpus=0, or in nextflow --max_gpus 0.")
 
         per_trial_resource = None
         # if everything is alright, leave the value as it is.
