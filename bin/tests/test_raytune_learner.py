@@ -66,7 +66,13 @@ class TestTuneWrapper(unittest.TestCase):
         model_class = ModelSimple
         experiment_obj = DnaToFloatExperiment()
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"
-        self.wrapper = TuneWrapper(config_path, model_class, data_path, experiment_obj)
+        self.wrapper = TuneWrapper(config_path,
+                                   model_class,
+                                   data_path,
+                                   experiment_obj,
+                                   max_cpus=2,
+                                   max_gpus=0,
+                                   )
     
     def test_setup(self):
         self.assertIsInstance(self.wrapper.config, dict)

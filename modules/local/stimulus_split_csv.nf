@@ -3,7 +3,7 @@ process STIMULUS_SPLIT_CSV {
     
     tag "${original_csv} - ${split_transform_key}"
     label 'process_low'
-    container 'alessiovignoli3/stimulus:stimulus_v0.2'
+    container 'alessiovignoli3/stimulus:stimulus_v0.3'
 
     input:
     tuple val(split_transform_key), path(split_json), path(original_csv)

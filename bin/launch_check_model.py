@@ -5,7 +5,7 @@ import os
 import json
 import yaml
 
-from launch_utils import import_class_from_file, get_experiment
+from launch_utils import import_class_from_file, get_experiment, memory_split_for_ray_init
 from json_schema import JsonSchema
 from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
 from src.data.csv import CsvProcessing
@@ -20,14 +20,27 @@ def get_args():
     parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help="Path to model file")
     parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment config file. From this the experiment class name is extracted.")
     parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to yaml config training file")
-    parser.add_argument("-n", "--num_samples", type=int, required=False, nargs='?', const=3, default=3, metavar="TUNE_PARAM", help="the config given for the tuning will have the field tune.tune_params.num_samples overwritten by this value. This means a more or less extensive representation of all possible combination of choiches for the tuning. For each run inside tune a snapshot of the config is taken and some params are chosen like loss function gradient descent, batch size ecc.. . Some of this combination may not be compatible with either the data or the model. So the higher this value is the most likely that every value for a given param is tested. But if there are not that many choiches in the tune config there is no point in putting an high value. Default is 3.")
+    parser.add_argument("--gpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_GPU", help="Use to limit the number of GPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all GPUs available. It can be set to 0 to use only CPUs.")
+    parser.add_argument("--cpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_CPU", help="Use to limit the number of CPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all CPUs available. It can be set to 0 to use only GPUs.")
+    parser.add_argument("--memory", type=str, required=False, nargs='?', const=None, default=None, metavar="MAX_MEMORY", help="ray can have a limiter on the total memory it can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all memory available.")
+    parser.add_argument("-n", "--num_samples", type=int, required=False, nargs='?', const=3, default=3, metavar="NUM_SAMPLES", help="the config given for the tuning will have the field tune.tune_params.num_samples overwritten by this value. This means a more or less extensive representation of all possible combinations of choices for the tuning. For each run inside tune a snapshot of the config is taken and some params are chosen like loss function gradient descent, batch size etc. Some of this combination may not be compatible with either the data or the model. So the higher this value is the more likely that every value for a given param is tested. But if there are not that many choices in the tune config there is no point in putting a high value. Default is 3.")
+    parser.add_argument("--ray_results_dirpath", type=str, required=False, nargs='?', const=None, default=None, metavar="DIR_PATH", help="the location where ray_results output dir should be written. if set to None (default) ray will be place it in ~/ray_results. ")
 
     args = parser.parse_args()
+        
     return args
 
 
 
-def main(data_path: str, model_path: str, experiment_config: str, config_path: str, num_samples: int):
+def main(data_path: str,
+         model_path: str,
+         experiment_config: str,
+         config_path: str,
+         gpus: int = None,
+         cpus: int = None,
+         memory: str = None,
+         num_samples: int = 3,
+         ray_results_dirpath: str = None) -> None:
 
     # TODO update to yaml the experimnt config
     # load json into dictionary
@@ -76,9 +89,22 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
     # save the modified csv
     csv_obj.save(downsampled_csv)
 
+    # compute the memory requirements for ray init. Usefull in case ray detects them wrongly. Memory is split in two for ray: for store_object memory and the other actual memory for tuning. The following function takes the total possible usable/allocated memory as a string parameter and return in bytes the values for store_memory (30% as default in ray) and memory (70%).
+    object_store_mem, mem = memory_split_for_ray_init(memory)
+
+    # set ray_result dir ubication. TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath.
+    ray_results_dirpath = None if ray_results_dirpath is None else os.path.abspath(ray_results_dirpath)
 
     # Create the learner
-    learner = StimulusTuneWrapper(updated_tune_conf, model_class, downsampled_csv, initialized_experiment_class)
+    learner = StimulusTuneWrapper(updated_tune_conf,
+                                  model_class,
+                                  downsampled_csv,
+                                  initialized_experiment_class,
+                                  max_gpus=gpus,
+                                  max_cpus=cpus,
+                                  max_object_store_mem=object_store_mem,
+                                  max_mem=mem,
+                                  ray_results_dir=ray_results_dirpath) # TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath
     
     # Tune the model and get the tuning results
     results = learner.tune()
@@ -96,4 +122,12 @@ def main(data_path: str, model_path: str, experiment_config: str, config_path: s
 
 if __name__ == "__main__":
     args = get_args()
-    main(args.data, args.model, args.experiment, args.config, args.num_samples)
+    main(args.data, 
+         args.model, 
+         args.experiment, 
+         args.config,
+         args.gpus, 
+         args.cpus,
+         args.memory, 
+         args.num_samples, 
+         args.ray_results_dirpath)

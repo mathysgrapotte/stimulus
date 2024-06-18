@@ -3,7 +3,7 @@ process STIMULUS_TRANSFORM_CSV {
 
     tag "${original_csv} - ${combination_key}"
     label 'process_medium'
-    container 'alessiovignoli3/stimulus:stimulus_v0.2'
+    container 'alessiovignoli3/stimulus:stimulus_v0.3'
 
     input:
     tuple val(split_transform_key), val(combination_key), path(transform_json), path(splitted_csv), path(split_json), path(original_csv)

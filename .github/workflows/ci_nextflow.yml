@@ -41,7 +41,7 @@ jobs:
       - name: Run pipeline with test data
         # TODO: Get rid of loca profile when the nf-core like configs are in
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,local
+          nextflow run ${GITHUB_WORKSPACE} -profile test,docker
 
   test_stub:
     name: Stub run of the pipeline
@@ -57,4 +57,4 @@ jobs:
           sudo mv nextflow /usr/local/bin/
       - name: Run pipeline with stub-run in alphafold2 split mode
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_stub
+          nextflow run ${GITHUB_WORKSPACE} -profile test_stub,docker

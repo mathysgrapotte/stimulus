@@ -50,8 +50,8 @@ def main(data_csv, config_json, out_path):
     # initialize the csv processing class, it open and reads the csv in automatic 
     csv_obj = CsvProcessing(exp_obj, data_csv)
 
-    # shuffle the data
-    csv_obj.shuffle_labels()
+    # shuffle the data with a default seed. TODO get the seed for the config if and when that is going to be set there.
+    csv_obj.shuffle_labels(seed=42)
 
     # save the modified csv
     csv_obj.save(out_path)

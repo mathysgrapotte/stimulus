@@ -11,9 +11,10 @@ RUN apt-get update -y\
 # installing python needed packages
 # TODO one can add the requirements.txt and install the packages from there
 RUN pip install \
-        numpy==1.26.0 \
-        polars-lts-cpu==0.20.19 \
-	scikit-learn==1.3.0 \
-	pytorch-lightning==2.0.1 \
-        ray[train,tune]==2.8.0 \
-	matplotlib==3.8.2
+    numpy==1.26.0 \
+    polars-lts-cpu==0.20.30 \
+    scikit-learn==1.5.0 \
+    torch==2.3.0 \
+    ray[train,tune,default]==2.23.0 \
+    matplotlib==3.9.0 \
+    pandas==2.2.0
