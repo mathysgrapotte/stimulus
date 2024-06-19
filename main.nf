@@ -40,7 +40,7 @@ workflow {
         params.csv,
         params.exp_conf,
         params.model,
-        params.train_conf
+        params.tune_conf
     )
     completion_message = CHECK_MODEL.out.completion_message
 
@@ -54,7 +54,7 @@ workflow {
     
     HANDLE_TUNE(
         params.model,
-        params.train_conf,
+        params.tune_conf,
         prepared_data
     )
     //HANDLE_TUNE.out.model.view()
