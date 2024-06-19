@@ -27,10 +27,11 @@ nextflow_workflow {
             }
 
             // repeating in input[0-1] the same content params.model of params.tune_conf present in the test.config because nf-test does not interpret the ${projectDir} correctly otherwise
+            // using both only CPU and only GPU.
             workflow {
                 """
-                input[0] = "${projectDir}/bin/tests/test_model/dnatofloatmodel.py"
-                input[1] = "${projectDir}/bin/tests/test_model/simple_config.yaml"
+                input[0] = "${projectDir}/bin/tests/test_model/dnatofloat_model.py"
+                input[1] = "${projectDir}/bin/tests/test_model/dnatofloat_model_*.yaml"
                 input[2] = HANDLE_DATA.out.data
                 """
             }
