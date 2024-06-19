@@ -1,0 +1,83 @@
+{
+    "Test reproducibility of model tuning": {
+        "content": [
+            [
+                [
+                    "RandomSplitter_0.34_0.33_0.33_4",
+                    "test_with_split.csv - test-2",
+                    "test_with_split-test-2-trans.csv:md5,64ecd933e2bc0c0d2c42a107288c3a0e",
+                    "test-2-experiment.json:md5,5bb998041e683c327dcfec81a908fa36",
+                    "test_with_split-test-2-config.json:md5,95221ec437ede3808a06814e65ba3a4b",
+                    "test_with_split-test-2-model.pt:md5,dc1f681416dbc96272fb5043dd994292",
+                    "test_with_split-test-2-optimizer.pt:md5,226584c5fa524c8b2ee3c141e1f0c02c",
+                    "test_with_split-test-2-metrics.csv:md5,2457f4e968957b668e8e55576bb751c1"
+                ],
+                [
+                    "RandomSplitter_0.34_0.33_0.33_4",
+                    "test_with_split.csv - test-4",
+                    "test_with_split-test-4-trans.csv:md5,35c600e3d5af5280c3ce50e683d4e1da",
+                    "test-4-experiment.json:md5,888b5a8cdf10c3f6fbd0c061c127b28b",
+                    "test_with_split-test-4-config.json:md5,8d53b6b1061a19e98356db7802047e52",
+                    "test_with_split-test-4-model.pt:md5,6983d9f4ec6cda5d842e2f8a9352413d",
+                    "test_with_split-test-4-optimizer.pt:md5,2d014c1abe1ea03b5a85a6fae2080ec5",
+                    "test_with_split-test-4-metrics.csv:md5,363407ac6bc4ff3d700adf1eaf7d2fd4"
+                ],
+                [
+                    "RandomSplitter_0.34_0.33_0.33_4",
+                    "test_with_split.csv - test-6",
+                    "test_with_split-test-6-trans.csv:md5,fbbdfd06c6ec07b126ae68592bd09e54",
+                    "test-6-experiment.json:md5,fde920c7e4d815a56e4825dfd3f7e415",
+                    "test_with_split-test-6-config.json:md5,395d6043e8f8338fdb983d268aea0d7b",
+                    "test_with_split-test-6-model.pt:md5,8cddbc24c3a20251fd5c93a610fae4ca",
+                    "test_with_split-test-6-optimizer.pt:md5,bfed90e019bfb235382100c82b46b519",
+                    "test_with_split-test-6-metrics.csv:md5,b39857d50493e09a0f76561d7780d952"
+                ],
+                [
+                    "no_split",
+                    "test_with_split.csv - shuffle",
+                    "test_with_split-shuffle.csv:md5,b69d4616b7cecaa62d5e3e41c010d7c4",
+                    "test_with_split-shuffled-experiment.json:md5,04768aaf767c8cd2c043f510432b78e0",
+                    "test_with_split-shuffle-config.json:md5,82c18fbfc162905d0c4332d0bd260384",
+                    "test_with_split-shuffle-model.pt:md5,a9abaeaee0c5bc02d6dac522a48b5066",
+                    "test_with_split-shuffle-optimizer.pt:md5,046a6abc32b7398fd8c53fa7ab811bf4",
+                    "test_with_split-shuffle-metrics.csv:md5,8f572a0bb8bdd54e1038601679b4b1eb"
+                ],
+                [
+                    "no_split",
+                    "test_with_split.csv - test-1",
+                    "test_with_split-test-1-trans.csv:md5,8dbc69f2845da31ff8ab2381a2667a4e",
+                    "test-1-experiment.json:md5,4ce80948f2bd82af2ca42e3bb81fbb32",
+                    "test_with_split-test-1-config.json:md5,ff325face0ddcbe635a742c5484a9a91",
+                    "test_with_split-test-1-model.pt:md5,91bdbbc8094b34dd0ae8c088f8a1b973",
+                    "test_with_split-test-1-optimizer.pt:md5,63b98bb2d8a55f55ac9ab88391e23028",
+                    "test_with_split-test-1-metrics.csv:md5,a3e3783774484ce5da60c2737ee7941c"
+                ],
+                [
+                    "no_split",
+                    "test_with_split.csv - test-3",
+                    "test_with_split-test-3-trans.csv:md5,9f0179b00db4bd806df0d0760e036020",
+                    "test-3-experiment.json:md5,2a6576e2eee24cbd026e3db7944d2733",
+                    "test_with_split-test-3-config.json:md5,f73cf0468a404fa852a0289d3dd0094c",
+                    "test_with_split-test-3-model.pt:md5,ea5d2833f938b84df7a530e1215c1f0f",
+                    "test_with_split-test-3-optimizer.pt:md5,1b96342b6b32069f3d902d9efd33a804",
+                    "test_with_split-test-3-metrics.csv:md5,8ec20b1c4d21e51af32acfa13686f47a"
+                ],
+                [
+                    "no_split",
+                    "test_with_split.csv - test-5",
+                    "test_with_split-test-5-trans.csv:md5,535ede6479723133ff71020eec9de4b1",
+                    "test-5-experiment.json:md5,0dd70a06361d79438e1cd154cacf132b",
+                    "test_with_split-test-5-config.json:md5,52ff61ef5408b8c2a510b8d502bf3120",
+                    "test_with_split-test-5-model.pt:md5,b7d5d7c12a3cbd9eca61b141a446ced0",
+                    "test_with_split-test-5-optimizer.pt:md5,2fea7a89d47870bcc47827e76e6980ab",
+                    "test_with_split-test-5-metrics.csv:md5,2bf95200c8a379174db8ab311f8409bb"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "23.10.1"
+        },
+        "timestamp": "2024-06-19T15:14:16.553236"
+    }
+}
