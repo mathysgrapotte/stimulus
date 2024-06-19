@@ -3,10 +3,11 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
+import numpy as np
+
 from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
-
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
 from .predict import PredictWrapper
@@ -30,6 +31,10 @@ class TuneWrapper():
         self.config = YamlRayConfigLoader(config_path).get_config()
         self.config["model"] = model_class
         self.config["experiment"] = experiment_object
+
+        # set the np seed the first time for the scheduler (second in TuneModel). then let random seed be generated and dependant on that for each trial to have a unique reproducible seed. This is done so that it can initialize weights in a unique maner.
+        np.random.seed(self.config["seed"])
+        self.config["trial_seed"] = tune.randint(0, 1000)
 
         if not os.path.exists(data_path):
             raise ValueError("Data path does not exist. Given path:" + data_path)
@@ -145,6 +150,9 @@ class TuneModel(Trainable):
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
+
+        # set the np seed the second time, first in TuneWrapper initialization.
+        np.random.seed(config["trial_seed"])
 
         # Initialize model with the config params
         self.model = config["model"](**config["model_params"])

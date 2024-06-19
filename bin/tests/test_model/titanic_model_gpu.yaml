@@ -41,3 +41,5 @@ tune:
   step_size: 1
   gpu_per_trial: 1
   cpu_per_trial: 0
+
+seed: 123
