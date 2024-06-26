@@ -9,6 +9,8 @@ from torch.nn.utils.rnn import pad_sequence
 from .csv import CsvLoader
 from typing import Any, Tuple, Union, Literal
 
+
+
 class TorchDataset(Dataset):
     """
     Class for creating a torch dataset
@@ -16,6 +18,7 @@ class TorchDataset(Dataset):
     def __init__(self, csvpath: str, experiment: Any, split: Tuple[None, int] = None) -> None:
         self.input, self.label, self.meta, self.length = CsvLoader(experiment, csvpath, split=split).get_all_items_and_length() # getting the data and length at once is better for memory management. 
         self.input, self.label = self.convert_dict_to_dict_of_tensors(self.input), self.convert_dict_to_dict_of_tensors(self.label)
+
 
     def convert_to_tensor(self, data: Union[np.ndarray, list], transform_method: Literal['pad_sequences'] = 'pad_sequences', **transform_kwargs) -> Union[torch.tensor, list]:
         """
@@ -29,7 +32,8 @@ class TorchDataset(Dataset):
             return self.convert_list_of_arrays_to_tensor(data, transform_method, **transform_kwargs)
         else:
             raise ValueError(f'Cannot convert data of type {type(data)} to a tensor')
-        
+
+
     def convert_dict_to_dict_of_tensors(self, data: dict) -> dict:
         """
         Converts the data dictionary to a dictionary of tensors
@@ -39,12 +43,14 @@ class TorchDataset(Dataset):
             output_dict[key] = self.convert_to_tensor(data[key])
         return output_dict
     
+
     def convert_list_of_arrays_to_tensor(self, data: list, transform_method: str, **transform_kwargs) -> torch.tensor:
         """
         convert a list of arrays of variable sizes to a single torch tensor
         """
         return self.__getattribute__(transform_method)(data, **transform_kwargs)
     
+
     def pad_sequences(self, data: list, **transform_kwargs) -> torch.tensor:
         """
         Pads the sequences in the data with a value
@@ -56,6 +62,7 @@ class TorchDataset(Dataset):
         data = [torch.tensor(item) for item in data]
         return pad_sequence(data, batch_first=batch_first, padding_value=padding_value)
     
+
     def get_dictionary_per_idx(self, dictionary: dict, idx: int) -> dict:
         """
         Get the dictionary for a specific index

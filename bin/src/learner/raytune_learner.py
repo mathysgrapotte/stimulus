@@ -3,13 +3,13 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
-import numpy as np
 
 from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
+from ..utils.generic_torch_utils import set_general_seeds
 from .predict import PredictWrapper
 from typing import Tuple
 
@@ -32,9 +32,11 @@ class TuneWrapper():
         self.config["model"] = model_class
         self.config["experiment"] = experiment_object
 
-        # set the np seed the first time for the scheduler (second in TuneModel). then let random seed be generated and dependant on that for each trial to have a unique reproducible seed. This is done so that it can initialize weights in a unique maner.
-        np.random.seed(self.config["seed"])
-        self.config["trial_seed"] = tune.randint(0, 1000)
+        # set all general seeds: python, numpy and torch.
+        set_general_seeds(self.config["seed"])
+
+        # add the ray method for number generation to the config so it can be passed to the trainable class, that will in turn set per worker seeds in a reproducible mnanner.
+        self.config["ray_worker_seed"] = tune.randint(0, 1000)
 
         if not os.path.exists(data_path):
             raise ValueError("Data path does not exist. Given path:" + data_path)
@@ -55,7 +57,7 @@ class TuneWrapper():
         self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
-        
+
         self.tuner = self.tuner_initialization()
 
 
@@ -151,8 +153,8 @@ class TuneModel(Trainable):
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
 
-        # set the np seed the second time, first in TuneWrapper initialization.
-        np.random.seed(config["trial_seed"])
+        # set the seeds the second time, first in TuneWrapper initialization. This will make all important seed worker specific.
+        set_general_seeds(self.config["ray_worker_seed"])
 
         # Initialize model with the config params
         self.model = config["model"](**config["model_params"])
@@ -186,7 +188,7 @@ class TuneModel(Trainable):
         # get the train and validation data from the config
         # run dataloader on them
         self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible 
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
@@ -195,6 +197,7 @@ class TuneModel(Trainable):
         This calculation is performed based on the model's batch function.
         At the end, return the objective metric(s) for the tuning process.
         """
+
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
                 # the loss dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
@@ -205,6 +208,7 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
+
         metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
         predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  split=1, batch_size=self.batch_size, loss_dict=self.loss_dict)
         predict_train = PredictWrapper(self.model, self.data_path, self.experiment, split=0, batch_size=self.batch_size, loss_dict=self.loss_dict)
