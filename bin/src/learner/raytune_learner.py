@@ -24,7 +24,8 @@ class TuneWrapper():
                  max_cpus: int = None,
                  max_object_store_mem: float = None,
                  max_mem: float = None,
-                 ray_results_dir: str = None) -> None:
+                 ray_results_dir: str = None,
+                 _debug: str = False) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
@@ -38,6 +39,7 @@ class TuneWrapper():
         # add the ray method for number generation to the config so it can be passed to the trainable class, that will in turn set per worker seeds in a reproducible mnanner.
         self.config["ray_worker_seed"] = tune.randint(0, 1000)
 
+        # add the data path to the config so it know where it is during tuning
         if not os.path.exists(data_path):
             raise ValueError("Data path does not exist. Given path:" + data_path)
         self.config["data_path"] = os.path.abspath(data_path)
@@ -58,7 +60,16 @@ class TuneWrapper():
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
 
+        # pass the debug flag to the config taken fromn tune so it can be used inside the setup of the trainable
+        self.config["_debug"] = False
+        if _debug:
+            self.config["_debug"] = True
+
         self.tuner = self.tuner_initialization()
+
+        
+            
+
 
 
     def tuner_initialization(self) -> tune.Tuner:
@@ -191,6 +202,17 @@ class TuneModel(Trainable):
         self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible 
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
 
+        # debug section
+        if config["_debug"]:
+            # save the initialized model weights, creating a special directory for it one that is worker/trial/experiment specific
+            debug_dir = os.path.join(os.path.dirname(self.data_path), ("debug_" + str(torch.seed())))
+            os.mkdir(debug_dir)
+            print("#####    ", debug_dir)
+            self.export_model(export_dir=debug_dir)
+
+        # remove the debug keyword from the dictionary
+        del self.config["_debug"]
+
     def step(self) -> dict:
         """
         For each batch in the training data, calculate the loss and update the model parameters.
@@ -216,7 +238,7 @@ class TuneModel(Trainable):
                 **{'train_'+metric : value for metric,value in predict_train.compute_metrics(metrics).items()}}
 
     def export_model(self, export_dir: str) -> None:
-        torch.save(self.model.state_dict(), export_dir)
+        torch.save(self.model.state_dict(), os.path.join(export_dir,  "model.pt"))
 
     def load_checkpoint(self, checkpoint_dir: str) -> None:
         self.model.load_state_dict(torch.load(os.path.join(checkpoint_dir, "model.pt")))

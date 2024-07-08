@@ -27,6 +27,7 @@ def get_args():
     parser.add_argument("--cpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_CPU", help="Use to limit the number of CPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all CPUs available. It can be set to 0 to use only GPUs.")
     parser.add_argument("--memory", type=str, required=False, nargs='?', const=None, default=None, metavar="MAX_MEMORY", help="ray can have a limiter on the total memory it can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all memory available.")
     parser.add_argument("--ray_results_dirpath", type=str, required=False, nargs='?', const=None, default=None, metavar="DIR_PATH", help="the location where ray_results output dir should be written. if set to None (default) ray will be place it in ~/ray_results ")
+    parser.add_argument("--debug_mode", type=str, required=False, nargs='?', const=False, default=False, metavar="DEV", help="activate debug mode for tuning. default false, no debug.")
 
     args = parser.parse_args()
         
@@ -43,7 +44,8 @@ def main(config_path: str,
          gpus: int = None,
          cpus: int = None,
          memory: str = None,
-         ray_results_dirpath: str = None) -> None:
+         ray_results_dirpath: str = None,
+         _debug_mode: str = False) -> None:
     """
     This launcher use ray tune to find the best hyperparameters for a given model.
     """
@@ -83,7 +85,8 @@ def main(config_path: str,
                                   max_cpus=cpus,
                                   max_object_store_mem=object_store_mem,
                                   max_mem=mem,
-                                  ray_results_dir=ray_results_dirpath) 
+                                  ray_results_dir=ray_results_dirpath,
+                                  _debug=_debug_mode) 
     
     # Tune the model and get the tuning results
     results = learner.tune()
@@ -109,4 +112,5 @@ if __name__ == "__main__":
          args.gpus, 
          args.cpus,
          args.memory,
-         args.ray_results_dirpath)
+         args.ray_results_dirpath,
+         args.debug_mode)

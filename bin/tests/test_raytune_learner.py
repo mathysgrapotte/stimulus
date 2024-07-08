@@ -40,9 +40,9 @@ class TestTuneModel(unittest.TestCase):
     #     self.assertIsInstance(obj["val_loss"], float)
 
     def test_export_model(self):
-        self.learner.export_model("bin/tests/test_data/dna_experiment/test_model.pth")
-        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/test_model.pth"))
-        os.remove("bin/tests/test_data/dna_experiment/test_model.pth")
+        self.learner.export_model("bin/tests/test_data/dna_experiment/")
+        self.assertTrue(os.path.exists("bin/tests/test_data/dna_experiment/model.pt"))
+        os.remove("bin/tests/test_data/dna_experiment/model.pt")
     
     def test_save_checkpoint(self):
         checkpoint_dir = "bin/tests/test_data/dna_experiment/test_checkpoint"
