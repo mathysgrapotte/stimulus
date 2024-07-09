@@ -3,6 +3,8 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
+import random
+import numpy as np
 
 from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
@@ -59,6 +61,9 @@ class TuneWrapper():
         self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
+
+        # pass the ray_results_dir path to the trainable function
+        self.config["storage_path"] = ray_results_dir
 
         # pass the debug flag to the config taken fromn tune so it can be used inside the setup of the trainable
         self.config["_debug"] = False
@@ -199,19 +204,31 @@ class TuneModel(Trainable):
         # get the train and validation data from the config
         # run dataloader on them
         self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible 
+        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible. if num_workers would be set then every worker should be seeded as well.
         self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
 
-        # debug section
+        # debug section, first create a dedicated directory for each worker inside Ray_results location
+        debug_dir = os.path.join(config["storage_path"], ("debug_" + str(self.config["ray_worker_seed"])))
         if config["_debug"]:
-            # save the initialized model weights, creating a special directory for it one that is worker/trial/experiment specific
-            debug_dir = os.path.join(os.path.dirname(self.data_path), ("debug_" + str(torch.seed())))
+            # creating a special directory for it one that is worker/trial/experiment specific
             os.mkdir(debug_dir)
-            print("#####    ", debug_dir)
+            seed_filename = os.path.join(debug_dir, "seeds.txt")
+
+            # save the initialized model weights, creating a special directory for it one that is worker/trial/experiment specific
             self.export_model(export_dir=debug_dir)
 
-        # remove the debug keyword from the dictionary
-        del self.config["_debug"]
+            # save the seeds
+            with open(seed_filename, 'a') as seed_f:
+                # you can not retrieve the actual seed once it set, or the current seed neither for python nor for numpy. so we select five numbers randomly. If that is the first draw of numbers they are always the same.
+                python_values = random.sample(range(100), 5)
+                numpy_values = list(np.random.randint(0, 100, size=5))
+                torch_values = torch.randint(0, 100, (5,)).tolist()
+                seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
+
+        # remove the debug keyword from the dictionary and the ray result path
+        del config["_debug"], config["storage_path"]
+
+
 
     def step(self) -> dict:
         """
