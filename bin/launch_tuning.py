@@ -5,10 +5,12 @@ import json
 import os
 import yaml
 
+from torch.utils.data import DataLoader
 from launch_utils import import_class_from_file, get_experiment, memory_split_for_ray_init
 from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
 from src.learner.raytune_parser import TuneParser as StimulusTuneParser
-from json_schema import JsonSchema
+from src.data.handlertorch import TorchDataset
+from src.learner.predict import PredictWrapper
 
 def get_args():
 
@@ -97,6 +99,18 @@ def main(config_path: str,
     results.save_best_config(best_config_path)
     results.save_best_metrics_dataframe(best_metrics_path)
     results.save_best_optimizer(best_optimizer_path)
+
+    # debug section. predict the validation data using the best model.
+    if _debug_mode:
+        # imitialize the model class
+        best_model = model_class()
+        # get the weights associated to the best model and load them onto the model class
+        best_model.load_state_dict(results.get_best_model())
+        # load the data in a dataloader and then predict them in an ordered manner, aka no shuffle.
+        validation_set = DataLoader(TorchDataset(data_path, initialized_experiment_class, split=1), batch_size=learner.config['data_params']['batch_size'].sample(), shuffle=False)
+        predictions = PredictWrapper(best_model, validation_set).predict()
+        print(predictions, type(predictions))
+
 
 
 if __name__ == "__main__":
