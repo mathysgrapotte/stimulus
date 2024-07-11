@@ -10,13 +10,19 @@ from bin.src.utils.yaml_model_schema import YamlRayConfigLoader
 from torch.utils.data import DataLoader
 
 
+
 class TestTuneModel(unittest.TestCase):
     def setUp(self):
-        torch.manual_seed(1234)
         config = YamlRayConfigLoader("bin/tests/test_model/dnatofloat_model_cpu.yaml").get_config_instance()
         config["model"] = ModelSimple
         config["experiment"] = DnaToFloatExperiment()
         config["data_path"] = "bin/tests/test_data/dna_experiment/test_with_split.csv"
+        # seeds are set inside the setup function thanks to the following key
+        config["ray_worker_seed"] = 1234
+        # set debug mode to be off
+        config["_debug"] = False
+        # this is just a flag used in the case of debug mode. set to an arbitrary string here
+        config["storage_path"] = "bubba"
         self.learner = TuneModel(config = config)
 
     def test_setup(self):
@@ -61,7 +67,6 @@ class TestTuneModel(unittest.TestCase):
 
 class TestTuneWrapper(unittest.TestCase):
     def setUp(self):
-        torch.manual_seed(1234)
         config_path = "bin/tests/test_model/dnatofloat_model_cpu.yaml"
         model_class = ModelSimple
         experiment_obj = DnaToFloatExperiment()

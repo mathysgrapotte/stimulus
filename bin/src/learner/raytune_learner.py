@@ -62,8 +62,10 @@ class TuneWrapper():
                                           storage_path=ray_results_dir
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
 
-        # pass the ray_results_dir path to the trainable function
+        # pass the ray_results_dir path to the trainable function, if None ray will put it under home so we will do the same here.
         self.config["storage_path"] = ray_results_dir
+        if ray_results_dir is None:
+            self.config["storage_path"] = os.environ.get("HOME")
 
         # pass the debug flag to the config taken fromn tune so it can be used inside the setup of the trainable
         self.config["_debug"] = False
