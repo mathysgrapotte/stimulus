@@ -1,18 +1,16 @@
 import torch
-from torch.utils.data import DataLoader
-from ..data.handlertorch import TorchDataset
 from ..utils.performance import Performance
 from ..utils.generic_torch_utils import ensure_at_least_1d
 
 class PredictWrapper():
     """
-    A wrapper to predict the output of a model on a dataset.
+    A wrapper to predict the output of a model on a datset loaded into a torch DataLoader.
     It also provides the functionalities to measure the performance of the model.
     """
-    def __init__(self, model: object, data_path: str, experiment: object, split: int, batch_size: int = None, loss_dict: dict = None):
+    def __init__(self, model: object, dataloader: object, loss_dict: dict = None):
         self.model = model
+        self.dataloader = dataloader
         self.loss_dict = loss_dict
-        self.dataloader = DataLoader(TorchDataset(data_path, experiment, split=split), batch_size=batch_size, shuffle=False)
         try:
             self.model.eval()
         except:

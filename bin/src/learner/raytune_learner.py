@@ -178,9 +178,6 @@ class TuneModel(Trainable):
         # Add data path
         self.data_path = config["data_path"]
 
-        # Use the already initialized experiment class      
-        self.experiment = config["experiment"]
-
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
         # where the keys are the key of loss_params in the yaml config file and the values are the loss functions associated to such keys.
@@ -203,9 +200,8 @@ class TuneModel(Trainable):
 
         # get the train and validation data from the config
         # run dataloader on them
-        self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible. if num_workers would be set then every worker should be seeded as well.
-        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
+        self.training = DataLoader(TorchDataset(self.data_path, config["experiment"], split=0), batch_size=config['data_params']['batch_size'], shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible. if num_workers would be set then every worker should be seeded as well.
+        self.validation = DataLoader(TorchDataset(self.data_path, config["experiment"], split=1), batch_size=config['data_params']['batch_size'], shuffle=True)
 
         # debug section, first create a dedicated directory for each worker inside Ray_results location
         debug_dir = os.path.join(config["storage_path"], ("debug_" + str(self.config["ray_worker_seed"])))
@@ -225,7 +221,7 @@ class TuneModel(Trainable):
                 torch_values = torch.randint(0, 100, (5,)).tolist()
                 seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
 
-        # remove the debug keyword from the dictionary and the ray result path
+        # remove the debug keyword from the dictionary and the ray result path, both needed by the debug section
         del config["_debug"], config["storage_path"]
 
 
@@ -249,8 +245,8 @@ class TuneModel(Trainable):
         """
 
         metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
-        predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  split=1, batch_size=self.batch_size, loss_dict=self.loss_dict)
-        predict_train = PredictWrapper(self.model, self.data_path, self.experiment, split=0, batch_size=self.batch_size, loss_dict=self.loss_dict)
+        predict_val = PredictWrapper(self.model, self.validation, loss_dict=self.loss_dict)
+        predict_train = PredictWrapper(self.model, self.training, loss_dict=self.loss_dict)
         return {**{'val_'+metric : value for metric,value in predict_val.compute_metrics(metrics).items()},
                 **{'train_'+metric : value for metric,value in predict_train.compute_metrics(metrics).items()}}
 
