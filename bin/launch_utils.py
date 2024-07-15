@@ -34,7 +34,7 @@ def get_experiment(experiment_name: str) -> object:
 
 def memory_split_for_ray_init(memory_str:  Union[str, None]) -> Tuple[float, float]:
     """
-    compute the memory requirements for ray init. 
+    Process the input memory value into the right unit and allocates 30% for overhead and 70% for tuning.
     Usefull in case ray detects them wrongly.
     Memory is split in two for ray: for store_object memory and the other actual memory for tuning.
     The following function takes the total possible usable/allocated memory as a string parameter and returns in bytes the values for store_memory (30% as default in ray) and memory (70%).
