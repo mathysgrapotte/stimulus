@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import yaml
+import pickle
 
 from torch.utils.data import DataLoader
 from launch_utils import import_class_from_file, get_experiment, memory_split_for_ray_init
@@ -11,6 +12,7 @@ from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
 from src.learner.raytune_parser import TuneParser as StimulusTuneParser
 from src.data.handlertorch import TorchDataset
 from src.learner.predict import PredictWrapper
+from src.utils.generic_utils import get_latest_created_dir
 
 def get_args():
 
@@ -109,7 +111,10 @@ def main(config_path: str,
         # load the data in a dataloader and then predict them in an ordered manner, aka no shuffle.
         validation_set = DataLoader(TorchDataset(data_path, initialized_experiment_class, split=1), batch_size=learner.config['data_params']['batch_size'].sample(), shuffle=False)
         predictions = PredictWrapper(best_model, validation_set).predict()
-        print(predictions, type(predictions))
+        # write to file the predictions, in the ray result tune specific folder. 
+        pred_filename = os.path.join(learner.config["storage_path"], get_latest_created_dir(learner.config["storage_path"]), "debug", "best_model_val_pred.pkl")
+        with open(pred_filename, 'wb') as pred_f:
+            pickle.dump(predictions, pred_f)
 
 
 

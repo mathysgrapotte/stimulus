@@ -11,7 +11,7 @@ from ray.tune import Trainable
 from torch.utils.data import DataLoader
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
-from ..utils.generic_torch_utils import set_general_seeds
+from ..utils.generic_utils import set_general_seeds, get_latest_created_dir
 from .predict import PredictWrapper
 from typing import Tuple
 
@@ -205,26 +205,26 @@ class TuneModel(Trainable):
         self.training = DataLoader(TorchDataset(self.data_path, config["experiment"], split=0), batch_size=config['data_params']['batch_size'], shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible. if num_workers would be set then every worker should be seeded as well.
         self.validation = DataLoader(TorchDataset(self.data_path, config["experiment"], split=1), batch_size=config['data_params']['batch_size'], shuffle=True)
 
-        # debug section, first create a dedicated directory for each worker inside Ray_results location
-        debug_dir = os.path.join(config["storage_path"], ("debug_" + str(self.config["ray_worker_seed"])))
+        # debug section, first create a dedicated directory for each worker inside Ray_results/<tune_model_run_specific_dir> location
+        debug_dir = os.path.join(config["storage_path"], get_latest_created_dir(config["storage_path"]), "debug", ("worker_with_seed_" + str(self.config["ray_worker_seed"])))
         if config["_debug"]:
             # creating a special directory for it one that is worker/trial/experiment specific
-            os.mkdir(debug_dir)
+            os.makedirs(debug_dir)
             seed_filename = os.path.join(debug_dir, "seeds.txt")
 
-            # save the initialized model weights, creating a special directory for it one that is worker/trial/experiment specific
+            # save the initialized model weights
             self.export_model(export_dir=debug_dir)
 
             # save the seeds
             with open(seed_filename, 'a') as seed_f:
-                # you can not retrieve the actual seed once it set, or the current seed neither for python nor for numpy. so we select five numbers randomly. If that is the first draw of numbers they are always the same.
+                # you can not retrieve the actual seed once it set, or the current seed neither for python, numpy nor torch. so we select five numbers randomly. If that is the first draw of numbers they are always the same.
                 python_values = random.sample(range(100), 5)
                 numpy_values = list(np.random.randint(0, 100, size=5))
                 torch_values = torch.randint(0, 100, (5,)).tolist()
                 seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
 
-        # remove the debug keyword from the dictionary and the ray result path, both needed by the debug section
-        del config["_debug"], config["storage_path"]
+        # remove the debug keyword from the dictionary
+        del config["_debug"]
 
 
 

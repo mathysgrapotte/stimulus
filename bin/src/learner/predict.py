@@ -1,6 +1,6 @@
 import torch
 from ..utils.performance import Performance
-from ..utils.generic_torch_utils import ensure_at_least_1d
+from ..utils.generic_utils import ensure_at_least_1d
 
 class PredictWrapper():
     """
