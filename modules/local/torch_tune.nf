@@ -18,6 +18,8 @@ process TORCH_TUNE {
           path("*-optimizer.pt"),
           path("*-metrics.csv"),
           emit: tune_specs
+    // output the debug files if they are present
+     
 
     script:
     def prefix = task.ext.prefix
