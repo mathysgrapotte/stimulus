@@ -12,7 +12,7 @@ from src.learner.raytune_learner import TuneWrapper as StimulusTuneWrapper
 from src.learner.raytune_parser import TuneParser as StimulusTuneParser
 from src.data.handlertorch import TorchDataset
 from src.learner.predict import PredictWrapper
-from src.utils.generic_utils import get_latest_created_dir
+
 
 def get_args():
 
@@ -31,6 +31,7 @@ def get_args():
     parser.add_argument("--cpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_CPU", help="Use to limit the number of CPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all CPUs available. It can be set to 0 to use only GPUs.")
     parser.add_argument("--memory", type=str, required=False, nargs='?', const=None, default=None, metavar="MAX_MEMORY", help="ray can have a limiter on the total memory it can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all memory available.")
     parser.add_argument("--ray_results_dirpath", type=str, required=False, nargs='?', const=None, default=None, metavar="DIR_PATH", help="the location where ray_results output dir should be written. if set to None (default) ray will be place it in ~/ray_results ")
+    parser.add_argument("--tune_run_name", type=str, required=False, nargs='?', const=None, default=None, metavar="CUSTOM_RUN_NAME", help="tells ray tune what that the 'experiment_name' aka the given tune_run name should be. This is controlled be the variable name in the RunConfig class of tune. This has two behaviuors: 1 if set the subdir of ray_results is going to be named with this value, 2 the subdir of the above mentioned will also have this value as prefix for the single train dir name. Default None, meaning ray will generate such a name on its own.")
     parser.add_argument("--debug_mode", type=str, required=False, nargs='?', const=False, default=False, metavar="DEV", help="activate debug mode for tuning. default false, no debug.")
 
     args = parser.parse_args()
@@ -49,6 +50,7 @@ def main(config_path: str,
          cpus: int = None,
          memory: str = None,
          ray_results_dirpath: str = None,
+         tune_run_name: str = None,
          _debug_mode: str = False) -> None:
     """
     This launcher use ray tune to find the best hyperparameters for a given model.
@@ -90,6 +92,7 @@ def main(config_path: str,
                                   max_object_store_mem=object_store_mem,
                                   max_mem=mem,
                                   ray_results_dir=ray_results_dirpath,
+                                  tune_run_name=tune_run_name,
                                   _debug=_debug_mode) 
     
     # Tune the model and get the tuning results
@@ -112,7 +115,7 @@ def main(config_path: str,
         validation_set = DataLoader(TorchDataset(data_path, initialized_experiment_class, split=1), batch_size=learner.config['data_params']['batch_size'].sample(), shuffle=False)
         predictions = PredictWrapper(best_model, validation_set).predict()
         # write to file the predictions, in the ray result tune specific folder. 
-        pred_filename = os.path.join(learner.config["storage_path"], get_latest_created_dir(learner.config["storage_path"]), "debug", "best_model_val_pred.pkl")
+        pred_filename = os.path.join(learner.config["tune_run_path"], "debug", "best_model_val_pred.pkl")
         with open(pred_filename, 'wb') as pred_f:
             pickle.dump(predictions, pred_f)
 
@@ -132,4 +135,5 @@ if __name__ == "__main__":
          args.cpus,
          args.memory,
          args.ray_results_dirpath,
+         args.tune_run_name,
          args.debug_mode)

@@ -5,13 +5,14 @@ import torch.nn as nn
 import torch.optim as optim 
 import random
 import numpy as np
+import datetime
 
 from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
-from ..utils.generic_utils import set_general_seeds, get_latest_created_dir
+from ..utils.generic_utils import set_general_seeds
 from .predict import PredictWrapper
 from typing import Tuple
 
@@ -27,6 +28,7 @@ class TuneWrapper():
                  max_object_store_mem: float = None,
                  max_mem: float = None,
                  ray_results_dir: str = None,
+                 tune_run_name: str = None,
                  _debug: str = False) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
@@ -58,14 +60,19 @@ class TuneWrapper():
 
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
-        self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
-                                          storage_path=ray_results_dir
+        # in case a custom name was not given for tune_run_name, build it like ray would do. to later pass it on the worker for the debug section.
+        if tune_run_name is None:
+            tune_run_name = "TuneModel_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.run_config = train.RunConfig(name=tune_run_name,
+            storage_path=ray_results_dir,
+            checkpoint_config=self.checkpoint_config 
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
 
-        # pass the ray_results_dir path to the trainable function, if None ray will put it under home so we will do the same here.
-        self.config["storage_path"] = ray_results_dir
+        # working towards the path for the tune_run directory. if ray_results_dir None ray will put it under home so we will do the same here.
         if ray_results_dir is None:
-            self.config["storage_path"] = os.environ.get("HOME")
+            ray_results_dir = os.environ.get("HOME")
+        # then we are able to pass the whole correct tune_run path to the trainable function. so it can use thaqt to place the debug dir under if needed.
+        self.config["tune_run_path"] = os.path.join(ray_results_dir, tune_run_name)
 
         # pass the debug flag to the config taken fromn tune so it can be used inside the setup of the trainable
         self.config["_debug"] = False
@@ -206,7 +213,7 @@ class TuneModel(Trainable):
         self.validation = DataLoader(TorchDataset(self.data_path, config["experiment"], split=1), batch_size=config['data_params']['batch_size'], shuffle=True)
 
         # debug section, first create a dedicated directory for each worker inside Ray_results/<tune_model_run_specific_dir> location
-        debug_dir = os.path.join(config["storage_path"], get_latest_created_dir(config["storage_path"]), "debug", ("worker_with_seed_" + str(self.config["ray_worker_seed"])))
+        debug_dir = os.path.join(config["tune_run_path"], "debug", ("worker_with_seed_" + str(self.config["ray_worker_seed"])))
         if config["_debug"]:
             # creating a special directory for it one that is worker/trial/experiment specific
             os.makedirs(debug_dir)
