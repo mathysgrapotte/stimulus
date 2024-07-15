@@ -5,7 +5,7 @@ import sys
 import numpy as np
 import numpy.testing as npt
 import polars as pl
-sys.path.append('./')
+
 from bin.src.data.csv import CsvProcessing, CsvLoader
 from bin.src.data.experiments import DnaToFloatExperiment,ProtDnaToFloatExperiment
 
@@ -88,8 +88,7 @@ class TestDnaToFloatCsvProcessing(AbstractTestCsvProcessing):
         
     def test_shuffle_labels(self):
         # initialize seed to 42 to make the test reproducible
-        np.random.seed(42)
-        self.csv_shuffle_long.shuffle_labels()
+        self.csv_shuffle_long.shuffle_labels(seed=42)
         npt.assert_array_equal(self.csv_shuffle_long.data['hola:label:float'], self.csv_shuffle_long_shuffled.data['hola:label:float'])
 
 

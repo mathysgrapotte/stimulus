@@ -1,0 +1,34 @@
+
+nextflow_workflow {
+
+    name "Test Workflow HANDLE_DATA"
+    script "../workflows/handle_data.nf"
+    workflow "HANDLE_DATA"
+
+    test("Test reproducibility of data handling") {
+
+        when {
+
+            // make so that nf-test will see a singularity cache dir where is usally set to, again interpretation of projectdir has to be done here and not rely on an external config.
+            params {
+                singularity_cache_dir = "${projectDir}/singularity_cache"
+            }
+
+            // repeating in input[0-1] the same content of params.csv and parma.exp_conf present in the test.config because nf-test does not interpret the ${projectDir} correctly otherwise
+            workflow {
+                """
+                input[0] = "${projectDir}/bin/tests/test_data/dna_experiment/test_with_split.csv"
+                input[1] = "${projectDir}/examples/test.json"
+                input[2] = Channel.of("TESTING")
+                """
+            }
+        }
+
+        then {
+
+            assert workflow.success
+
+            assert snapshot(workflow.out.data).match()
+        }
+    }
+}
