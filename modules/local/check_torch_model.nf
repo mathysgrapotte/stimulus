@@ -12,7 +12,6 @@ process CHECK_TORCH_MODEL {
     stdout emit: standardout
 
     script:
-    def suffix = task.ext.suffix
     def args = task.ext.args ?: ''
     """
     launch_check_model.py \

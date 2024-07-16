@@ -24,6 +24,12 @@ nextflow_workflow {
             // make so that nf-test will see a singularity cache dir where is usally set to, again interpretation of projectdir has to be done here and not rely on an external config.
             params {
                 singularity_cache_dir = "${projectDir}/singularity_cache"
+                debug_mode = true
+
+
+                max_gpus = 0
+
+
             }
 
             // repeating in input[0-1] the same content params.model of params.tune_conf present in the test.config because nf-test does not interpret the ${projectDir} correctly otherwise
@@ -31,7 +37,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = "${projectDir}/bin/tests/test_model/dnatofloat_model.py"
-                input[1] = "${projectDir}/bin/tests/test_model/dnatofloat_model_*.yaml"
+                input[1] = "${projectDir}/bin/tests/test_model/dnatofloat_model_cpu.yaml"
                 input[2] = HANDLE_DATA.out.data
                 """
             }
@@ -39,9 +45,13 @@ nextflow_workflow {
 
         then {
 
-            assert workflow.success
-
-            assert snapshot(workflow.out.tune_out).match()
+            // first chech that the model initialization is always identical
+            // then check that the seeds used are the same through randomly picked numbers
+            assertAll(
+            { assert workflow.success }, 
+            { assert snapshot(workflow.out.debug.get(0).get(2)).match("model_weight_initialized") },
+            { assert snapshot(workflow.out.debug.get(0).get(3)).match("seeds") }
+            )
         }
 
     }
