@@ -29,15 +29,18 @@ class TuneParser():
 
     def fix_config_values(self, config):
         """
-        Function to fix config values.
-
-        TODO here there is a quick fix to avoid the problem with serializing class objects.
-        maybe there is a better way.
+        Correct config values.
         """
+        # remove training and validation data from config
+        config = {k:v for k,v in config.items() if k not in ['training', 'validation']}
+
+        # fix the model and experiment values to avoid problems with serialization
+        # TODO this is a quick fix to avoid the problem with serializing class objects. maybe there is a better way.
         config['model'] = config['model'].__name__       
         config['experiment'] = config['experiment'].__class__.__name__ 
         if 'tune' in config and 'tune_params' in config['tune']:
             del config['tune']['tune_params']['scheduler']
+
         return config
 
     def save_best_metrics_dataframe(self, output: str) -> None:

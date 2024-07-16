@@ -39,6 +39,12 @@ class TuneWrapper():
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
+        # load train/validation data into config
+        # in this way, the data is loaded only once and not at each step of the tuning process,
+        # thus avoiding the issue of running multiprocessing.pool with ray tune altogether.
+        self.config["training"] = TorchDataset(self.config["data_path"], self.config["experiment"], split=0)
+        self.config["validation"] = TorchDataset(self.config["data_path"], self.config["experiment"], split=1)
+
         # set ray cluster total resources (max)
         self.max_gpus             = max_gpus
         self.max_cpus             = max_cpus
@@ -52,7 +58,6 @@ class TuneWrapper():
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
         
         self.tuner = self.tuner_initialization()
-
 
     def tuner_initialization(self) -> tune.Tuner:
         """
@@ -84,7 +89,6 @@ class TuneWrapper():
                             param_space=self.config,
                             run_config=self.run_config,
                         )
-        
 
     def tune(self) -> None:
         """
@@ -92,8 +96,6 @@ class TuneWrapper():
         """
 
         return self.tuner.fit()
-    
-
 
     def _chek_per_trial_resources(self, resurce_key: str,  cluster_max_resources: dict, resource_type: str) -> Tuple[int, int] :
         """
@@ -104,7 +106,6 @@ class TuneWrapper():
         cluster_max_resources:  dict object         the output of the ray.cluster_resources() function. It hold what ray has found to be the available resources for CPU, GPU and Memory
         resource_type:          str object          the key used to llok into the cluster_resources dict 
         """
-
         
         if resource_type == "GPU" and resource_type not in cluster_resources().keys():
             # ray does not have a GPU field also if GPUs were set to zero. So trial GPU resources have to be set to zero.
@@ -137,8 +138,6 @@ class TuneWrapper():
         return per_trial_resource
     
 
-
-
 class TuneModel(Trainable):
 
     def setup(self, config: dict) -> None:
@@ -164,7 +163,6 @@ class TuneModel(Trainable):
                 self.loss_dict[key] = getattr(nn, loss_fn)()
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
-        
 
         # get the optimizer parameters
         optimizer_lr = config["optimizer_params"]["lr"]
@@ -178,8 +176,8 @@ class TuneModel(Trainable):
         # get the train and validation data from the config
         # run dataloader on them
         self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
-        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
+        self.training = DataLoader(config['training'], batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(config['validation'], batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
         """
@@ -198,8 +196,8 @@ class TuneModel(Trainable):
         Compute the objective metric(s) for the tuning process.
         """
         metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
-        predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  split=1, batch_size=self.batch_size, loss_dict=self.loss_dict)
-        predict_train = PredictWrapper(self.model, self.data_path, self.experiment, split=0, batch_size=self.batch_size, loss_dict=self.loss_dict)
+        predict_val = PredictWrapper(self.model, self.validation, loss_dict=self.loss_dict)
+        predict_train = PredictWrapper(self.model, self.training, loss_dict=self.loss_dict)
         return {**{'val_'+metric : value for metric,value in predict_val.compute_metrics(metrics).items()},
                 **{'train_'+metric : value for metric,value in predict_train.compute_metrics(metrics).items()}}
 
