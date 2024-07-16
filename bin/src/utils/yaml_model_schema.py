@@ -1,5 +1,6 @@
-import yaml
 import ray.tune as tune
+import random
+import yaml
 from copy import deepcopy
 from collections.abc import Callable
 
@@ -17,9 +18,20 @@ class YamlRayConfigLoader():
         
         elif mode.__name__ in ["uniform", "loguniform", "quniform", "qloguniform", "qnormal", "randint"]:
             return mode(*tuple(space))
-        
+
         else:
             raise NotImplementedError(f"Mode {mode.__name__} not implemented yet")
+
+    def raytune_sample_from(self, mode: Callable, param: dict) -> Callable:
+        """
+        This function applies the tune.sample_from to a given custom sampling function.
+        """
+
+        if param["function"] == "sampint":
+            return mode(lambda _: self.sampint(param["sample_space"], param["n_space"]))
+        
+        else:
+            raise NotImplementedError(f"Function {param['function']} not implemented yet")
 
     def convert_raytune(self, param: dict) -> dict:
         # get the mode function from ray.tune using getattr, return an error if it is not recognized
@@ -28,8 +40,11 @@ class YamlRayConfigLoader():
         except AttributeError:
             raise AttributeError(f"Mode {param['mode']} not recognized, check the ray.tune documentation at https://docs.ray.io/en/master/tune/api_docs/suggestion.html")
 
-        # apply the mode function to the space
-        return self.raytune_space_selector(mode, param["space"])
+        # apply the mode function
+        if param["mode"] != "sample_from":
+            return self.raytune_space_selector(mode, param['space'])
+        else:
+            return self.raytune_sample_from(mode, param)
     
     def convert_config_to_ray(self, config: dict) -> dict:
         # the config is a dictionary of dictionaries. The main dictionary keys are either model_params, loss_params or optimizer_params. 
@@ -60,3 +75,19 @@ class YamlRayConfigLoader():
     
     def get_config(self) -> dict:
         return self.config
+
+    @staticmethod
+    def sampint(sample_space: list, n_space: list) -> list:
+        """
+        This function returns a list of n samples from the sample_space.
+
+        This function is specially useful when we want different number of layers,
+        and each layer with different number of neurons.
+
+        `sample_space` is the range of (int) values from which to sample
+        `n_space` is the range of (int) number of samples to take
+        """
+        sample_space = range(sample_space[0], sample_space[1]+1)
+        n_space = range(n_space[0], n_space[1]+1)
+        n = random.choice(n_space)
+        return random.sample(sample_space, n)
