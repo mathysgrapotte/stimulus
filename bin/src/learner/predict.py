@@ -10,7 +10,7 @@ class PredictWrapper():
     def __init__(self, model: object, dataloader: object, loss_dict: dict = None):
         self.model = model
         self.loss_dict = loss_dict
-        self.dataloader = data
+        self.dataloader = dataloader
         try:
             self.model.eval()
         except:
