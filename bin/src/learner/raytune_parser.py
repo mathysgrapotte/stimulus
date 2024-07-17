@@ -31,9 +31,6 @@ class TuneParser():
         """
         Correct config values.
         """
-        # remove training and validation data from config
-        config = {k:v for k,v in config.items() if k not in ['training', 'validation']}
-
         # fix the model and experiment values to avoid problems with serialization
         # TODO this is a quick fix to avoid the problem with serializing class objects. maybe there is a better way.
         config['model'] = config['model'].__name__       

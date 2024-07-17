@@ -39,12 +39,6 @@ class TuneWrapper():
         self.config["tune"]["tune_params"]["scheduler"] = getattr(schedulers, self.config["tune"]["scheduler"]["name"])( **self.config["tune"]["scheduler"]["params"])
         self.tune_config = tune.TuneConfig(**self.config["tune"]["tune_params"])
 
-        # load train/validation data into config
-        # in this way, the data is loaded only once and not at each step of the tuning process,
-        # thus avoiding the issue of running multiprocessing.pool with ray tune altogether.
-        self.config["training"] = TorchDataset(self.config["data_path"], self.config["experiment"], split=0)
-        self.config["validation"] = TorchDataset(self.config["data_path"], self.config["experiment"], split=1)
-
         # set ray cluster total resources (max)
         self.max_gpus             = max_gpus
         self.max_cpus             = max_cpus
@@ -84,11 +78,18 @@ class TuneWrapper():
         
         print("PER_TRIAL resources ->  GPU:", self.gpu_per_trial, "CPU:", self.cpu_per_trial )
 
-        return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
-                            tune_config=self.tune_config,
-                            param_space=self.config,
-                            run_config=self.run_config,
-                        )
+        # wrap the trainable with the allowed resources per trial
+        # also provide the training and validation data to the trainable through with_parameters
+        # this is a wrapper that passes the data as a object reference (pointer)
+        trainable = tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial})
+        trainable = tune.with_parameters(trainable,
+                                         training = TorchDataset(self.config["data_path"], self.config["experiment"], split=0),
+                                         validation = TorchDataset(self.config["data_path"], self.config["experiment"], split=1))
+
+        return tune.Tuner(trainable,
+                          tune_config=self.tune_config,
+                          param_space=self.config,
+                          run_config=self.run_config)
 
     def tune(self) -> None:
         """
@@ -140,7 +141,7 @@ class TuneWrapper():
 
 class TuneModel(Trainable):
 
-    def setup(self, config: dict) -> None:
+    def setup(self, config: dict, training: object, validation: object) -> None:
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
@@ -173,11 +174,10 @@ class TuneModel(Trainable):
         # get step size from the config
         self.step_size = config["tune"]['step_size']
 
-        # get the train and validation data from the config
-        # run dataloader on them
+        # use dataloader on training/validation data
         self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(config['training'], batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
-        self.validation = DataLoader(config['validation'], batch_size=self.batch_size, shuffle=True)
+        self.training = DataLoader(training, batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(validation, batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
         """
