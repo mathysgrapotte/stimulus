@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from typing import Any, Tuple
+from torch.utils.data import DataLoader
 
+from src.data.handlertorch import TorchDataset
 from src.learner.predict import PredictWrapper
 
 class Analysis:
@@ -248,7 +250,9 @@ class AnalysisRobustness(Analysis):
         """
         df = pd.DataFrame()
         for data_path in data_list:  # for each data, get the performance metrics, and concat
-            metric_values = PredictWrapper(model, data_path, self.experiment, split=2, batch_size=self.batch_size).compute_metrics(self.metrics)
+            # initialize the dataframe keeping the original order, aka no shuffle
+            dataloader = DataLoader(TorchDataset(data_path, self.experiment, split=2), batch_size=self.batch_size, shuffle=False)
+            metric_values = PredictWrapper(model, dataloader).compute_metrics(self.metrics)
             df = pd.concat([df, pd.DataFrame(metric_values, index=[0])])
         df['data'] = names
         return df

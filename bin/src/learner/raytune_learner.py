@@ -53,7 +53,6 @@ class TuneWrapper():
         
         self.tuner = self.tuner_initialization()
 
-
     def tuner_initialization(self) -> tune.Tuner:
         """
         Prepare the tuner with the configs.
@@ -79,12 +78,18 @@ class TuneWrapper():
         
         print("PER_TRIAL resources ->  GPU:", self.gpu_per_trial, "CPU:", self.cpu_per_trial )
 
-        return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
-                            tune_config=self.tune_config,
-                            param_space=self.config,
-                            run_config=self.run_config,
-                        )
-        
+        # wrap the trainable with the allowed resources per trial
+        # also provide the training and validation data to the trainable through with_parameters
+        # this is a wrapper that passes the data as a object reference (pointer)
+        trainable = tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial})
+        trainable = tune.with_parameters(trainable,
+                                         training = TorchDataset(self.config["data_path"], self.config["experiment"], split=0),
+                                         validation = TorchDataset(self.config["data_path"], self.config["experiment"], split=1))
+
+        return tune.Tuner(trainable,
+                          tune_config=self.tune_config,
+                          param_space=self.config,
+                          run_config=self.run_config)
 
     def tune(self) -> None:
         """
@@ -92,8 +97,6 @@ class TuneWrapper():
         """
 
         return self.tuner.fit()
-    
-
 
     def _chek_per_trial_resources(self, resurce_key: str,  cluster_max_resources: dict, resource_type: str) -> Tuple[int, int] :
         """
@@ -104,7 +107,6 @@ class TuneWrapper():
         cluster_max_resources:  dict object         the output of the ray.cluster_resources() function. It hold what ray has found to be the available resources for CPU, GPU and Memory
         resource_type:          str object          the key used to llok into the cluster_resources dict 
         """
-
         
         if resource_type == "GPU" and resource_type not in cluster_resources().keys():
             # ray does not have a GPU field also if GPUs were set to zero. So trial GPU resources have to be set to zero.
@@ -137,11 +139,9 @@ class TuneWrapper():
         return per_trial_resource
     
 
-
-
 class TuneModel(Trainable):
 
-    def setup(self, config: dict) -> None:
+    def setup(self, config: dict, training: object, validation: object) -> None:
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
@@ -164,7 +164,6 @@ class TuneModel(Trainable):
                 self.loss_dict[key] = getattr(nn, loss_fn)()
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
-        
 
         # get the optimizer parameters
         optimizer_lr = config["optimizer_params"]["lr"]
@@ -175,11 +174,10 @@ class TuneModel(Trainable):
         # get step size from the config
         self.step_size = config["tune"]['step_size']
 
-        # get the train and validation data from the config
-        # run dataloader on them
+        # use dataloader on training/validation data
         self.batch_size = config['data_params']['batch_size']
-        self.training = DataLoader(TorchDataset(self.data_path, self.experiment, split=0), batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
-        self.validation = DataLoader(TorchDataset(self.data_path, self.experiment, split=1), batch_size=self.batch_size, shuffle=True)
+        self.training = DataLoader(training, batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(validation, batch_size=self.batch_size, shuffle=True)
 
     def step(self) -> dict:
         """
@@ -198,8 +196,8 @@ class TuneModel(Trainable):
         Compute the objective metric(s) for the tuning process.
         """
         metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
-        predict_val = PredictWrapper(self.model, self.data_path, self.experiment,  split=1, batch_size=self.batch_size, loss_dict=self.loss_dict)
-        predict_train = PredictWrapper(self.model, self.data_path, self.experiment, split=0, batch_size=self.batch_size, loss_dict=self.loss_dict)
+        predict_val = PredictWrapper(self.model, self.validation, loss_dict=self.loss_dict)
+        predict_train = PredictWrapper(self.model, self.training, loss_dict=self.loss_dict)
         return {**{'val_'+metric : value for metric,value in predict_val.compute_metrics(metrics).items()},
                 **{'train_'+metric : value for metric,value in predict_train.compute_metrics(metrics).items()}}
 
