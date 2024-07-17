@@ -19,8 +19,8 @@ process TORCH_TUNE {
           path("*-metrics.csv"),
           emit: tune_specs
     // output the debug files if they are present, making this an optional channel
-    tuple val("debug"),
-          path("ray_results/*/debug/best_model_val_pred.pkl"),
+    tuple val("debug_${prefix}"),
+          path("ray_results/*/debug/best_model_val_pred.txt"),
           path("ray_results/*/debug/worker_with_seed_*/model.pt"),
           path("ray_results/*/debug/worker_with_seed_*/seeds.txt"),
           emit: debug,
@@ -28,7 +28,8 @@ process TORCH_TUNE {
      
 
     script:
-    def prefix = task.ext.prefix
+    // prefix should be global so that is seen in the output section
+    prefix = task.ext.prefix
     def args = task.ext.args ?: ''
     """
     launch_tuning.py \

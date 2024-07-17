@@ -22,7 +22,7 @@ class TestTuneModel(unittest.TestCase):
         # set debug mode to be off
         config["_debug"] = False
         # this is just a flag used in the case of debug mode. set to an arbitrary string here
-        config["storage_path"] = "bubba"
+        config["tune_run_path"] = "bubba"
         self.learner = TuneModel(config = config)
 
     def test_setup(self):

@@ -49,8 +49,7 @@ nextflow_workflow {
             // then check that the seeds used are the same through randomly picked numbers
             assertAll(
             { assert workflow.success }, 
-            { assert snapshot(workflow.out.debug.get(0).get(2)).match("model_weight_initialized") },
-            { assert snapshot(workflow.out.debug.get(0).get(3)).match("seeds") }
+            { assert snapshot(workflow.out.debug).match() }
             )
         }
 

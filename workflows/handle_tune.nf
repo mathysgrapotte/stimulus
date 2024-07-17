@@ -35,10 +35,17 @@ workflow HANDLE_TUNE {
     // TUNE the torch model, TODO in future here switch TUNEing on basis of model type, keras tensorflow ecc.
     TORCH_TUNE( model_conf_data )
 
+    // sort the debug out so that is in a deterministic order and can be used by nf-tests
+    debug = null
+    if ( params.debug_mode ) {
+        debug = TORCH_TUNE.out.debug.toSortedList { a, b -> b[0] <=> a[0] }
+    }
+
+
     emit:
     tune_out  = TORCH_TUNE.out.tune_specs
-    model     = model
-    debug     = TORCH_TUNE.out.debug
+    model
+    debug
     
 }
 

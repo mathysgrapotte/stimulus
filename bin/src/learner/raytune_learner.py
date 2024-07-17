@@ -230,9 +230,6 @@ class TuneModel(Trainable):
                 torch_values = torch.randint(0, 100, (5,)).tolist()
                 seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
 
-        # remove the debug keyword from the dictionary
-        del config["_debug"]
-
 
 
     def step(self) -> dict:

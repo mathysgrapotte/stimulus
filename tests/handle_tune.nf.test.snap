@@ -1,30 +1,113 @@
 {
-    "model_weight_initialized": {
+    "Test reproducibility of model tuning": {
         "content": [
             [
-                "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
-                "model.pt:md5,e1310d3caaa760554d47074742fe8359",
-                "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                [
+                    [
+                        "debug_test_with_split-test-6",
+                        "best_model_val_pred.txt:md5,1f9b02733cc85a7eb8048af913088451",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-test-5",
+                        "best_model_val_pred.txt:md5,2059321e882fdcd3ac22bfb10c500226",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-test-4",
+                        "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-test-3",
+                        "best_model_val_pred.txt:md5,94e90f70ae83401ec8500437dead4c18",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-test-2",
+                        "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-test-1",
+                        "best_model_val_pred.txt:md5,94e90f70ae83401ec8500437dead4c18",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ],
+                    [
+                        "debug_test_with_split-shuffle",
+                        "best_model_val_pred.txt:md5,d151f5cedafe154617ea3e05826261af",
+                        [
+                            "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
+                            "model.pt:md5,e1310d3caaa760554d47074742fe8359",
+                            "model.pt:md5,8a5d5ada2f493eb23508ec423c500d1b"
+                        ],
+                        [
+                            "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
+                            "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
+                            "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
+                        ]
+                    ]
+                ]
             ]
         ],
         "meta": {
             "nf-test": "0.8.4",
             "nextflow": "23.10.1"
         },
-        "timestamp": "2024-07-16T15:58:37.411693"
-    },
-    "seeds": {
-        "content": [
-            [
-                "seeds.txt:md5,ccae8b777d84a1d4ee9dc8965a4d8bd3",
-                "seeds.txt:md5,4cee7381be8890309148bc2af7ab50c3",
-                "seeds.txt:md5,6e77a0e21f32c2a9f9a0e27eee59c336"
-            ]
-        ],
-        "meta": {
-            "nf-test": "0.8.4",
-            "nextflow": "23.10.1"
-        },
-        "timestamp": "2024-07-16T15:58:37.541918"
+        "timestamp": "2024-07-17T14:14:13.955318"
     }
 }
