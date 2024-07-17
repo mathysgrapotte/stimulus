@@ -7,7 +7,7 @@ class PredictWrapper():
     A wrapper to predict the output of a model on a dataset.
     It also provides the functionalities to measure the performance of the model.
     """
-    def __init__(self, model: object, data: object, loss_dict: dict = None):
+    def __init__(self, model: object, dataloader: object, loss_dict: dict = None):
         self.model = model
         self.loss_dict = loss_dict
         self.dataloader = data
