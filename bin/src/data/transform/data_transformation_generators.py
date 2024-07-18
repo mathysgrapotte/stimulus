@@ -102,7 +102,7 @@ class GaussianNoise(AbstractNoiseGenerator):
 
 class ReverseComplement(AbstractAugmentationGenerator):
     """
-    This noise generators replace characters with a masking character with a given probability.
+    This augmentation strategy reverse complements the input sequences.
     """
     def __init__(self, type:str = "DNA") -> None:
         super().__init__()
@@ -125,6 +125,56 @@ class ReverseComplement(AbstractAugmentationGenerator):
         with mp.Pool(mp.cpu_count()) as pool:
             function_specific_input = [(item) for item in data]
             return pool.map(self.transform, function_specific_input)
+        
+class GaussianChunk(AbstractAugmentationGenerator):
+    """
+    This augmentation strategy chunks the input sequences, for which the middle positions are obtained through a gaussian distribution.
+    
+    In concrete, it changes the middle position (ie. peak summit) to another position. This position is chosen based on a gaussian distribution, so the region close to the middle point are more likely to be chosen than the rest.
+    Then a chunk with size `chunk_size` around the new middle point is returned.
+    This process will be repeated for each sequence with `transform_all`.
+    """
+
+    def transform(self, data: str, chunk_size: int, seed: float = None, std: float = 1) -> str:
+        """
+        Chunks a sequence of size chunk_size from the middle position +/- a value obtained through a gaussian distribution.
+        """
+        np.random.seed(seed)
+
+        # make sure that the data is longer than chunk_size otherwise raise an error
+        assert len(data) > chunk_size, "The input data is shorter than the chunk size"
+
+        # Get the middle position of the input sequence
+        middle_position = len(data) // 2
+
+        # Change the middle position by a value obtained through a gaussian distribution
+        new_middle_position = int(middle_position + np.random.normal(0, std))
+
+        # Get the start and end position of the chunk
+        start_position = new_middle_position - chunk_size // 2
+        end_position = new_middle_position + chunk_size // 2
+
+        # if the start position is negative, set it to 0
+        if start_position < 0:
+            start_position = 0
+
+        # Get the chunk of size chunk_size from the start position if the end position is smaller than the length of the data
+        if end_position < len(data):
+            return data[start_position: start_position + chunk_size]
+        # Otherwise return the chunk of the sequence from the end of the sequence of size chunk_size
+        else:
+            return data[-chunk_size:]
+        
+
+    def transform_all(self, data: list, chunk_size: int, seed: float = None, std: float = 1) -> list:
+        """
+        Adds chunks to the data using multiprocessing.
+        """
+        with mp.Pool(mp.cpu_count()) as pool:
+            function_specific_input = [(item, chunk_size, seed, std) for item in data]
+            return pool.starmap(self.transform, function_specific_input)
+
+
         
 
 

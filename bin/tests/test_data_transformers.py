@@ -21,7 +21,7 @@ class TestMyNoiseGenerator(unittest.TestCase):
 
 import unittest
 import numpy as np
-from bin.src.data.transform.data_transformation_generators import UniformTextMasker, GaussianNoise, ReverseComplement
+from bin.src.data.transform.data_transformation_generators import UniformTextMasker, GaussianNoise, ReverseComplement, GaussianChunk
 
 
 class TestUniformTextMasker(unittest.TestCase):
@@ -98,6 +98,19 @@ class TestReverseComplement(unittest.TestCase):
         self.assertIsInstance(augmented_data_list[0], str)
         self.assertIsInstance(augmented_data_list[1], str)
         self.assertEqual(augmented_data_list, ['NNACGTAGGGGT', 'TCAGT'])    # checking if given a seed the noise happens in the same way
+
+class TestGaussianChunk(unittest.TestCase):
+    def test_transform_single(self):
+        input_sequence = "AGCATGCTAGCTAGATCAAAATCGATGCATGCTAGCGGCGCGCATGCATGAGGAGACTGAC"
+
+        # Test adding noise to a single float value
+        noise_generator = GaussianChunk()
+        noisy_data = noise_generator.transform(input_sequence, seed=42, chunk_size=10, std=1)
+        self.assertIsInstance(noisy_data, str)
+        # check that length of the data is 10
+        self.assertEqual(len(noisy_data), 10)
+        self.assertEqual(noisy_data, "TGCATGCTAG")
+
 
 if __name__ == "__main__":
     unittest.main()
