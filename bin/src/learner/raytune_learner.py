@@ -81,10 +81,6 @@ class TuneWrapper():
 
         self.tuner = self.tuner_initialization()
 
-        
-            
-
-
 
     def tuner_initialization(self) -> tune.Tuner:
         """
@@ -111,12 +107,18 @@ class TuneWrapper():
         
         print("PER_TRIAL resources ->  GPU:", self.gpu_per_trial, "CPU:", self.cpu_per_trial )
 
-        return tune.Tuner(tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial}),
-                            tune_config=self.tune_config,
-                            param_space=self.config,
-                            run_config=self.run_config,
-                        )
-        
+        # wrap the trainable with the allowed resources per trial
+        # also provide the training and validation data to the trainable through with_parameters
+        # this is a wrapper that passes the data as a object reference (pointer)
+        trainable = tune.with_resources(TuneModel, resources={"cpu": self.cpu_per_trial, "gpu": self.gpu_per_trial})
+        trainable = tune.with_parameters(trainable,
+                                         training = TorchDataset(self.config["data_path"], self.config["experiment"], split=0),
+                                         validation = TorchDataset(self.config["data_path"], self.config["experiment"], split=1))
+
+        return tune.Tuner(trainable,
+                          tune_config=self.tune_config,
+                          param_space=self.config,
+                          run_config=self.run_config)
 
     def tune(self) -> None:
         """
@@ -124,8 +126,6 @@ class TuneWrapper():
         """
 
         return self.tuner.fit()
-    
-
 
     def _chek_per_trial_resources(self, resurce_key: str,  cluster_max_resources: dict, resource_type: str) -> Tuple[int, int] :
         """
@@ -136,7 +136,6 @@ class TuneWrapper():
         cluster_max_resources:  dict object         the output of the ray.cluster_resources() function. It hold what ray has found to be the available resources for CPU, GPU and Memory
         resource_type:          str object          the key used to llok into the cluster_resources dict 
         """
-
         
         if resource_type == "GPU" and resource_type not in cluster_resources().keys():
             # ray does not have a GPU field also if GPUs were set to zero. So trial GPU resources have to be set to zero.
@@ -169,11 +168,9 @@ class TuneWrapper():
         return per_trial_resource
     
 
-
-
 class TuneModel(Trainable):
 
-    def setup(self, config: dict) -> None:
+    def setup(self, config: dict, training: object, validation: object) -> None:
         """
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
@@ -196,7 +193,6 @@ class TuneModel(Trainable):
                 self.loss_dict[key] = getattr(nn, loss_fn)()
             except AttributeError:
                 raise ValueError(f"Invalid loss function: {loss_fn}, check PyTorch for documentation on available loss functions")
-        
 
         # get the optimizer parameters
         optimizer_lr = config["optimizer_params"]["lr"]
@@ -207,10 +203,10 @@ class TuneModel(Trainable):
         # get step size from the config
         self.step_size = config["tune"]['step_size']
 
-        # get the train and validation data from the config
-        # run dataloader on them
-        self.training = DataLoader(TorchDataset(self.data_path, config["experiment"], split=0), batch_size=config['data_params']['batch_size'], shuffle=True)  # with the seeds correctly set the shuffling is deterministic and reproducible. if num_workers would be set then every worker should be seeded as well.
-        self.validation = DataLoader(TorchDataset(self.data_path, config["experiment"], split=1), batch_size=config['data_params']['batch_size'], shuffle=True)
+        # use dataloader on training/validation data
+        self.batch_size = config['data_params']['batch_size']
+        self.training = DataLoader(training, batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
+        self.validation = DataLoader(validation, batch_size=self.batch_size, shuffle=True)
 
         # debug section, first create a dedicated directory for each worker inside Ray_results/<tune_model_run_specific_dir> location
         debug_dir = os.path.join(config["tune_run_path"], "debug", ("worker_with_seed_" + str(self.config["ray_worker_seed"])))
@@ -231,6 +227,7 @@ class TuneModel(Trainable):
                 seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
 
 
+        
 
     def step(self) -> dict:
         """
