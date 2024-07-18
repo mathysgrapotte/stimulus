@@ -19,7 +19,12 @@ class Performance():
     value (float) : the value of the metric
 
     TODO we can add more metrics here
-    TODO we can adjust the threshold for positive class for some metrics
+
+    TODO currently for classification  metrics like precision, recall, f1score and mcc, 
+    we are using a threshold of 0.5 to convert the probabilities to binary predictions.
+    However for models with imbalanced predictions, where the meaningful threshold is not
+    located at 0.5, one can end up with full of 0s or 1s, and thus meaningless performance 
+    metrics.
     """
     def __init__(self, labels: Any, predictions: Any, metric: str = "rocauc") -> float:
         labels = self.data2array(labels)
