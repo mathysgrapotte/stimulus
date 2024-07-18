@@ -22,6 +22,7 @@ def get_args():
     parser.add_argument("-ec", "--experiment_config", type=str, required=True, metavar="FILE", help='The experiment config used to modify the data.')
     parser.add_argument("-d", "--data", type=str, required=True, metavar="FILE", help='Input data')
     parser.add_argument("-o", "--output", type=str, required=True, metavar="FILE", help="output predictions csv file")
+    parser.add_argument("--split", type=int, help="The split of the data to use (default: None)")
     parser.add_argument("--return_labels", type=bool, default=True, help="return the labels with the prediction (default: True)")
 
     args = parser.parse_args()
@@ -42,7 +43,7 @@ def main(model_path: str, weight_path: str, mconfig_path: str, econfig_path: str
 
     # load and encode data
     data = pd.read_csv(data_path)
-    dataloader = DataLoader(TorchDataset(data_path, initialized_experiment_class), batch_size=256, shuffle=False)  # TODO batch size is hard coded here, but maybe in the future we change it
+    dataloader = DataLoader(TorchDataset(data_path, initialized_experiment_class, split=split), batch_size=256, shuffle=False)  # TODO batch size is hard coded here, but maybe in the future we change it
 
     # predict
     out = PredictWrapper(model, dataloader).predict(return_labels=return_labels)
@@ -51,11 +52,11 @@ def main(model_path: str, weight_path: str, mconfig_path: str, econfig_path: str
     else:
         y_pred, y_true = out, {}
     
-    # parse predictions
+    # make the keys coherent with the columns from input data csv
     y_pred = parse_y_keys(y_pred, data, y_type='pred')
     y_true = parse_y_keys(y_true, data, y_type='label')
 
-    # parse output data frame
+    # parse predictions (and labels) into a data frame
     y = {**y_pred, **y_true}
     df = pd.DataFrame(y)
     df = add_meta_info(data, df)
@@ -104,7 +105,8 @@ def parse_y_keys(y: dict, data: pd.DataFrame, y_type='pred'):
 
 def add_meta_info(data: pd.DataFrame, df: pd.DataFrame):
     """
-    Add the meta information to the data frame of predictions.
+    Add the meta columns to the data frame of predictions.
+    In this way the output file can also contain the meta information.
     """
     # get meta keys
     keys = get_meta_keys(data.columns)
@@ -117,7 +119,7 @@ def add_meta_info(data: pd.DataFrame, df: pd.DataFrame):
 
 def get_meta_keys(names: list):
     """
-    Get the column names that belong to `meta` information.
+    Get the `meta` column keys.
     """
     keys = []
     for name in names:
