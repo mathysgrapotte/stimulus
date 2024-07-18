@@ -95,10 +95,10 @@ def main(config_path: str,
                                   _debug=_debug_mode) 
     
     # Tune the model and get the tuning results
-    results = learner.tune()
+    grid_results = learner.tune()
 
     # parse raytune results
-    results = StimulusTuneParser(results)
+    results = StimulusTuneParser(grid_results)
     results.save_best_model(output)
     results.save_best_config(best_config_path)
     results.save_best_metrics_dataframe(best_metrics_path)
@@ -106,8 +106,9 @@ def main(config_path: str,
 
     # debug section. predict the validation data using the best model.
     if _debug_mode:
-        # imitialize the model class
-        best_model = model_class()
+        # imitialize the model class with the respective tune parameters from the associated config
+        best_tune_config = results.get_best_config()
+        best_model = model_class(**best_tune_config["model_params"])
         # get the weights associated to the best model and load them onto the model class
         best_model.load_state_dict(results.get_best_model())
         # load the data in a dataloader and then predict them in an ordered manner, aka no shuffle.
@@ -115,8 +116,11 @@ def main(config_path: str,
         predictions = PredictWrapper(best_model, validation_set).predict()
         # write to file the predictions, in the ray result tune specific folder. 
         pred_filename = os.path.join(learner.config["tune_run_path"], "debug", "best_model_val_pred.txt")
-        with open(pred_filename, 'w') as pred_f:
+        # save which was the best model found, the easiest is to get its seed
+        best_model_seed = os.path.join(learner.config["tune_run_path"], "debug", "best_model_seed.txt")
+        with open(pred_filename, 'w') as pred_f, open(best_model_seed, 'w') as seed_f:
             pred_f.write(str(predictions))
+            seed_f.write(str(best_tune_config['ray_worker_seed'])) 
 
 
 

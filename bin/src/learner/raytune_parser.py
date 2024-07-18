@@ -37,6 +37,8 @@ class TuneParser():
         config['experiment'] = config['experiment'].__class__.__name__ 
         if 'tune' in config and 'tune_params' in config['tune']:
             del config['tune']['tune_params']['scheduler']
+        # delete miscellaneus keys, used only during debug mode for example
+        del config['_debug'], config['tune_run_path']
 
         return config
 

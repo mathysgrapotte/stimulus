@@ -20,7 +20,7 @@ process TORCH_TUNE {
           emit: tune_specs
     // output the debug files if they are present, making this an optional channel
     tuple val("debug_${prefix}"),
-          path("ray_results/*/debug/best_model_val_pred.txt"),
+          path("ray_results/*/debug/best_model_*.txt"),
           path("ray_results/*/debug/worker_with_seed_*/model.pt"),
           path("ray_results/*/debug/worker_with_seed_*/seeds.txt"),
           emit: debug,

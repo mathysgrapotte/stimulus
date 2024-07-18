@@ -5,7 +5,10 @@
                 [
                     [
                         "debug_test_with_split-test-6",
-                        "best_model_val_pred.txt:md5,1f9b02733cc85a7eb8048af913088451",
+                        [
+                            "best_model_seed.txt:md5,24b16fede9a67c9251d3e7c7161c83ac",
+                            "best_model_val_pred.txt:md5,08f6d202085b428fa0add4f36084fa59"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -19,7 +22,10 @@
                     ],
                     [
                         "debug_test_with_split-test-5",
-                        "best_model_val_pred.txt:md5,2059321e882fdcd3ac22bfb10c500226",
+                        [
+                            "best_model_seed.txt:md5,24b16fede9a67c9251d3e7c7161c83ac",
+                            "best_model_val_pred.txt:md5,03b1529fca6d3e337a2debe494ab4ef5"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -33,7 +39,10 @@
                     ],
                     [
                         "debug_test_with_split-test-4",
-                        "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab",
+                        [
+                            "best_model_seed.txt:md5,4c56ff4ce4aaf9573aa5dff913df997a",
+                            "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -47,7 +56,10 @@
                     ],
                     [
                         "debug_test_with_split-test-3",
-                        "best_model_val_pred.txt:md5,94e90f70ae83401ec8500437dead4c18",
+                        [
+                            "best_model_seed.txt:md5,4c56ff4ce4aaf9573aa5dff913df997a",
+                            "best_model_val_pred.txt:md5,7d83395ef9592300c062666031141443"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -61,7 +73,10 @@
                     ],
                     [
                         "debug_test_with_split-test-2",
-                        "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab",
+                        [
+                            "best_model_seed.txt:md5,4c56ff4ce4aaf9573aa5dff913df997a",
+                            "best_model_val_pred.txt:md5,f9e0e0a84270d98fd9605c32c8feb3ab"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -75,7 +90,10 @@
                     ],
                     [
                         "debug_test_with_split-test-1",
-                        "best_model_val_pred.txt:md5,94e90f70ae83401ec8500437dead4c18",
+                        [
+                            "best_model_seed.txt:md5,4c56ff4ce4aaf9573aa5dff913df997a",
+                            "best_model_val_pred.txt:md5,7d83395ef9592300c062666031141443"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -89,7 +107,10 @@
                     ],
                     [
                         "debug_test_with_split-shuffle",
-                        "best_model_val_pred.txt:md5,d151f5cedafe154617ea3e05826261af",
+                        [
+                            "best_model_seed.txt:md5,4c56ff4ce4aaf9573aa5dff913df997a",
+                            "best_model_val_pred.txt:md5,d151f5cedafe154617ea3e05826261af"
+                        ],
                         [
                             "model.pt:md5,d4adc1515585c66c2843ecdace31de15",
                             "model.pt:md5,e1310d3caaa760554d47074742fe8359",
@@ -108,6 +129,6 @@
             "nf-test": "0.8.4",
             "nextflow": "23.10.1"
         },
-        "timestamp": "2024-07-17T14:14:13.955318"
+        "timestamp": "2024-07-18T19:08:19.490204"
     }
 }

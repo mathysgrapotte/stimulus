@@ -110,11 +110,11 @@ def main(data_path: str,
                                   _debug=_debug_mode) # TODO this version of pytorch does not support relative paths, in future maybe good to remove abspath
     
     # Tune the model and get the tuning results
-    results = learner.tune()
+    grid_results = learner.tune()
 
     # check that there were no errors during tuning. Tune still sends exitcode 0 even on internal errors.
-    for i in range(len(results)):
-        result = results[i]
+    for i in range(len(grid_results)):
+        result = grid_results[i]
         if not result.error:
             print(f"Trial finishes successfully with metrics" f"{result.metrics}.")
         else:
