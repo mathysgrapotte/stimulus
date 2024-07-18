@@ -128,7 +128,10 @@ class ReverseComplement(AbstractAugmentationGenerator):
         
 class GaussianChunk(AbstractAugmentationGenerator):
     """
-    This augmentation strategy chunks the input sequences from the middle position +/- a value obtained through a gaussian distribution.
+    This augmentation strategy chunks the input sequences, for which the middle position is obtained through a gaussian distribution.
+    
+    In concrete, it changes the the middle position (ie. peak summit) to another position. This position is chosen based on a gaussian distribution, so the region close to the middle point are more likely to be chosen than the rest.
+    Then a chunk with size `chunk_size` around the new middle point is returned for each sequence.
     """
 
     def transform(self, data: str, chunk_size: int, seed: float = None, std: float = 1) -> str:
