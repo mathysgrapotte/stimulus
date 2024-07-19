@@ -34,11 +34,12 @@ class TuneWrapper():
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
         self.config = YamlRayConfigLoader(config_path).get_config()
-        self.config["model"] = model_class
-        self.config["experiment"] = experiment_object
 
         # set all general seeds: python, numpy and torch.
         set_general_seeds(self.config["seed"])
+
+        self.config["model"] = model_class
+        self.config["experiment"] = experiment_object
 
         # add the ray method for number generation to the config so it can be passed to the trainable class, that will in turn set per worker seeds in a reproducible mnanner.
         self.config["ray_worker_seed"] = tune.randint(0, 1000)
@@ -65,7 +66,8 @@ class TuneWrapper():
             tune_run_name = "TuneModel_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.run_config = train.RunConfig(name=tune_run_name,
             storage_path=ray_results_dir,
-            checkpoint_config=self.checkpoint_config 
+            checkpoint_config=self.checkpoint_config,
+            stop={"training_iteration": 5}
                                         )                                       #TODO implement run_config (in tune/run_params for the yaml file)
 
         # working towards the path for the tune_run directory. if ray_results_dir None ray will put it under home so we will do the same here.
