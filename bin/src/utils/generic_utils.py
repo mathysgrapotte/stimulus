@@ -4,6 +4,7 @@ import random
 import glob
 import os
 
+from typing import Union
 
 def ensure_at_least_1d(tensor: torch.Tensor) -> torch.Tensor:
     """
@@ -14,7 +15,7 @@ def ensure_at_least_1d(tensor: torch.Tensor) -> torch.Tensor:
     return tensor
 
 
-def set_general_seeds(seed_value : int) -> None:
+def set_general_seeds(seed_value : Union[int, None]) -> None:
     """
     Function that sets all the relevant seeds to a given value. Especially usefull in case of ray.tune.
     Ray does not have a "generic" seed as far as ray 2.23
@@ -26,6 +27,7 @@ def set_general_seeds(seed_value : int) -> None:
     # set numpy seed
     np.random.seed(seed_value)
         
-    # set torch seed
-    torch.manual_seed(seed_value)
+    # set torch seed, diffrently from the two above torch can nopt take Noneas input value so it will not be called in that case.
+    if seed_value is not None:
+        torch.manual_seed(seed_value)
 
