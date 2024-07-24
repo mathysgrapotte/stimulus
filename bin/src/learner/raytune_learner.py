@@ -67,8 +67,8 @@ class TuneWrapper():
         self.run_config = train.RunConfig(name=tune_run_name,
             storage_path=ray_results_dir,
             checkpoint_config=self.checkpoint_config,
-            stop={"training_iteration": 5}
-                                        )                                       #TODO implement run_config (in tune/run_params for the yaml file)
+            **self.config["tune"]["run_params"]
+                                        )                                       #TODO maybe put name into config if it was possible to retrieve from tune the name of the result subdir)
 
         # working towards the path for the tune_run directory. if ray_results_dir None ray will put it under home so we will do the same here.
         if ray_results_dir is None:

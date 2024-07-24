@@ -36,6 +36,9 @@ tune:
   scheduler:
     name: "FIFOScheduler"
     params: {}
+  run_params:
+    stop:
+      training_iteration: 5
   step_size: 1
   gpu_per_trial: 0
   cpu_per_trial: 1

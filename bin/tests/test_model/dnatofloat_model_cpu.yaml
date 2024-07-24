@@ -34,10 +34,11 @@ tune:
     mode: "min"
     num_samples: 3
   scheduler:
-    name: "ASHAScheduler"
-    params:
-      max_t: 3
-      grace_period: 1
+    name: "FIFOScheduler"
+    params: {}
+  run_params:
+    stop:
+      training_iteration: 3
   step_size: 1
   gpu_per_trial: 0
   cpu_per_trial: 1
