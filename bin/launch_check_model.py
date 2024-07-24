@@ -65,9 +65,17 @@ def main(data_path: str,
         user_tune_config = yaml.safe_load(conf_file)
         # make so the tune run just once per num_sample
         user_tune_config["tune"]["tune_params"]["num_samples"]          = num_samples
-        user_tune_config["tune"]["scheduler"]["params"]["max_t"]        = 1
-        user_tune_config["tune"]["scheduler"]["params"]["grace_period"] = 1
-        user_tune_config["tune"]["step_size"]                           = 1
+        # differentiate between schedulers, some may have different params
+        # for asha make all parameters regarding the length of the tune run equal to 1
+        if user_tune_config["tune"]["scheduler"]["name"] == "ASHAScheduler":
+            user_tune_config["tune"]["scheduler"]["params"]["max_t"]        = 1
+            user_tune_config["tune"]["scheduler"]["params"]["grace_period"] = 1
+            user_tune_config["tune"]["step_size"]                           = 1
+        # for the FIFO scheduler is simpler just set the stop criteria at 1 iteration
+        elif user_tune_config["tune"]["scheduler"]["name"] == "FIFOScheduler":
+            user_tune_config["tune"]["run_params"]["stop"]["training_iteration"] = 1
+
+        # TODO future schedulers specific info will go here as well. maybe find a cleaner way.
 
         # TODO check if among the first 2 values of all splitters params there is a percentage that makes the resulting split smaller that the biggest batch value
 
