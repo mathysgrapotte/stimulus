@@ -3,12 +3,16 @@ import ray.tune.schedulers as schedulers
 import torch
 import torch.nn as nn
 import torch.optim as optim 
+import random
+import numpy as np
+import datetime
+
 from ray import train, tune, cluster_resources, init, is_initialized, shutdown
 from ray.tune import Trainable
 from torch.utils.data import DataLoader
-
 from ..data.handlertorch import TorchDataset
 from ..utils.yaml_model_schema import YamlRayConfigLoader
+from ..utils.generic_utils import set_general_seeds
 from .predict import PredictWrapper
 from typing import Tuple
 
@@ -23,14 +27,24 @@ class TuneWrapper():
                  max_cpus: int = None,
                  max_object_store_mem: float = None,
                  max_mem: float = None,
-                 ray_results_dir: str = None) -> None:
+                 ray_results_dir: str = None,
+                 tune_run_name: str = None,
+                 _debug: str = False) -> None:
         """
         Initialize the TuneWrapper with the paths to the config, model, and data.
         """
         self.config = YamlRayConfigLoader(config_path).get_config()
+
+        # set all general seeds: python, numpy and torch.
+        set_general_seeds(self.config["seed"])
+
         self.config["model"] = model_class
         self.config["experiment"] = experiment_object
 
+        # add the ray method for number generation to the config so it can be passed to the trainable class, that will in turn set per worker seeds in a reproducible mnanner.
+        self.config["ray_worker_seed"] = tune.randint(0, 1000)
+
+        # add the data path to the config so it know where it is during tuning
         if not os.path.exists(data_path):
             raise ValueError("Data path does not exist. Given path:" + data_path)
         self.config["data_path"] = os.path.abspath(data_path)
@@ -47,11 +61,28 @@ class TuneWrapper():
 
         # build the run config
         self.checkpoint_config = train.CheckpointConfig(checkpoint_at_end=True) #TODO implement checkpoiting
-        self.run_config = train.RunConfig(checkpoint_config=self.checkpoint_config,
-                                          storage_path=ray_results_dir
-                                        )                                       #TODO implement run_config (in tune/run_params for the yaml file)
-        
+        # in case a custom name was not given for tune_run_name, build it like ray would do. to later pass it on the worker for the debug section.
+        if tune_run_name is None:
+            tune_run_name = "TuneModel_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.run_config = train.RunConfig(name=tune_run_name,
+            storage_path=ray_results_dir,
+            checkpoint_config=self.checkpoint_config,
+            **self.config["tune"]["run_params"]
+                                        )                                       #TODO maybe put name into config if it was possible to retrieve from tune the name of the result subdir)
+
+        # working towards the path for the tune_run directory. if ray_results_dir None ray will put it under home so we will do the same here.
+        if ray_results_dir is None:
+            ray_results_dir = os.environ.get("HOME")
+        # then we are able to pass the whole correct tune_run path to the trainable function. so it can use thaqt to place the debug dir under if needed.
+        self.config["tune_run_path"] = os.path.join(ray_results_dir, tune_run_name)
+
+        # pass the debug flag to the config taken fromn tune so it can be used inside the setup of the trainable
+        self.config["_debug"] = False
+        if _debug:
+            self.config["_debug"] = True
+
         self.tuner = self.tuner_initialization()
+
 
     def tuner_initialization(self) -> tune.Tuner:
         """
@@ -146,14 +177,14 @@ class TuneModel(Trainable):
         Get the model, loss function(s), optimizer, train and test data from the config.
         """
 
+        # set the seeds the second time, first in TuneWrapper initialization. This will make all important seed worker specific.
+        set_general_seeds(self.config["ray_worker_seed"])
+
         # Initialize model with the config params
         self.model = config["model"](**config["model_params"])
 
         # Add data path
         self.data_path = config["data_path"]
-
-        # Use the already initialized experiment class      
-        self.experiment = config["experiment"]
 
         # Get the loss function(s) from the config model params
         # Note that the loss function(s) are stored in a dictionary, 
@@ -179,12 +210,34 @@ class TuneModel(Trainable):
         self.training = DataLoader(training, batch_size=self.batch_size, shuffle=True)  # TODO need to check the reproducibility of this shuffling
         self.validation = DataLoader(validation, batch_size=self.batch_size, shuffle=True)
 
+        # debug section, first create a dedicated directory for each worker inside Ray_results/<tune_model_run_specific_dir> location
+        debug_dir = os.path.join(config["tune_run_path"], "debug", ("worker_with_seed_" + str(self.config["ray_worker_seed"])))
+        if config["_debug"]:
+            # creating a special directory for it one that is worker/trial/experiment specific
+            os.makedirs(debug_dir)
+            seed_filename = os.path.join(debug_dir, "seeds.txt")
+
+            # save the initialized model weights
+            self.export_model(export_dir=debug_dir)
+
+            # save the seeds
+            with open(seed_filename, 'a') as seed_f:
+                # you can not retrieve the actual seed once it set, or the current seed neither for python, numpy nor torch. so we select five numbers randomly. If that is the first draw of numbers they are always the same.
+                python_values = random.sample(range(100), 5)
+                numpy_values = list(np.random.randint(0, 100, size=5))
+                torch_values = torch.randint(0, 100, (5,)).tolist()
+                seed_f.write(f"python drawn numbers : {python_values}\nnumpy drawn numbers : {numpy_values}\ntorch drawn numbers : {torch_values}\n")
+
+
+        
+
     def step(self) -> dict:
         """
         For each batch in the training data, calculate the loss and update the model parameters.
         This calculation is performed based on the model's batch function.
         At the end, return the objective metric(s) for the tuning process.
         """
+
         for step_size in range(self.step_size):
             for x, y, meta in self.training:
                 # the loss dict could be unpacked with ** and the function declaration handle it differently like **kwargs. to be decided, personally find this more clean and understable.
@@ -195,6 +248,7 @@ class TuneModel(Trainable):
         """
         Compute the objective metric(s) for the tuning process.
         """
+
         metrics = ['loss', 'rocauc', 'prauc', 'mcc', 'f1score', 'precision', 'recall', 'spearmanr']  # TODO maybe we report only a subset of metrics, given certain criteria (eg. if classification or regression)
         predict_val = PredictWrapper(self.model, self.validation, loss_dict=self.loss_dict)
         predict_train = PredictWrapper(self.model, self.training, loss_dict=self.loss_dict)
@@ -202,7 +256,7 @@ class TuneModel(Trainable):
                 **{'train_'+metric : value for metric,value in predict_train.compute_metrics(metrics).items()}}
 
     def export_model(self, export_dir: str) -> None:
-        torch.save(self.model.state_dict(), export_dir)
+        torch.save(self.model.state_dict(), os.path.join(export_dir,  "model.pt"))
 
     def load_checkpoint(self, checkpoint_dir: str) -> None:
         self.model.load_state_dict(torch.load(os.path.join(checkpoint_dir, "model.pt")))

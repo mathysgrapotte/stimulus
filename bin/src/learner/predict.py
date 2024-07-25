@@ -1,16 +1,16 @@
 import torch
 from ..utils.performance import Performance
-from ..utils.generic_torch_utils import ensure_at_least_1d
+from ..utils.generic_utils import ensure_at_least_1d
 
 class PredictWrapper():
     """
-    A wrapper to predict the output of a model on a dataset.
+    A wrapper to predict the output of a model on a datset loaded into a torch DataLoader.
     It also provides the functionalities to measure the performance of the model.
     """
     def __init__(self, model: object, dataloader: object, loss_dict: dict = None):
         self.model = model
-        self.loss_dict = loss_dict
         self.dataloader = dataloader
+        self.loss_dict = loss_dict
         try:
             self.model.eval()
         except:

@@ -4,7 +4,7 @@ import shutil
 import torch
 from bin.src.data.experiments import DnaToFloatExperiment
 from bin.src.learner.raytune_learner import TuneModel
-from bin.tests.test_model.dnatofloatmodel import ModelSimple
+from bin.tests.test_model.dnatofloat_model import ModelSimple
 from bin.src.learner.raytune_learner import TuneWrapper 
 from bin.src.utils.yaml_model_schema import YamlRayConfigLoader
 from torch.utils.data import DataLoader
@@ -13,8 +13,7 @@ from bin.src.data.handlertorch import TorchDataset
 
 class TestTuneWrapper(unittest.TestCase):
     def setUp(self):
-        torch.manual_seed(1234)
-        config_path = "bin/tests/test_model/simple_config.yaml"
+        config_path = "bin/tests/test_model/dnatofloat_model_cpu.yaml"
         model_class = ModelSimple
         experiment_obj = DnaToFloatExperiment()
         data_path = "bin/tests/test_data/dna_experiment/test_with_split.csv"

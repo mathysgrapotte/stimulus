@@ -30,14 +30,14 @@
           "format": "directory-path",
           "description": "Model file in Python",
           "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_model/dnatofloatmodel.py"
+          "default": "${projectDir}/bin/tests/test_model/dnatofloat_model.py"
         },
-        "train_conf": {
+        "tune_conf": {
           "type": "string",
           "format": "directory-path",
-          "description": "Training config",
+          "description": "Tuning config",
           "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_model/simple_config.yaml"
+          "default": "${projectDir}/bin/tests/test_model/dnatofloat_model_cpu.yaml"
         }
       }
     }
