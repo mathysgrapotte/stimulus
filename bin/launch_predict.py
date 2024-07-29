@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument("-d", "--data", type=str, required=True, metavar="FILE", help='Input data')
     parser.add_argument("-o", "--output", type=str, required=True, metavar="FILE", help="output predictions csv file")
     parser.add_argument("--split", type=int, help="The split of the data to use (default: None)")
-    parser.add_argument("--return_labels", type=bool, default=True, help="return the labels with the prediction (default: True)")
+    parser.add_argument("--return_labels", action='store_true', help="return the labels with the prediction")
 
     args = parser.parse_args()
     return args
