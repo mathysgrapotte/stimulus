@@ -1,50 +1,203 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/nextflow-io/rnaseq-nf/master/nextflow_schema.json",
-  "title": "stimulus pipeline parameters",
-  "description": "Pipeline for statistically testing training procedures of machine learning models",
-  "type": "object",
-  "definitions": {
-    "input_options": {
-      "title": "Input options",
-      "type": "object",
-      "fa_icon": "fas fa-terminal",
-      "description": "Define where the pipeline should find input data.",
-      "properties": {
-        "csv": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "Test data as CSV file",
-          "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_data/dna_experiment/test.csv"
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/nextflow-io/rnaseq-nf/master/nextflow_schema.json",
+    "title": "stimulus pipeline parameters",
+    "description": "Pipeline for statistically testing training procedures of machine learning models",
+    "type": "object",
+    "definitions": {
+        "input_files_options": {
+            "title": "Input files options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data.",
+            "properties": {
+                "csv": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Test data as CSV file",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "tesxt/csv",
+                    "help_text": "the input file containing all input data"
+                },
+                "exp_conf": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Experiment config as JSON format",
+                    "fa_icon": "fas fa-folder-open",
+                    "help_text": "the json config file that specifies all the parameters relative to the data manipulation."
+                },
+                "model": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Model file in Python",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "text/py",
+                    "help_text": "the model file in python, the model that will be tested by this pipeline."
+                },
+                "tune_conf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Tuning config in yaml format",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "text/yaml",
+                    "help_text": "the config file with all the hyperparameter directives (choiches) and all ray tune specs."
+                }
+            },
+            "required": [
+                "csv",
+                "exp_conf",
+                "model",
+                "tune_conf"
+            ]
         },
-        "exp_conf": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "Experiment config as JSON file",
-          "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/examples/test.json"
+        "output_options": {
+            "title": "Output options",
+            "type": "object",
+            "description": "Define where and how to publish",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "outdir": {
+                    "type": "string",
+                    "default": "./results/",
+                    "description": "output directory",
+                    "help_text": "The directory will contain a subdirectory with a name unique to each stimulus pipeline run.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "publish miode"
+                }
+            }
         },
-        "model": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "Model file in Python",
-          "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_model/dnatofloat_model.py"
+        "resorces_options": {
+            "title": "Resorces options",
+            "type": "object",
+            "description": "Specify maximun processes resources",
+            "default": "",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "default": 12,
+                    "minimum": 1,
+                    "description": "set maximum CPU limit"
+                },
+                "max_gpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 0,
+                    "help_text": "requesting the gpus for the tuning steps.",
+                    "description": "set maximum GPU limit"
+                },
+                "max_memory": {
+                    "type": "string",
+                    "default": "32 GB",
+                    "description": "set maximum memory"
+                },
+                "max_time": {
+                    "type": "string",
+                    "default": "1d",
+                    "description": "set maximum running time"
+                }
+            },
+            "help_text": "The process specify the resources through the label and the config. But each resource type is then checked against the max value specified here, if it is bigger then the value specified in the corresponding max_ is used instead. This happens through the check_max custom function present in the main nextflow.config.",
+            "fa_icon": "fas fa-terminal"
         },
-        "tune_conf": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "Tuning config",
-          "fa_icon": "fas fa-folder-open",
-          "default": "${projectDir}/bin/tests/test_model/dnatofloat_model_cpu.yaml"
+        "on_error_options": {
+            "title": "On error options",
+            "type": "object",
+            "description": "What to do and how to handle errors",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "err_start": {
+                    "type": "string",
+                    "default": "finish",
+                    "description": "Tells the pipeline how to behave on error",
+                    "help_text": "refer to nextflow errorStrategy documentation for more details."
+                },
+                "max_retries": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "number of time to retry if err_strat is set to retry",
+                    "help_text": "this also acts as a multiplier for recources request. If it failed for lack of resources it automaticly asks more the second time. take  a look at test.conf for more details."
+                }
+            }
+        },
+        "skip_options": {
+            "title": "Skip options",
+            "type": "object",
+            "description": "options to skip or change bhaviour of pipeline",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "check_model": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "checks if all input are comatible and the model can be tuned.",
+                    "help_text": "flag to tell whether to check or not if the model can be tuned and trained. It does one call of the batch function, (predicting), of the model importing and using everything needed for that. Default run such a check."
+                },
+                "check_model_num_samples": {
+                    "type": "string",
+                    "description": "optional flag to do a more/less extensive check during check_model.",
+                    "help_text": "This will override user given num_sample value for the tune run. This will give the user control on how extensive it wants the check to be. by default is going to be set to 3."
+                },
+                "shuffle": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "run the shuffle sanity check",
+                    "help_text": "flag to tell wether to shuffle or not the data and run a train on it. Sanity check always run on default. "
+                },
+                "debug_mode": {
+                    "type": "boolean",
+                    "description": "developer flag",
+                    "help_text": "flag used to switch to debug mode for the pipeline. more verbose outputs."
+                }
+            }
+        },
+        "general_options": {
+            "title": "General options",
+            "type": "object",
+            "description": "generic options",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "singularity_cache_dir": {
+                    "type": "string",
+                    "default": "singularity_cache",
+                    "description": "the directory where singularity images will be placed"
+                },
+                "help": {
+                    "type": "boolean",
+                    "description": "prints this help section"
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "to validate or not the input params",
+                    "default": true
+                }
+            }
         }
-      }
-    }
-  },
-  "allOf": [
-    {
-      "$ref": "#/definitions/input_options"
-    }
-  ]
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_files_options"
+        },
+        {
+            "$ref": "#/definitions/output_options"
+        },
+        {
+            "$ref": "#/definitions/resorces_options"
+        },
+        {
+            "$ref": "#/definitions/on_error_options"
+        },
+        {
+            "$ref": "#/definitions/skip_options"
+        },
+        {
+            "$ref": "#/definitions/general_options"
+        }
+    ]
 }
