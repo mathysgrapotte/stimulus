@@ -18,6 +18,20 @@ if (params.help) {
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    input handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+// handle initial weights as optional input file(s)
+// if it is not provided, set it to an empty list
+if (params.initial_weights == null) {
+    initial_weights = []
+} else {
+    initial_weights = Channel.fromPath( params.initial_weights )
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOW FOR PIPELINE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -40,7 +54,8 @@ workflow {
         params.csv,
         params.exp_conf,
         params.model,
-        params.tune_conf
+        params.tune_conf,
+        initial_weights
     )
     completion_message = CHECK_MODEL.out.completion_message
 
@@ -56,7 +71,7 @@ workflow {
         params.model,
         params.tune_conf,
         prepared_data,
-        params.initial_weights
+        initial_weights
     )
     //HANDLE_TUNE.out.model.view()
     //HANDLE_TUNE.out.tune_out.view()

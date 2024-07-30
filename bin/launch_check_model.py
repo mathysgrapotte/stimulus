@@ -20,6 +20,7 @@ def get_args():
     parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help="Path to model file")
     parser.add_argument("-e", "--experiment", type=str, required=True, metavar="FILE", help="Experiment config file. From this the experiment class name is extracted.")
     parser.add_argument("-c", "--config", type=str, required=True, metavar="FILE", help="Path to yaml config training file")
+    parser.add_argument("-w", "--initial_weights", type=str, required=False, metavar="FILE", help="The path to the initial weights. These can be used by the model instead of the random initialization")
     parser.add_argument("--gpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_GPU", help="Use to limit the number of GPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all GPUs available. It can be set to 0 to use only CPUs.")
     parser.add_argument("--cpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_CPU", help="Use to limit the number of CPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all CPUs available. It can be set to 0 to use only GPUs.")
     parser.add_argument("--memory", type=str, required=False, nargs='?', const=None, default=None, metavar="MAX_MEMORY", help="ray can have a limiter on the total memory it can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all memory available.")
@@ -37,6 +38,7 @@ def main(data_path: str,
          model_path: str,
          experiment_config: str,
          config_path: str,
+         initial_weights_path: str = None,
          gpus: int = None,
          cpus: int = None,
          memory: str = None,
@@ -74,6 +76,10 @@ def main(data_path: str,
         # for the FIFO scheduler is simpler just set the stop criteria at 1 iteration
         elif user_tune_config["tune"]["scheduler"]["name"] == "FIFOScheduler":
             user_tune_config["tune"]["run_params"]["stop"]["training_iteration"] = 1
+
+        # add initial weights to the config, when provided
+        if initial_weights_path is not None:
+            user_tune_config["model_params"]["initial_weights"] = os.path.abspath(initial_weights_path)
 
         # TODO future schedulers specific info will go here as well. maybe find a cleaner way.
 
@@ -137,6 +143,7 @@ if __name__ == "__main__":
          args.model, 
          args.experiment, 
          args.config,
+         args.initial_weights,
          args.gpus, 
          args.cpus,
          args.memory, 

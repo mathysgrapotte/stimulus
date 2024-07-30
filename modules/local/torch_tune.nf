@@ -35,7 +35,7 @@ process TORCH_TUNE {
     // prefix should be global so that is seen in the output section
     prefix = task.ext.prefix
     def args = task.ext.args ?: ''
-    def initial_weights = initial_weights ? "--initial_weights $initial_weights" : ""
+    def args_initial_weights = initial_weights ? "--initial_weights $initial_weights" : ""
     """
     launch_tuning.py \
         -c ${ray_tune_config} \
@@ -46,7 +46,7 @@ process TORCH_TUNE {
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
         -bc ${prefix}-config.json \
-        ${initial_weights} \
+        ${args_initial_weights} \
         --gpus ${task.accelerator.request} \
         --cpus ${task.cpus} \
         --memory "${task.memory}" \

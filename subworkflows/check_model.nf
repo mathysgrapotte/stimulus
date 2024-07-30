@@ -19,6 +19,7 @@ workflow CHECK_MODEL {
     input_json
     input_model
     input_tune_config
+    initial_weights
     
     main:
 
@@ -40,7 +41,7 @@ workflow CHECK_MODEL {
             .combine(tune_config)
         
         // launch the check using torch. TODO put selection of module based on type: torc, tensorflow ecc..
-        CHECK_TORCH_MODEL( model_tuple ) 
+        CHECK_TORCH_MODEL( model_tuple, initial_weights ) 
         completion_message = CHECK_TORCH_MODEL.out.standardout
         
     }
