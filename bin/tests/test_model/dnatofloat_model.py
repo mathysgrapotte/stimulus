@@ -11,13 +11,14 @@ class ModelSimple(torch.nn.Module):
     
     All functions `forward`, `compute_loss` and `batch` need to be implemented for any new model.
     """
-    def __init__(self, kernel_size: int = 3, pool_size: int = 2):
+    def __init__(self, kernel_size: int = 3, pool_size: int = 2, initial_weights: str = None):
         super(ModelSimple, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=4, out_channels=1, kernel_size=kernel_size)
         self.pool = nn.MaxPool1d(pool_size, pool_size)
         self.softmax = nn.Softmax(dim=1)
         # had to change to 6 because dna sequence is shoprter
         self.linear = nn.Linear(6, 1)
+        
     
     def forward(self, hello: torch.Tensor) -> dict:
         """
