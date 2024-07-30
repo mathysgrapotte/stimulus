@@ -19,7 +19,7 @@ workflow HANDLE_TUNE {
     input_model
     input_tune_config
     data
-    initial_weights
+    input_initial_weights
 
     main:
     // put the files in channels, 
@@ -32,8 +32,16 @@ workflow HANDLE_TUNE {
         it -> [it[2], it[3], it[1], it[0], it[5], it[4]]
     }  // just reordering according to the inputs of the launch_tuning.py
 
+    // add initial weights if provided
+    if (input_initial_weights == null){
+        model_conf_data = model_conf_data.map{ it -> [it[0], it[1], it[2], it[3], it[4], it[5], []] }
+    }else{
+        initial_weights = Channel.fromPath( input_initial_weights )
+        model_conf_data = model_conf_data.combine(initial_weights)
+    }
+
     // TUNE the torch model, TODO in future here switch TUNEing on basis of model type, keras tensorflow ecc.
-    TORCH_TUNE( model_conf_data, initial_weights )
+    TORCH_TUNE( model_conf_data )
 
     // sort the debug out so that is in a deterministic order and can be used by nf-tests
     debug = null

@@ -19,7 +19,7 @@ workflow CHECK_MODEL {
     input_json
     input_model
     input_tune_config
-    initial_weights
+    input_initial_weights
     
     main:
 
@@ -39,9 +39,17 @@ workflow CHECK_MODEL {
         model_tuple = csv.combine(model)
             .combine(json)
             .combine(tune_config)
+
+        // add initial weights, if provided
+        if (input_initial_weights == null){
+            model_tuple = model_tuple.map{ it -> [it[0], it[1], it[2], it[3], []] }
+        }else{
+            initial_weights = Channel.fromPath( input_initial_weights )
+            model_tuple = model_tuple.combine(initial_weights)
+        }
         
         // launch the check using torch. TODO put selection of module based on type: torc, tensorflow ecc..
-        CHECK_TORCH_MODEL( model_tuple, initial_weights ) 
+        CHECK_TORCH_MODEL( model_tuple ) 
         completion_message = CHECK_TORCH_MODEL.out.standardout
         
     }

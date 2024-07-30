@@ -13,7 +13,8 @@ process STIMULUS_ANALYSIS_DEFAULT {
           path(model_config), \
           path(weights), \
           path(optimizer), \
-          path(metrics)
+          path(metrics), \
+          path(initial_weights)
     path(model)
 
     output:
