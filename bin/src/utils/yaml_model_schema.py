@@ -52,11 +52,16 @@ class YamlRayConfigLoader():
         # The space is the range of values to be tested, and the mode is the type of search to be done.
         # We convert the Yaml config by calling the correct function from ray.tune matching the mode, applied on the space
         # We return the config as a dictionary of dictionaries, where the values are the converted values from the space.
-
+        print(config)
         new_config = deepcopy(config)
         for key in ["model_params", "loss_params", "optimizer_params", "data_params"]:
             for sub_key in config[key]:
-                new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
+
+                # if mode is provided, it understands that it is a ray.tune parameter
+                # therefore, it converts the space provided in the config to a ray.tune parameter space
+                # otherwise, it keeps the value as it is. In this way, we can use the same config for both ray.tune and non-ray.tune elements (for example provide a single fixed value).
+                if 'mode' in config[key][sub_key]:
+                    new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
 
         return new_config
     
