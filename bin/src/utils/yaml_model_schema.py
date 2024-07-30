@@ -56,10 +56,10 @@ class YamlRayConfigLoader():
         for key in ["model_params", "loss_params", "optimizer_params", "data_params"]:
             for sub_key in config[key]:
 
-                # if mode is provided, it understands that it is a ray.tune parameter
+                # if mode is provided (aka is a key of the dictionary), it understands that it is a ray.tune parameter
                 # therefore, it converts the space provided in the config to a ray.tune parameter space
                 # otherwise, it keeps the value as it is. In this way, we can use the same config for both ray.tune and non-ray.tune elements (for example provide a single fixed value).
-                if 'mode' in config[key][sub_key]:
+                if isinstance(config[key][sub_key], dict) and 'mode' in config[key][sub_key]:
                     new_config[key][sub_key] = self.convert_raytune(config[key][sub_key])
 
         return new_config
