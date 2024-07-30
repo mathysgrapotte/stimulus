@@ -6,7 +6,7 @@ process CHECK_TORCH_MODEL {
     container "alessiovignoli3/stimulus:stimulus_v0.3"
     
     input:
-    tuple path(original_csv), path(model),  path(experiment_config), path(ray_tune_config)
+    tuple path(original_csv), path(model),  path(experiment_config), path(ray_tune_config), path(initial_weights)
 
     output:
     stdout emit: standardout
@@ -19,6 +19,7 @@ process CHECK_TORCH_MODEL {
         -m ${model} \
         -e ${experiment_config} \
         -c ${ray_tune_config} \
+        --initial_weights ${initial_weights} \
         --gpus ${task.accelerator.request} \
         --cpus ${task.cpus} \
         --memory "${task.memory}" \
