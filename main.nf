@@ -55,7 +55,8 @@ workflow {
     HANDLE_TUNE(
         params.model,
         params.tune_conf,
-        prepared_data
+        prepared_data,
+        params.initial_weights
     )
     //HANDLE_TUNE.out.model.view()
     //HANDLE_TUNE.out.tune_out.view()

@@ -7,6 +7,7 @@ process TORCH_TUNE {
 
     input:
     tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config)
+    each path(initial_weights)
 
     output:
     tuple val(split_transform_key),
@@ -18,6 +19,9 @@ process TORCH_TUNE {
           path("*-optimizer.pt"),
           path("*-metrics.csv"),
           emit: tune_specs
+    path(initial_weights),
+          emit: initial_weights,
+          optional: true
     // output the debug files if they are present, making this an optional channel
     tuple val("debug_${prefix}"),
           path("ray_results/*/debug/best_model_*.txt"),
@@ -31,6 +35,7 @@ process TORCH_TUNE {
     // prefix should be global so that is seen in the output section
     prefix = task.ext.prefix
     def args = task.ext.args ?: ''
+    def initial_weights = initial_weights ? "--initial_weights $initial_weights" : ""
     """
     launch_tuning.py \
         -c ${ray_tune_config} \
@@ -41,6 +46,7 @@ process TORCH_TUNE {
         -bo ${prefix}-optimizer.pt \
         -bm ${prefix}-metrics.csv \
         -bc ${prefix}-config.json \
+        ${initial_weights} \
         --gpus ${task.accelerator.request} \
         --cpus ${task.cpus} \
         --memory "${task.memory}" \

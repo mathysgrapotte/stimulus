@@ -26,6 +26,7 @@ def get_args():
     parser.add_argument("-bc", "--best_config", type=str, required=False, nargs='?', const='best_config.json', default='best_config.json', metavar="FILE", help='The path to write the best config to')
     parser.add_argument("-bm", "--best_metrics", type=str, required=False, nargs='?', const='best_metrics.csv', default='best_metrics.csv', metavar="FILE", help='The path to write the best metrics to')
     parser.add_argument("-bo", "--best_optimizer", type=str, required=False, nargs='?', const='best_optimizer.pt', default='best_optimizer.pt', metavar="FILE", help='The path to write the best optimizer to')
+    parser.add_argument("-w", "--initial_weights", type=str, required=False, metavar="FILE", help='The path to the initial weights. These can be used by the model instead of the random initialization')
     parser.add_argument("--gpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_GPU", help="Use to limit the number of GPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all GPUs available. It can be set to 0 to use only CPUs.")
     parser.add_argument("--cpus", type=int, required=False, nargs='?', const=None, default=None, metavar="NUM_OF_MAX_CPU", help="Use to limit the number of CPUs ray can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all CPUs available. It can be set to 0 to use only GPUs.")
     parser.add_argument("--memory", type=str, required=False, nargs='?', const=None, default=None, metavar="MAX_MEMORY", help="ray can have a limiter on the total memory it can use. This might be useful on many occasions, especially in a cluster system. The default value is None meaning ray will use all memory available.")
@@ -45,6 +46,7 @@ def main(config_path: str,
          best_config_path: str,
          best_metrics_path: str,
          best_optimizer_path: str,
+         initial_weights_path: str = None,
          gpus: int = None,
          cpus: int = None,
          memory: str = None,
@@ -71,6 +73,10 @@ def main(config_path: str,
     updated_tune_conf = "check_model_modified_tune_config.yaml"
     with open(config_path, 'r') as conf_file, open(updated_tune_conf, "w") as new_conf:
         user_tune_config = yaml.safe_load(conf_file)
+
+        # add initial weights to the config, when provided
+        if initial_weights_path is not None:
+            user_tune_config["model_params"]["initial_weights"] = os.path.abspath(initial_weights_path)
         
         # save to file the new dictionary because StimulusTuneWrapper only takes paths
         yaml.dump(user_tune_config, new_conf)
@@ -134,6 +140,7 @@ if __name__ == "__main__":
          args.best_config, 
          args.best_metrics, 
          args.best_optimizer,
+         args.initial_weights,
          args.gpus, 
          args.cpus,
          args.memory,
