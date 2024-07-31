@@ -15,10 +15,10 @@ def get_args():
     
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-m", "--model", type=str, required=True, metavar="FILE", help='The model .py file')
-    parser.add_argument("-w", "--weight", type=str, required=True, nargs="+", metavar="FILE", help="Model weights .pt file")
-    parser.add_argument("-me", "--metrics", type=str, required=True, nargs="+", metavar="FILE", help='The file path for the metrics file obtained during tuning')
-    parser.add_argument("-ec", "--experiment_config", type=str, required=True, nargs="+", metavar="FILE", help='The experiment config used to modify the data.')
-    parser.add_argument("-mc", "--model_config", type=str, required=True, nargs="+", metavar="FILE", help="The tune config file.")
+    parser.add_argument("-w", "--weight", type=str, required=True, nargs="+", metavar="FILE", help="The list of model weights .pt files")
+    parser.add_argument("-me", "--metrics", type=str, required=True, nargs="+", metavar="FILE", help='The list of file path for the metrics file obtained during tuning')
+    parser.add_argument("-ec", "--experiment_config", type=str, required=True, nargs="+", metavar="FILE", help='The list of experiment configs used to modify the data.')
+    parser.add_argument("-mc", "--model_config", type=str, required=True, nargs="+", metavar="FILE", help="The list of tune config files.")
     parser.add_argument("-d", "--data", type=str, required=True, nargs="+", metavar="FILE", help='List of data files to be used for the analysis.')
     # parser.add_argument("-o", "--output", type=str, required=True, metavar="FILE", help="output report")
     parser.add_argument("-o", "--outdir", type=str, required=True, help="output directory")
@@ -81,6 +81,9 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     model_list  = []
     model_class = import_class_from_file(model_path)
     for weight_path, mconfig_path in zip(weight_list, mconfig_list):
+
+        print("weight: ", weight_path, "\ntuneconf: ", mconfig_path)
+
         model = load_model( model_class, weight_path, mconfig_path )
         model_names.append( mconfig_path.split("/")[-1].replace("-config.json", "") )
         model_list.append( model )

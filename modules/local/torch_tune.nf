@@ -6,18 +6,16 @@ process TORCH_TUNE {
     container "alessiovignoli3/stimulus:stimulus_v0.3"
 
     input:
-    tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config), path(initial_weights)
+    tuple val(combination_key), val(data_conf_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config), path(initial_weights)
 
     output:
-    tuple val(split_transform_key),
+    // limit the output to only task specific files (done for analysis block). Other important files will be added in the workflow.
+    tuple val(data_conf_key),
           val(combination_key),
-          path(data_csv),
-          path(experiment_config),
           path("*-config.json"),
           path("*-model.pt"),
           path("*-optimizer.pt"),
           path("*-metrics.csv"),
-          path(initial_weights),
           emit: tune_specs
     // output the debug files if they are present, making this an optional channel
     tuple val("debug_${prefix}"),
