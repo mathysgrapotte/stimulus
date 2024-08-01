@@ -19,6 +19,7 @@ workflow HANDLE_TUNE {
     input_model
     input_tune_config
     data
+    input_initial_weights
 
     main:
     // put the files in channels, 
@@ -30,7 +31,14 @@ workflow HANDLE_TUNE {
     model_conf_data = model_conf_pair.combine(data).map{ 
         it -> [it[2], it[3], it[1], it[0], it[5], it[4]]
     }  // just reordering according to the inputs of the launch_tuning.py
-    
+
+    // add initial weights if provided
+    if (input_initial_weights == null){
+        model_conf_data = model_conf_data.map{ it -> [it[0], it[1], it[2], it[3], it[4], it[5], []] }
+    }else{
+        initial_weights = Channel.fromPath( input_initial_weights )
+        model_conf_data = model_conf_data.combine(initial_weights)
+    }
 
     // TUNE the torch model, TODO in future here switch TUNEing on basis of model type, keras tensorflow ecc.
     TORCH_TUNE( model_conf_data )
@@ -40,7 +48,6 @@ workflow HANDLE_TUNE {
     if ( params.debug_mode ) {
         debug = TORCH_TUNE.out.debug.toSortedList { a, b -> b[0] <=> a[0] }
     }
-
 
     emit:
     tune_out  = TORCH_TUNE.out.tune_specs
