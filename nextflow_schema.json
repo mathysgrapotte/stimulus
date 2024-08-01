@@ -21,7 +21,7 @@
                 },
                 "exp_conf": {
                     "type": "string",
-                    "format": "directory-path",
+                    "format": "file-path",
                     "description": "Experiment config as JSON format",
                     "fa_icon": "fas fa-folder-open",
                     "help_text": "the json config file that specifies all the parameters relative to the data manipulation."
