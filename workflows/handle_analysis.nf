@@ -33,9 +33,6 @@ workflow HANDLE_ANALYSIS {
         initial_weights = Channel.fromPath( input_initial_weights ).toList().map{ it -> [ it ]}
         input_tune_out = input_tune_out.combine(initial_weights)
     }
-
-    input_tune_out.view()
-
     
     STIMULUS_ANALYSIS_DEFAULT(
         input_tune_out,

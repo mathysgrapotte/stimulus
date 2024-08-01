@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import torch
 
-from launch_utils import import_class_from_file, get_experiment
+from launch_utils import import_class_from_file, get_experiment, get_smallest_batch_size
 from src.analysis.analysis_default import AnalysisPerformanceTune, AnalysisRobustness
 
 def get_args():
@@ -81,9 +81,6 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     model_list  = []
     model_class = import_class_from_file(model_path)
     for weight_path, mconfig_path in zip(weight_list, mconfig_list):
-
-        print("weight: ", weight_path, "\ntuneconf: ", mconfig_path)
-
         model = load_model( model_class, weight_path, mconfig_path )
         model_names.append( mconfig_path.split("/")[-1].replace("-config.json", "") )
         model_list.append( model )
@@ -95,11 +92,11 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
         experiment_name = d["experiment"]
     initialized_experiment_class = get_experiment(experiment_name)
 
+    # get smallesrt batch size among all tune config files
+    smallest_batch_size = get_smallest_batch_size(mconfig_list)
+
     # initialize analysis
-    # TODO for the moment I am hard coding the batch size for the forward pass to predict
-    # but we can make it dynamic in the future
-    # or depending on the dataset size, etc.
-    analysis = AnalysisRobustness(metrics, initialized_experiment_class, batch_size=10)
+    analysis = AnalysisRobustness(metrics, initialized_experiment_class, batch_size=smallest_batch_size)
 
     # compute the performance of each model on each dataset
     df = analysis.get_performance_table(model_names, model_list, data_list)

@@ -2,6 +2,8 @@ import importlib.util
 import os
 import src.data.experiments as exp
 import math
+import json
+import yaml
 
 from typing import  Union, Tuple
 
@@ -71,3 +73,26 @@ def memory_split_for_ray_init(memory_str:  Union[str, None]) -> Tuple[float, flo
     seventy_percent = math.floor(bytes_value * 0.70)
     
     return float(thirty_percent), float(seventy_percent)
+
+
+def get_smallest_batch_size(config_list: list) -> int:
+    """
+    It retrieves the smallest batch size from a list of configs.
+    It accepts both yaml and Json as input formats.
+    """
+
+    batch_size = float('inf')
+    for filename in config_list:
+        with open(filename, 'r') as conf_file:
+            if filename.endswith('.json'):
+                config_dict = json.load(conf_file)
+                if config_dict["data_params"]["batch_size"] < batch_size:
+                    batch_size = config_dict["data_params"]["batch_size"]
+            elif filename.endswith('.yaml') or filename.endswith('.yml'):
+                config_dict = yaml.safe_load(conf_file)
+                if min( config_dict["data_params"]["batch_size"]["space"]) < batch_size:
+                    batch_size = min( config_dict["data_params"]["batch_size"]["space"])
+            else:
+                raise ValueError("Unsupported file format. Please use a .json or .yaml/.yml file.")
+    
+    return batch_size
