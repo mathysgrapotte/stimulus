@@ -50,6 +50,22 @@
                 "tune_conf"
             ]
         },
+        "optional_inputs": {
+            "title": "Optional inputs",
+            "type": "object",
+            "description": "files that can be omitted",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "initial_weights": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "help_text": "the initial weights of the model. These files can be used to start the training instead of random initialization. One can provide several files, each of them will be used for a different run.",
+                    "description": "file to be used to initialize the miodel in tuning",
+                    "format": "path"
+                }
+            }
+        },
         "output_options": {
             "title": "Output options",
             "type": "object",
@@ -97,7 +113,7 @@
                 },
                 "max_time": {
                     "type": "string",
-                    "default": "1d",
+                    "default": "72.h",
                     "description": "set maximum running time"
                 }
             },
@@ -183,6 +199,9 @@
     "allOf": [
         {
             "$ref": "#/definitions/input_files_options"
+        },
+        {
+            "$ref": "#/definitions/optional_inputs"
         },
         {
             "$ref": "#/definitions/output_options"
