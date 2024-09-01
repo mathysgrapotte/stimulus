@@ -96,7 +96,7 @@ def run_analysis_performance_model(metrics: list, model_path: list, weight_list:
     # TODO for the moment I am hard coding the batch size for the forward pass to predict
     # but we can make it dynamic in the future
     # or depending on the dataset size, etc.
-    analysis = AnalysisRobustness(metrics, initialized_experiment_class, batch_size=10)
+    analysis = AnalysisRobustness(metrics, initialized_experiment_class, batch_size=256)
 
     # compute the performance of each model on each dataset
     df = analysis.get_performance_table(model_names, model_list, data_list)
