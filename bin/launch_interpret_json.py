@@ -87,9 +87,12 @@ def interpret_json(input_json: dict) -> list:
     # deal wiht custom if present, in this case nothing at all will be done to the dictionaries present in the list except adding the experiment name to it. The user is responsible for the dict inside custom to be correct and ready for the csv_launcher
     for custom_dict in schema.custom_arg :
         new_dict = {**{"experiment": schema.experiment}, **custom_dict}
+        if "split" not in custom_dict:
+            new_dict["split"] = None
         list_of_json_to_write.append(new_dict)
         # add the split information in each dictionary inside custom
-        list_split_combinations.append(custom_dict["split"])
+        if "split" in custom_dict:
+            list_split_combinations.append(custom_dict["split"])
 
     # append a none value to the list. the pipeline has to go through the case of no split at least once.
     list_split_combinations.append(None)
