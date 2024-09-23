@@ -3,7 +3,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     tag "${model} - ${split_transform_key}"
     label 'process_medium'
-    container "alessiovignoli3/stimulus:stimulus_v0.3"
+    container "mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(split_transform_key), \
@@ -21,7 +21,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     script:
     """
-    launch_analysis_default.py \
+    stimulus-analysis-default \
         -m ${model} \
         -w ${weights} \
         -me ${metrics} \

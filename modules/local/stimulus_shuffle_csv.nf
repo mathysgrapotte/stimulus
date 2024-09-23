@@ -3,7 +3,7 @@ process STIMULUS_SHUFFLE_CSV {
 
     tag "${original_csv} - shuffles"
     label 'process_medium'
-    container 'alessiovignoli3/stimulus:stimulus_v0.3'
+    container "mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(split_transform_key), path(splitted_csv), path(split_json), path(original_csv)
@@ -15,7 +15,7 @@ process STIMULUS_SHUFFLE_CSV {
     script:
     output = "${original_csv.simpleName}-shuffle.csv"
     """
-    launch_shuffle_csv.py -c ${splitted_csv} -j ${split_json} -o ${output}
+    stimulus-shuffle-csv -c ${splitted_csv} -j ${split_json} -o ${output}
     """
 
     stub:

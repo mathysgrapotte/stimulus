@@ -3,7 +3,7 @@ process INTERPRET_JSON {
 
     tag "$user_json"
     label 'process_low'
-    container "alessiovignoli3/stimulus:ps_v0.1"
+    container "mathysgrapotte/stimulus-py:latest"
     
     input:
     path user_json
@@ -16,7 +16,7 @@ process INTERPRET_JSON {
 
     script:
     """
-    launch_interpret_json.py -j ${user_json} 
+    stimulus-interpret-json -j ${user_json} 
     """
 
     stub:

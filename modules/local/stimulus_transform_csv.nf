@@ -3,7 +3,7 @@ process STIMULUS_TRANSFORM_CSV {
 
     tag "${original_csv} - ${combination_key}"
     label 'process_medium'
-    container 'alessiovignoli3/stimulus:stimulus_v0.3'
+    container "mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(split_transform_key), val(combination_key), path(transform_json), path(splitted_csv), path(split_json), path(original_csv)
@@ -15,7 +15,7 @@ process STIMULUS_TRANSFORM_CSV {
     script:
     output = "${original_csv.simpleName}-${combination_key}-trans.csv"
     """
-    launch_transform_csv.py -c ${splitted_csv} -j ${transform_json} -o ${output}
+    stimulus-transform-csv -c ${splitted_csv} -j ${transform_json} -o ${output}
     """
 
     stub:
