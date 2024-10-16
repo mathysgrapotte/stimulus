@@ -9,13 +9,4 @@ RUN apt-get update -y\
         && apt-get install -y procps
 
 # installing python needed packages
-# TODO one can add the requirements.txt and install the packages from there
-RUN pip install \
-    numpy==1.26.0 \
-    polars-lts-cpu==0.20.30 \
-    scikit-learn==1.5.0 \
-    torch==2.3.0 \
-    ray[train,tune,default]==2.23.0 \
-    matplotlib==3.9.0 \
-    pandas==2.2.0 \
-    safetensors==0.4.5 
+RUN pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple stimulus-py==0.0.9

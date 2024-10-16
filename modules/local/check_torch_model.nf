@@ -3,7 +3,7 @@ process CHECK_TORCH_MODEL {
 
     tag "$experiment_config - $original_csv"
     label 'process_medium'
-    container "alessiovignoli3/stimulus:stimulus_v0.3"
+    container "mathysgrapotte/stimulus-py:latest"
     
     input:
     tuple path(original_csv), path(model),  path(experiment_config), path(ray_tune_config), path(initial_weights)
@@ -14,7 +14,7 @@ process CHECK_TORCH_MODEL {
     script:
     def args = task.ext.args ?: ''
     """
-    launch_check_model.py \
+    stimulus-check-model \
         -d ${original_csv} \
         -m ${model} \
         -e ${experiment_config} \
