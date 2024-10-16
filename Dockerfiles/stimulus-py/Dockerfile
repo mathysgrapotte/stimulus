@@ -9,4 +9,4 @@ RUN apt-get update -y\
         && apt-get install -y procps
 
 # installing python needed packages
-RUN pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple stimulus-py==0.0.8
+RUN pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple stimulus-py==0.0.9
