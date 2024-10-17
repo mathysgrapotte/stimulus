@@ -23,12 +23,11 @@ nextflow_workflow {
             
             // make so that nf-test will see a singularity cache dir where is usally set to, again interpretation of projectdir has to be done here and not rely on an external config.
             params {
-                singularity_cache_dir = "${projectDir}/singularity_cache"
+                // TODO Check that continues working with $NXF_SINGULARITY_CACHEDIR
+                // singularity_cache_dir = "${projectDir}/singularity_cache"
                 debug_mode = true
 
-
                 max_gpus = 0
-
 
             }
 
