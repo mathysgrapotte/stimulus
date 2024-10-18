@@ -3,7 +3,8 @@ process STIMULUS_TRANSFORM_CSV {
 
     tag "${original_csv} - ${combination_key}"
     label 'process_medium'
-    container "mathysgrapotte/stimulus-py:latest"
+    // TODO: push image to nf-core quay.io
+    container "docker.io/mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(split_transform_key), val(combination_key), path(transform_json), path(splitted_csv), path(split_json), path(original_csv)

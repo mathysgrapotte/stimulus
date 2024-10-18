@@ -3,7 +3,8 @@ process TORCH_TUNE {
 
     tag "${model} - ${combination_key}"
     label 'process_high'
-    container "mathysgrapotte/stimulus-py:latest"
+    // TODO: push image to nf-core quay.io
+    container "docker.io/mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(combination_key), val(split_transform_key), path(ray_tune_config), path(model), path(data_csv), path(experiment_config), path(initial_weights)
