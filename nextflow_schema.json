@@ -75,6 +75,15 @@
         }
       }
     },
+    "resources_options": {
+      "max_gpus": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 0,
+            "help_text": "requesting the gpus for the tuning steps.",
+            "description": "set maximum GPU limit"
+          }
+    },
     "on_error_options": {
       "title": "On error options",
       "type": "object",
@@ -257,10 +266,13 @@
   },
   "allOf": [
     {
-      "$ref": "#/$defs/input_files_options"
+      "$ref": "#/$defs/input_output_options"
     },
     {
       "$ref": "#/$defs/optional_inputs"
+    },
+    {
+      "$ref": "#/$defs/resources_options"
     },
     {
       "$ref": "#/$defs/on_error_options"

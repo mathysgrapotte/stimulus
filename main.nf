@@ -10,9 +10,9 @@
 */
 
 
-include { CHECK_MODEL } from './subworkflows/check_model.nf'
-include { HANDLE_DATA } from './workflows/handle_data.nf'
-include { HANDLE_TUNE } from './workflows/handle_tune.nf'
+include { CHECK_MODEL     } from './subworkflows/check_model.nf'
+include { HANDLE_DATA     } from './workflows/handle_data.nf'
+include { HANDLE_TUNE     } from './workflows/handle_tune.nf'
 include { HANDLE_ANALYSIS } from './workflows/handle_analysis.nf'
 
 /*
@@ -39,9 +39,9 @@ workflow NFCORE_DEEPMODELOPTIM {
     take:
     // samplesheet // channel: samplesheet read in from --input
     csv
-    exp_conf,
-    model,
-    tune_conf,
+    exp_conf
+    model
+    tune_conf
     initial_weights
 
     main:
@@ -101,8 +101,7 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
-        
+        params.hook_url
     )
 }
 

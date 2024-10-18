@@ -20,10 +20,10 @@ workflow DEEPMODELOPTIM {
 
     take:
     // ch_samplesheet, // channel: samplesheet read in from --input
-    ch_csv,
-    ch_exp_conf,
-    ch_model,
-    ch_tune_conf,
+    ch_csv
+    ch_exp_conf
+    ch_model
+    ch_tune_conf
     ch_initial_weights
 
     main:
