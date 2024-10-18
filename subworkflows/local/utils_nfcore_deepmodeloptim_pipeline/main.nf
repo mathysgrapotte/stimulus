@@ -91,7 +91,7 @@ workflow PIPELINE_INITIALISATION {
     //     .set { ch_samplesheet }
 
     emit:
-    samplesheet = ch_samplesheet
+    // samplesheet = ch_samplesheet
     versions    = ch_versions
 }
 

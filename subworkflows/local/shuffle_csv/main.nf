@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_SPLIT_CSV } from '../modules/local/stimulus_split_csv.nf'
+include { STIMULUS_SHUFFLE_CSV } from '../../../modules/local/stimulus_shuffle_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,20 +12,19 @@ include { STIMULUS_SPLIT_CSV } from '../modules/local/stimulus_split_csv.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow SPLIT_CSV {
+workflow SHUFFLE_CSV {
 
     take:
-    data_csv
-    json_tuple
+    csv_json_pairs
+    
 
     main:
+    
+    STIMULUS_SHUFFLE_CSV(csv_json_pairs)
 
-    // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
-    json_csv_pairs = json_tuple.combine(data_csv)
-    STIMULUS_SPLIT_CSV( json_csv_pairs )
 
     emit:
-    split_data  = STIMULUS_SPLIT_CSV.out.csv_with_split
+    shuffle_data  = STIMULUS_SHUFFLE_CSV.out.csv_shuffled
 
 }
 

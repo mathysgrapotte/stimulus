@@ -4,11 +4,16 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-
+//
+// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
+//
 include { paramsSummaryMap       } from 'plugin/nf-schema'
-
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_deepmodeloptim_pipeline'
+include { CHECK_MODEL            } from '../subworkflows/local/check_model'
+include { HANDLE_DATA            } from '../subworkflows/local/handle_data'
+include { HANDLE_TUNE            } from '../subworkflows/local/handle_tune'
+include { HANDLE_ANALYSIS        } from '../subworkflows/local/handle_analysis'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

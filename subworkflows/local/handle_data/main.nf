@@ -4,11 +4,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INTERPRET_JSON } from '../modules/local/interpret_json.nf'
-include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
-include { TRANSFORM_CSV  } from '../subworkflows/transform_csv.nf'
-include { SHUFFLE_CSV    } from '../subworkflows/shuffle_csv.nf'
-
+include { INTERPRET_JSON } from '../../../modules/local/interpret_json.nf'
+include { SPLIT_CSV      } from '../../../subworkflows/local/split_csv'
+include { TRANSFORM_CSV  } from '../../../subworkflows/local/transform_csv'
+include { SHUFFLE_CSV    } from '../../../subworkflows/local/shuffle_csv'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
