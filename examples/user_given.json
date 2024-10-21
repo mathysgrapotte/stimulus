@@ -1,11 +1,15 @@
 {
     "experiment": "DnaToFloatExperiment",
-    "interpret_parmas_mode": "culumn_wise", 
+    "interpret_parmas_mode": "culumn_wise",
     "transform": [
         {
             "column_name": "hello:input1:dna",
             "name": ["UniformTextMasker", "AnotherNoiser", "AnotherNoiser"],
-            "params": [{"probability": [0.1, 0.2, 0.3]}, {"probability": [0.11, 0.21, 0.31]}, {"probability": [0.12, 0.22, 0.32]}]
+            "params": [
+                { "probability": [0.1, 0.2, 0.3] },
+                { "probability": [0.11, 0.21, 0.31] },
+                { "probability": [0.12, 0.22, 0.32] }
+            ]
         },
         {
             "column_name": "hello:input2:prot",
@@ -15,13 +19,20 @@
         {
             "column_name": "hola:label:float",
             "name": "GaussianNoise",
-            "params": [{"mean": [0.5, 0.6, 0.7], "std": [0.1, 0.2, 0.3]}]
+            "params": [{ "mean": [0.5, 0.6, 0.7], "std": [0.1, 0.2, 0.3] }]
         }
     ],
     "split": [
         {
             "name": "RandomSplitter",
-            "params": [{"split": [[0.6, 0.2, 0.2], [0.7, 0.15, 0.15]]}]
+            "params": [
+                {
+                    "split": [
+                        [0.6, 0.2, 0.2],
+                        [0.7, 0.15, 0.15]
+                    ]
+                }
+            ]
         },
         {
             "name": "SomeSplitter",
@@ -34,33 +45,31 @@
                 {
                     "column_name": "hello:input:dna",
                     "name": "UniformTextMasker",
-                    "params": {"probability": 0.1}
+                    "params": { "probability": 0.1 }
                 },
                 {
                     "column_name": "hola:label:float",
                     "name": "GaussianNoise",
-                    "params": {"mean": 0.4, "std": 0.15}
+                    "params": { "mean": 0.4, "std": 0.15 }
                 }
             ],
-            "split": 
-                {
-                    "name": "RandomSplitter",
-                    "params": {"split": [0.6, 0.4, 0]}
-                }
+            "split": {
+                "name": "RandomSplitter",
+                "params": { "split": [0.6, 0.4, 0] }
+            }
         },
         {
             "transform": [
                 {
                     "column_name": "hello:input:dna",
                     "name": "UniformTextMasker",
-                    "params": {"probability": 0.1}
+                    "params": { "probability": 0.1 }
                 }
             ],
-            "split": 
-                {
-                    "name": "RandomSplitter",
-                    "params": {"split": [0.6, 0.3, 0.1]}
-                }
+            "split": {
+                "name": "RandomSplitter",
+                "params": { "split": [0.6, 0.3, 0.1] }
+            }
         }
     ]
 }

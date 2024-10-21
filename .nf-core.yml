@@ -1,17 +1,17 @@
 bump_version: null
 lint:
   files_exist:
-  - conf/igenomes.config
-  - conf/igenomes_ignored.config
-  - assets/multiqc_config.yml
-  - conf/igenomes.config
-  - conf/igenomes_ignored.config
-  - assets/multiqc_config.yml
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - assets/multiqc_config.yml
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - assets/multiqc_config.yml
   files_unchanged:
-  - .github/CONTRIBUTING.md
-  - assets/sendmail_template.txt
-  - .github/CONTRIBUTING.md
-  - assets/sendmail_template.txt
+    - .github/CONTRIBUTING.md
+    - assets/sendmail_template.txt
+    - .github/CONTRIBUTING.md
+    - assets/sendmail_template.txt
   multiqc_config: false
 nf_core_version: 3.0.0
 org_path: null
@@ -26,8 +26,8 @@ template:
   org: nf-core
   outdir: .
   skip_features:
-  - igenomes
-  - multiqc
-  - fastqc
+    - igenomes
+    - multiqc
+    - fastqc
   version: 1.0.0dev
 update: null

@@ -1,299 +1,299 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/nf-core/deepmodeloptim/master/nextflow_schema.json",
-  "title": "nf-core/deepmodeloptim pipeline parameters",
-  "description": "nf-core/deepmodeloptim is an end-to-end nextflow based pipeline for statistically testing training procedures of machine learning models",
-  "required": ["csv", "exp_conf", "model", "tune_conf", "outdir"],
-  "type": "object",
-  "$defs": {
-    "input_output_options": {
-      "title": "Input files options",
-      "type": "object",
-      "fa_icon": "fas fa-terminal",
-      "description": "Define where the pipeline should find input data.",
-      "properties": {
-        "csv": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Test data as CSV file",
-          "fa_icon": "fas fa-folder-open",
-          "mimetype": "tesxt/csv",
-          "help_text": "the input file containing all input data"
-        },
-        "exp_conf": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Experiment config as JSON format",
-          "fa_icon": "fas fa-folder-open",
-          "help_text": "the json config file that specifies all the parameters relative to the data manipulation."
-        },
-        "model": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Model file in Python",
-          "fa_icon": "fas fa-folder-open",
-          "mimetype": "text/py",
-          "help_text": "the model file in python, the model that will be tested by this pipeline."
-        },
-        "tune_conf": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Tuning config in yaml format",
-          "fa_icon": "fas fa-folder-open",
-          "mimetype": "text/yaml",
-          "help_text": "the config file with all the hyperparameter directives (choiches) and all ray tune specs."
-        },
-        "outdir": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-          "fa_icon": "fas fa-folder-open",
-          "help_text": "The directory will contain a subdirectory with a name unique to each stimulus pipeline run."
-        },
-        "email": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/deepmodeloptim/master/nextflow_schema.json",
+    "title": "nf-core/deepmodeloptim pipeline parameters",
+    "description": "nf-core/deepmodeloptim is an end-to-end nextflow based pipeline for statistically testing training procedures of machine learning models",
+    "required": ["csv", "exp_conf", "model", "tune_conf", "outdir"],
+    "type": "object",
+    "$defs": {
+        "input_output_options": {
+            "title": "Input files options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data.",
+            "properties": {
+                "csv": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Test data as CSV file",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "tesxt/csv",
+                    "help_text": "the input file containing all input data"
+                },
+                "exp_conf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Experiment config as JSON format",
+                    "fa_icon": "fas fa-folder-open",
+                    "help_text": "the json config file that specifies all the parameters relative to the data manipulation."
+                },
+                "model": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Model file in Python",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "text/py",
+                    "help_text": "the model file in python, the model that will be tested by this pipeline."
+                },
+                "tune_conf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Tuning config in yaml format",
+                    "fa_icon": "fas fa-folder-open",
+                    "mimetype": "text/yaml",
+                    "help_text": "the config file with all the hyperparameter directives (choiches) and all ray tune specs."
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+                    "fa_icon": "fas fa-folder-open",
+                    "help_text": "The directory will contain a subdirectory with a name unique to each stimulus pipeline run."
+                },
+                "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
                     "fa_icon": "fas fa-envelope",
                     "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
-        }
-      }      
-    },
-    "optional_inputs": {
-      "title": "Optional inputs",
-      "type": "object",
-      "description": "Files that can be provided as optional input or omitted.",
-      "default": "",
-      "fa_icon": "fas fa-terminal",
-      "properties": {
-        "initial_weights": {
-          "type": "string",
-          "fa_icon": "fas fa-folder-open",
-          "help_text": "The initial weights of the model. These files can be used to start the training instead of random initialization. One can provide several files, each of them will be used for a different run.",
-          "description": "File to be used to initialize the model in tuning",
-          "format": "path"
-        }
-      }
-    },
-    "resources_options": {
-      "title": "Resources options",
-      "type": "object",
-      "description": "Specify maximun processes resources",
-      "default": "",
-      "properties": {
-        "max_gpus": {
-          "type": "integer",
-          "default": 1,
-          "minimum": 0,
-          "help_text": "requesting the gpus for the tuning steps.",
-          "description": "set maximum GPU limit"
-        }
-      }
-    },
-    "on_error_options": {
-      "title": "On error options",
-      "type": "object",
-      "description": "What to do and how to handle errors",
-      "default": "",
-      "fa_icon": "fas fa-terminal",
-      "properties": {
-        "err_start": {
-          "type": "string",
-          "default": "finish",
-          "description": "Tells the pipeline how to behave on error",
-          "help_text": "refer to nextflow errorStrategy documentation for more details."
+                }
+            }
         },
-        "max_retries": {
-          "type": "integer",
-          "default": 0,
-          "description": "number of time to retry if err_strat is\u00a0set to retry",
-          "help_text": "this also acts as a multiplier for recources request. If it failed for lack of resources it automaticly asks more the second time. take  a look at test.conf for more details."
-        }
-      }
-    },
-    "skip_options": {
-      "title": "Skip options",
-      "type": "object",
-      "description": "options to skip or change bhaviour of pipeline",
-      "default": "",
-      "fa_icon": "fas fa-terminal",
-      "properties": {
-        "check_model": {
-          "type": "boolean",
-          "default": true,
-          "description": "checks if all input are comatible and the model can be tuned.",
-          "help_text": "flag to tell whether to check or not if the model can be tuned and trained. It does one call of the batch function, (predicting), of the model importing and using everything needed for that. Default run such a check."
+        "optional_inputs": {
+            "title": "Optional inputs",
+            "type": "object",
+            "description": "Files that can be provided as optional input or omitted.",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "initial_weights": {
+                    "type": "string",
+                    "fa_icon": "fas fa-folder-open",
+                    "help_text": "The initial weights of the model. These files can be used to start the training instead of random initialization. One can provide several files, each of them will be used for a different run.",
+                    "description": "File to be used to initialize the model in tuning",
+                    "format": "path"
+                }
+            }
         },
-        "check_model_num_samples": {
-          "type": "string",
-          "description": "optional flag to do a more/less extensive check during check_model.",
-          "help_text": "This will override user given num_sample value for the tune run. This will give the user control on how extensive it wants the check to be. by default is going to be set to 3."
+        "resources_options": {
+            "title": "Resources options",
+            "type": "object",
+            "description": "Specify maximun processes resources",
+            "default": "",
+            "properties": {
+                "max_gpus": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 0,
+                    "help_text": "requesting the gpus for the tuning steps.",
+                    "description": "set maximum GPU limit"
+                }
+            }
         },
-        "shuffle": {
-          "type": "boolean",
-          "default": true,
-          "description": "run the shuffle sanity check",
-          "help_text": "flag to tell wether to shuffle or not the data and run a train on it. Sanity check always run on default. "
+        "on_error_options": {
+            "title": "On error options",
+            "type": "object",
+            "description": "What to do and how to handle errors",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "err_start": {
+                    "type": "string",
+                    "default": "finish",
+                    "description": "Tells the pipeline how to behave on error",
+                    "help_text": "refer to nextflow errorStrategy documentation for more details."
+                },
+                "max_retries": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "number of time to retry if err_strat is\u00a0set to retry",
+                    "help_text": "this also acts as a multiplier for recources request. If it failed for lack of resources it automaticly asks more the second time. take  a look at test.conf for more details."
+                }
+            }
         },
-        "debug_mode": {
-          "type": "boolean",
-          "description": "developer flag",
-          "help_text": "flag used to switch to debug mode for the pipeline. more verbose outputs."
+        "skip_options": {
+            "title": "Skip options",
+            "type": "object",
+            "description": "options to skip or change bhaviour of pipeline",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "check_model": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "checks if all input are comatible and the model can be tuned.",
+                    "help_text": "flag to tell whether to check or not if the model can be tuned and trained. It does one call of the batch function, (predicting), of the model importing and using everything needed for that. Default run such a check."
+                },
+                "check_model_num_samples": {
+                    "type": "string",
+                    "description": "optional flag to do a more/less extensive check during check_model.",
+                    "help_text": "This will override user given num_sample value for the tune run. This will give the user control on how extensive it wants the check to be. by default is going to be set to 3."
+                },
+                "shuffle": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "run the shuffle sanity check",
+                    "help_text": "flag to tell wether to shuffle or not the data and run a train on it. Sanity check always run on default. "
+                },
+                "debug_mode": {
+                    "type": "boolean",
+                    "description": "developer flag",
+                    "help_text": "flag used to switch to debug mode for the pipeline. more verbose outputs."
+                }
+            }
+        },
+        "general_options": {
+            "title": "General options",
+            "type": "object",
+            "description": "generic options",
+            "default": "",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "to validate or not the input params",
+                    "default": true
+                }
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "custom_config_version": {
+                    "type": "string",
+                    "description": "Git commit id for Institutional configs.",
+                    "default": "master",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "description": "Base directory for Institutional configs.",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "hidden": true,
+                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "description": "Institutional config contact information.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "description": "Institutional config URL link.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "properties": {
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "hidden": true
+                },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
+                    "hidden": true
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "hook_url": {
+                    "type": "string",
+                    "description": "Incoming hook URL for messaging service",
+                    "fa_icon": "fas fa-people-group",
+                    "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
+                    "hidden": true
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
+                }
+            }
         }
-      }
     },
-    "general_options": {
-      "title": "General options",
-      "type": "object",
-      "description": "generic options",
-      "default": "",
-      "fa_icon": "fas fa-terminal",
-      "properties": {
-        "validate_params": {
-          "type": "boolean",
-          "description": "to validate or not the input params",
-          "default": true
+    "allOf": [
+        {
+            "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/optional_inputs"
+        },
+        {
+            "$ref": "#/$defs/resources_options"
+        },
+        {
+            "$ref": "#/$defs/on_error_options"
+        },
+        {
+            "$ref": "#/$defs/skip_options"
+        },
+        {
+            "$ref": "#/$defs/general_options"
+        },
+        {
+            "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/generic_options"
         }
-      }
-    },
-    "institutional_config_options": {
-      "title": "Institutional config options",
-      "type": "object",
-      "fa_icon": "fas fa-university",
-      "description": "Parameters used to describe centralised config profiles. These should not be edited.",
-      "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
-      "properties": {
-          "custom_config_version": {
-              "type": "string",
-              "description": "Git commit id for Institutional configs.",
-              "default": "master",
-              "hidden": true,
-              "fa_icon": "fas fa-users-cog"
-          },
-          "custom_config_base": {
-              "type": "string",
-              "description": "Base directory for Institutional configs.",
-              "default": "https://raw.githubusercontent.com/nf-core/configs/master",
-              "hidden": true,
-              "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
-              "fa_icon": "fas fa-users-cog"
-          },
-          "config_profile_name": {
-              "type": "string",
-              "description": "Institutional config name.",
-              "hidden": true,
-              "fa_icon": "fas fa-users-cog"
-          },
-          "config_profile_description": {
-              "type": "string",
-              "description": "Institutional config description.",
-              "hidden": true,
-              "fa_icon": "fas fa-users-cog"
-          },
-          "config_profile_contact": {
-              "type": "string",
-              "description": "Institutional config contact information.",
-              "hidden": true,
-              "fa_icon": "fas fa-users-cog"
-          },
-          "config_profile_url": {
-              "type": "string",
-              "description": "Institutional config URL link.",
-              "hidden": true,
-              "fa_icon": "fas fa-users-cog"
-          }
-      }
-    },
-    "generic_options": {
-      "title": "Generic options",
-      "type": "object",
-      "fa_icon": "fas fa-file-import",
-      "description": "Less common options for the pipeline, typically set in a config file.",
-      "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
-      "properties": {
-          "version": {
-              "type": "boolean",
-              "description": "Display version and exit.",
-              "fa_icon": "fas fa-question-circle",
-              "hidden": true
-          },
-          "publish_dir_mode": {
-              "type": "string",
-              "default": "copy",
-              "description": "Method used to save pipeline results to output directory.",
-              "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
-              "fa_icon": "fas fa-copy",
-              "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
-              "hidden": true
-          },
-          "email_on_fail": {
-              "type": "string",
-              "description": "Email address for completion summary, only when pipeline fails.",
-              "fa_icon": "fas fa-exclamation-triangle",
-              "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
-              "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
-              "hidden": true
-          },
-          "plaintext_email": {
-              "type": "boolean",
-              "description": "Send plain-text email instead of HTML.",
-              "fa_icon": "fas fa-remove-format",
-              "hidden": true
-          },
-          "monochrome_logs": {
-              "type": "boolean",
-              "description": "Do not use coloured log outputs.",
-              "fa_icon": "fas fa-palette",
-              "hidden": true
-          },
-          "hook_url": {
-              "type": "string",
-              "description": "Incoming hook URL for messaging service",
-              "fa_icon": "fas fa-people-group",
-              "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
-              "hidden": true
-          },
-          "validate_params": {
-              "type": "boolean",
-              "description": "Boolean whether to validate parameters against the schema at runtime",
-              "default": true,
-              "fa_icon": "fas fa-check-square",
-              "hidden": true
-          },
-          "pipelines_testdata_base_path": {
-              "type": "string",
-              "fa_icon": "far fa-check-circle",
-              "description": "Base URL or local path to location of pipeline test dataset files",
-              "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
-              "hidden": true
-          }
-      }
-    }
-  },
-  "allOf": [
-    {
-      "$ref": "#/$defs/input_output_options"
-    },
-    {
-      "$ref": "#/$defs/optional_inputs"
-    },
-    {
-      "$ref": "#/$defs/resources_options"
-    },
-    {
-      "$ref": "#/$defs/on_error_options"
-    },
-    {
-      "$ref": "#/$defs/skip_options"
-    },
-    {
-      "$ref": "#/$defs/general_options"
-    },
-    {
-      "$ref": "#/$defs/institutional_config_options"
-    },
-    {
-      "$ref": "#/$defs/generic_options"
-    }
-  ]
+    ]
 }
