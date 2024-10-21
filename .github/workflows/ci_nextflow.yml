@@ -55,6 +55,6 @@ jobs:
         run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-      - name: Run pipeline with stub-run in alphafold2 split mode
+      - name: Run pipeline with stub-run
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_stub,docker --oudir results
+          nextflow run ${GITHUB_WORKSPACE} -profile test_stub,docker --outdir results
