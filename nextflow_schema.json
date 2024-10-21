@@ -142,20 +142,6 @@
                 }
             }
         },
-        "general_options": {
-            "title": "General options",
-            "type": "object",
-            "description": "generic options",
-            "default": "",
-            "fa_icon": "fas fa-terminal",
-            "properties": {
-                "validate_params": {
-                    "type": "boolean",
-                    "description": "to validate or not the input params",
-                    "default": true
-                }
-            }
-        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -285,9 +271,6 @@
         },
         {
             "$ref": "#/$defs/skip_options"
-        },
-        {
-            "$ref": "#/$defs/general_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
