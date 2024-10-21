@@ -7,14 +7,7 @@ process STIMULUS_ANALYSIS_DEFAULT {
     container "docker.io/mathysgrapotte/stimulus-py:latest"
 
     input:
-    tuple val(split_transform_key), \
-        val(combination_key), \
-        path(data), \
-        path(experiment_config), \
-        path(model_config), \
-        path(weights), \
-        path(optimizer), \
-        path(metrics)
+    tuple val(split_transform_key), val(combination_key), path(data), path(experiment_config), path(model_config), path(weights), path(optimizer), path(metrics)
     path(model)
 
     output:

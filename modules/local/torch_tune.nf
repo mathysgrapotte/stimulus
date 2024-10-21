@@ -20,6 +20,7 @@ process TORCH_TUNE {
         path("*-metrics.csv"),
         path(initial_weights),
         emit: tune_specs
+
     // output the debug files if they are present, making this an optional channel
     tuple val("debug_${prefix}"),
         path("ray_results/*/debug/best_model_*.txt"),
