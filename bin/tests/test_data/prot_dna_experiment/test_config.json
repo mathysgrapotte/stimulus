@@ -20,7 +20,7 @@
             "column_name": "hello:input:dna",
             "name": "ReverseComplement",
             "params": {}
-        }  
+        }
     ],
     "split": {
             "name": "RandomSplitter",

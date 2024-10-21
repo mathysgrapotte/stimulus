@@ -1,6 +1,6 @@
 
 process STIMULUS_SPLIT_CSV {
-    
+
     tag "${original_csv} - ${split_transform_key}"
     label 'process_low'
     // TODO: push image to nf-core quay.io

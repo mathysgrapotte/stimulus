@@ -16,10 +16,10 @@ workflow SHUFFLE_CSV {
 
     take:
     csv_json_pairs
-    
+
 
     main:
-    
+
     STIMULUS_SHUFFLE_CSV(csv_json_pairs)
 
 

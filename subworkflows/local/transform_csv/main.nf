@@ -16,7 +16,7 @@ workflow TRANSFORM_CSV {
 
     take:
     csv_json_pairs
-    
+
 
     main:
     // TODO add strategy for handling the launch of stimulus noiser as well as NF-core and other modules

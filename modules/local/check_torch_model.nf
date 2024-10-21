@@ -5,7 +5,7 @@ process CHECK_TORCH_MODEL {
     label 'process_medium'
     // TODO: push image to nf-core quay.io
     container "docker.io/mathysgrapotte/stimulus-py:latest"
-    
+
     input:
     tuple path(original_csv), path(model),  path(experiment_config), path(ray_tune_config), path(initial_weights)
 

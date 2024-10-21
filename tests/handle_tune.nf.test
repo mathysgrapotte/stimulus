@@ -20,7 +20,7 @@ nextflow_workflow {
         }
 
         when {
-            
+
             // make so that nf-test will see a singularity cache dir where is usally set to, again interpretation of projectdir has to be done here and not rely on an external config.
             params {
                 // TODO Check that continues working with $NXF_SINGULARITY_CACHEDIR
@@ -47,7 +47,7 @@ nextflow_workflow {
             // first chech that the model initialization is always identical
             // then check that the seeds used are the same through randomly picked numbers
             assertAll(
-            { assert workflow.success }, 
+            { assert workflow.success },
             { assert snapshot(workflow.out.debug).match() }
             )
         }

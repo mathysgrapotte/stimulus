@@ -34,7 +34,7 @@ workflow DEEPMODELOPTIM {
     main:
 
     ch_versions = Channel.empty()
-    
+
     CHECK_MODEL (
         params.csv,
         params.exp_conf,
@@ -44,14 +44,14 @@ workflow DEEPMODELOPTIM {
     )
     completion_message = CHECK_MODEL.out.completion_message
 
-     HANDLE_DATA( 
+    HANDLE_DATA(
         params.csv,
         params.exp_conf,
         completion_message
     )
     prepared_data = HANDLE_DATA.out.data
     //HANDLE_DATA.out.data.view()
-    
+
     HANDLE_TUNE(
         params.model,
         params.tune_conf,
@@ -60,12 +60,12 @@ workflow DEEPMODELOPTIM {
     )
     //HANDLE_TUNE.out.model.view()
     //HANDLE_TUNE.out.tune_out.view()
-    
+
     // this part works, but the docker container is not updated with matplotlib yet
     HANDLE_ANALYSIS(
         HANDLE_TUNE.out.tune_out,
         HANDLE_TUNE.out.model
-    ) 
+    )
 
     //
     // Collate and save software versions
