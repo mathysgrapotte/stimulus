@@ -39,7 +39,7 @@ jobs:
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
 
       - name: Run pipeline with test data
-        # TODO: Get rid of loca profile when the nf-core like configs are in
+        # TODO: Get rid of local profile when the nf-core like configs are in
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker
 
@@ -57,4 +57,4 @@ jobs:
           sudo mv nextflow /usr/local/bin/
       - name: Run pipeline with stub-run in alphafold2 split mode
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_stub,docker
+          nextflow run ${GITHUB_WORKSPACE} -profile test_stub,docker --oudir results
