@@ -17,7 +17,7 @@ nf_core_version: 3.0.2
 org_path: null
 repository_type: pipeline
 template:
-  author: Mathys Grappote
+  author: Mathys Grapotte
   description: nf-core/deepmodeloptim is an end-to-end nextflow based pipeline for
     statistically testing training procedures of machine learning models
   force: false
