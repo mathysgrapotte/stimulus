@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_SHUFFLE_CSV } from '../modules/local/stimulus_shuffle_csv.nf'
+include { STIMULUS_TRANSFORM_CSV } from '../../../modules/local/stimulus_transform_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,19 +12,22 @@ include { STIMULUS_SHUFFLE_CSV } from '../modules/local/stimulus_shuffle_csv.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow SHUFFLE_CSV {
+workflow TRANSFORM_CSV {
 
     take:
     csv_json_pairs
-    
+
 
     main:
-    
-    STIMULUS_SHUFFLE_CSV(csv_json_pairs)
+    // TODO add strategy for handling the launch of stimulus noiser as well as NF-core and other modules
+    // TODO if the option is parellalization (for the above) then add csv column splitting  noising  merging
+
+    // what follows is temporary, becuase there shuold be much more than this
+    STIMULUS_TRANSFORM_CSV( csv_json_pairs )
 
 
     emit:
-    shuffle_data  = STIMULUS_SHUFFLE_CSV.out.csv_shuffled
+    transformed_data = STIMULUS_TRANSFORM_CSV.out.transformed_data
 
 }
 

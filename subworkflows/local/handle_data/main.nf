@@ -4,11 +4,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { INTERPRET_JSON } from '../modules/local/interpret_json.nf'
-include { SPLIT_CSV      } from '../subworkflows/split_csv.nf'
-include { TRANSFORM_CSV  } from '../subworkflows/transform_csv.nf'
-include { SHUFFLE_CSV    } from '../subworkflows/shuffle_csv.nf'
-
+include { INTERPRET_JSON } from '../../../modules/local/interpret_json.nf'
+include { SPLIT_CSV      } from '../../../subworkflows/local/split_csv'
+include { TRANSFORM_CSV  } from '../../../subworkflows/local/transform_csv'
+include { SHUFFLE_CSV    } from '../../../subworkflows/local/shuffle_csv'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,8 +24,8 @@ workflow HANDLE_DATA {
 
 
     main:
-    
-    // print the message from the check_model subworkflow 
+
+    // print the message from the check_model subworkflow
     message_from_check.view()
 
     // put the files in channels
@@ -54,7 +53,7 @@ workflow HANDLE_DATA {
     // run split with json that only contains experiment name and split information. It runs only the necessary times, all unique ways to split + default split (random split) or column split (already present in data).
     SPLIT_CSV( csv, split_json )
 
-    // assign to each splitted data the associated ransform information based on the split_transform_key generated in the interpret step. 
+    // assign to each splitted data the associated ransform information based on the split_transform_key generated in the interpret step.
     transform_split_tuple = transform_json.combine( SPLIT_CSV.out.split_data, by: 0 )
 
     // launch the actual noise subworkflow
@@ -65,7 +64,7 @@ workflow HANDLE_DATA {
     tmp = experiment_json.combine( TRANSFORM_CSV.out.transformed_data, by: 0 ).map{
         it -> ["${it[6].name} - ${it[0]}", it[2], it[1], it[4]]
     }
-    
+
     // Launch the shuffle, (always happening on default) and disjointed from noise. Data are taken from the no-split option of split module. Which means that is either randomly splitted with default values or using the column present in the data.
     // It can be still skipped but by default is run. shuffle is set to true in nextflow.config
     data = tmp
@@ -78,11 +77,11 @@ workflow HANDLE_DATA {
         // merge output of shuffle to the output of noise
         data = tmp.concat( SHUFFLE_CSV.out.shuffle_data )
     }
-    
+
 
     emit:
-    data 
-    
+    data
+
 }
 
 

@@ -3,17 +3,11 @@ process STIMULUS_ANALYSIS_DEFAULT {
 
     tag "${model} - ${split_transform_key}"
     label 'process_medium'
-    container "mathysgrapotte/stimulus-py:latest"
+    // TODO: push image to nf-core quay.io
+    container "docker.io/mathysgrapotte/stimulus-py:latest"
 
     input:
-    tuple val(split_transform_key), \
-          val(combination_key), \
-          path(data), \
-          path(experiment_config), \
-          path(model_config), \
-          path(weights), \
-          path(optimizer), \
-          path(metrics)
+    tuple val(split_transform_key), val(combination_key), path(data), path(experiment_config), path(model_config), path(weights), path(optimizer), path(metrics)
     path(model)
 
     output:

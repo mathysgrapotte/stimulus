@@ -4,8 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { TORCH_TUNE } from '../modules/local/torch_tune.nf'
-
+include { TORCH_TUNE } from '../../../modules/local/torch_tune.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,13 +21,13 @@ workflow HANDLE_TUNE {
     input_initial_weights
 
     main:
-    // put the files in channels, 
+    // put the files in channels,
     model       = Channel.fromPath( input_model  ).first()  // TODO implement a check and complain if more that one file is pased as model
     tune_config = Channel.fromPath( input_tune_config )
 
     // assign a model and a TUNE_config to each data
     model_conf_pair = model.combine(tune_config)
-    model_conf_data = model_conf_pair.combine(data).map{ 
+    model_conf_data = model_conf_pair.combine(data).map{
         it -> [it[2], it[3], it[1], it[0], it[5], it[4]]
     }  // just reordering according to the inputs of the launch_tuning.py
 
@@ -53,9 +52,8 @@ workflow HANDLE_TUNE {
     tune_out  = TORCH_TUNE.out.tune_specs
     model
     debug
-    
-}
 
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

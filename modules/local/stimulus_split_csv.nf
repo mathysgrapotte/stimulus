@@ -1,9 +1,10 @@
 
 process STIMULUS_SPLIT_CSV {
-    
+
     tag "${original_csv} - ${split_transform_key}"
     label 'process_low'
-    container "mathysgrapotte/stimulus-py:latest"
+    // TODO: push image to nf-core quay.io
+    container "docker.io/mathysgrapotte/stimulus-py:latest"
 
     input:
     tuple val(split_transform_key), path(split_json), path(original_csv)

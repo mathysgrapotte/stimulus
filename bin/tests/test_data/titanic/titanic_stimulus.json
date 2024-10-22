@@ -1,6 +1,6 @@
 {
     "experiment": "TitanicExperiment",
-    "interpret_params_mode": "column_wise", 
+    "interpret_params_mode": "column_wise",
     "split": [
         {
             "name": "RandomSplitter",

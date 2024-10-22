@@ -28,7 +28,7 @@ class ModelTitanic(nn.Module):
             x = self.relu(layer(x))
         x = self.softmax(self.output_layer(x))
         return x
-    
+
     def compute_loss(self, output: torch.Tensor, survived: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
         """
         Compute the loss.
@@ -37,7 +37,7 @@ class ModelTitanic(nn.Module):
         `loss_fn` is the loss function to be used.
         """
         return loss_fn(output, survived)
-    
+
     def batch(self, x: dict, y: dict, loss_fn: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
         """
         Perform one batch step.

@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { STIMULUS_TRANSFORM_CSV } from '../modules/local/stimulus_transform_csv.nf'
+include { STIMULUS_SPLIT_CSV } from '../../../modules/local/stimulus_split_csv.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,22 +12,20 @@ include { STIMULUS_TRANSFORM_CSV } from '../modules/local/stimulus_transform_csv
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow TRANSFORM_CSV {
+workflow SPLIT_CSV {
 
     take:
-    csv_json_pairs
-    
+    data_csv
+    json_tuple
 
     main:
-    // TODO add strategy for handling the launch of stimulus noiser as well as NF-core and other modules
-    // TODO if the option is parellalization (for the above) then add csv column splitting  noising  merging
 
-    // what follows is temporary, becuase there shuold be much more than this
-    STIMULUS_TRANSFORM_CSV( csv_json_pairs )
-
+    // if there is more than one csv then each of them will be associated to all Json. This means all the modifications will be made on all the input csv.
+    json_csv_pairs = json_tuple.combine(data_csv)
+    STIMULUS_SPLIT_CSV( json_csv_pairs )
 
     emit:
-    transformed_data = STIMULUS_TRANSFORM_CSV.out.transformed_data
+    split_data  = STIMULUS_SPLIT_CSV.out.csv_with_split
 
 }
 

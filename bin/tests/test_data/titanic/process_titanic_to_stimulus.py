@@ -5,7 +5,7 @@ def arg_parser():
     parser = argparse.ArgumentParser(description="Process Titanic dataset to stimulus format")
     parser.add_argument("--input", type=str, help="Path to input csv file, should be identical to Kaggle download of the Titanic dataset, see : https://www.kaggle.com/c/titanic/data", required=True)
     parser.add_argument("--output", type=str, help="Path to output csv file", default="titanic_stimulus.csv", required=False)
-    return parser.parse_args()  
+    return parser.parse_args()
 
 def main():
     args = arg_parser()

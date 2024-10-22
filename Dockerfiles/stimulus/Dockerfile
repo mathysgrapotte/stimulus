@@ -18,4 +18,4 @@ RUN pip install \
     ray[train,tune,default]==2.23.0 \
     matplotlib==3.9.0 \
     pandas==2.2.0 \
-    safetensors==0.4.5 
+    safetensors==0.4.5

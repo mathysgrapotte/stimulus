@@ -1,14 +1,17 @@
-#stuff not needed for commits
-
+.nextflow*
+work/
+data/
+results/
+.DS_Store
+testing/
+testing*
+*.pyc
+null/
 bin/**/__pycache__/
 /.ipynb_checkpoints
 /notebook/.ipynb_checkpoints
 .ipynb_checkpoints
-.nextflow*
-/work/
-.DS_Store
 /singularity_cache
-/results/
 .coverage
 .vscode/
 bin/.vscode/

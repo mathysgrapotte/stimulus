@@ -3,8 +3,9 @@ process INTERPRET_JSON {
 
     tag "$user_json"
     label 'process_low'
-    container "mathysgrapotte/stimulus-py:latest"
-    
+    // TODO: push image to nf-core quay.io
+    container "docker.io/mathysgrapotte/stimulus-py:latest"
+
     input:
     path user_json
     val message_from_check_model // only here to ensure that this module waits for check_model module to actually run
@@ -16,7 +17,7 @@ process INTERPRET_JSON {
 
     script:
     """
-    stimulus-interpret-json -j ${user_json} 
+    stimulus-interpret-json -j ${user_json}
     """
 
     stub:

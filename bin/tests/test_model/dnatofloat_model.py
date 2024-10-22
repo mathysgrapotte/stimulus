@@ -1,14 +1,14 @@
-import torch 
+import torch
 import torch.nn as nn
 from typing import Callable, Optional, Tuple
-    
+
 class ModelSimple(torch.nn.Module):
     """
     A simple model example.
-    It takes as input a 1D tensor of any size, 
-    apply some convolutional layer and 
+    It takes as input a 1D tensor of any size,
+    apply some convolutional layer and
     outputs a single value using a maxpooling layer and a softmax function.
-    
+
     All functions `forward`, `compute_loss` and `batch` need to be implemented for any new model.
     """
     def __init__(self, kernel_size: int = 3, pool_size: int = 2):
@@ -18,20 +18,20 @@ class ModelSimple(torch.nn.Module):
         self.softmax = nn.Softmax(dim=1)
         # had to change to 6 because dna sequence is shoprter
         self.linear = nn.Linear(6, 1)
-    
+
     def forward(self, hello: torch.Tensor) -> dict:
         """
         Forward pass of the model.
         It should return the output as a dictionary, with the same keys as `y`.
         """
-        x = hello.permute(0, 2, 1).to(torch.float32)  # permute the two last dimensions of hello 
+        x = hello.permute(0, 2, 1).to(torch.float32)  # permute the two last dimensions of hello
         x = self.conv1(x)
         x = self.pool(x)
         x = self.softmax(x)
         x = self.linear(x)
         x = x.squeeze()
         return x
-    
+
     def compute_loss(self, output: torch.Tensor, hola: torch.Tensor, loss_fn: Callable) -> torch.Tensor:
         """
         Compute the loss.
@@ -40,14 +40,14 @@ class ModelSimple(torch.nn.Module):
         `loss_fn` is the loss function to be used.
         """
         return loss_fn(output, hola.to(torch.float32))
-    
+
     def batch(self, x: dict, y: dict, loss_fn1: Callable, loss_fn2: Callable, optimizer: Optional[Callable] = None) -> Tuple[torch.Tensor, dict]:
         """
         Perform one batch step.
         `x` is a dictionary with the input tensors.
         `y` is a dictionary with the target tensors.
         `loss_fn1` and `loss_fn2` are the loss function to be used.
-        
+
         If `optimizer` is passed, it will perform the optimization step -> training step
         Otherwise, only return the forward pass output and loss -> evaluation step
 
